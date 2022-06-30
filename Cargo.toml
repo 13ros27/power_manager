@@ -1,0 +1,11 @@
+[package]
+name = "power_manager"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "0.4"
+serial-core = "0.4"
+serial-unix = "0.4"
