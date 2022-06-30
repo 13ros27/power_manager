@@ -32,9 +32,17 @@ fn main() {
         current_monitor::Current::new(1.2),
         current_monitor::Current::new(1.0),
         current_monitor::Current::new(9.3),
+        current_monitor::Current::new(1.7),
+        current_monitor::Current::new(7.4),
+    ]));
+    std::thread::sleep(std::time::Duration::from_secs(65));
+    datalogger.tick(&current_monitor::CurrentArray::new([
         current_monitor::Current::new(1.5),
-        current_monitor::Current::new(7.6),
-    ]))
+        current_monitor::Current::new(0.3),
+        current_monitor::Current::new(12.9),
+        current_monitor::Current::new(8.7),
+        current_monitor::Current::new(0.5),
+    ]));
     // let mut cm = CurrentMonitor::default(CURRENT_TYPES).unwrap();
     // datalogger.tick(&cm.read_current().unwrap());
     // let current = cm.read_current().unwrap();
