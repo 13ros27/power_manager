@@ -46,7 +46,7 @@ impl<'a, const N: usize> DataLogger<'a, N> {
         let mut file = File::create(&path).expect("Error encountered while creating file!");
         let mut first_line = "Time".to_string();
         for (name, current_type) in names.iter().zip(current_types) {
-            first_line.push_str(&format!(",{name} ({current_type})"))
+            first_line.push_str(&format!(",{name}({current_type})"))
         }
         writeln!(file, "{}", first_line).unwrap();
         path
@@ -91,7 +91,7 @@ impl<'a, const N: usize> DataLogger<'a, N> {
             .unwrap();
         writeln!(
             file,
-            "{},{}",
+            "{}{}",
             time.format("T%H%M%SZ"),
             current_array.generate_line()
         )
