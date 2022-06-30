@@ -73,8 +73,8 @@ impl<'a, const N: usize> DataLogger<'a, N> {
     }
 
     pub fn tick(&mut self, current_array: &CurrentArray<N>) {
+        let unix = Time::new_unix_time();
         if let Some(t) = self.last_logged {
-            let unix = Time::new_unix_time();
             if self.start_time < unix && self.day != unix.get_day() {
                 self.filepath =
                     DataLogger::create_new_file(unix, self.folder, self.current_types, self.names);
@@ -96,6 +96,7 @@ impl<'a, const N: usize> DataLogger<'a, N> {
             current_array.generate_line()
         )
         .unwrap();
+        self.last_logged = Some(*unix);
     }
 }
 
