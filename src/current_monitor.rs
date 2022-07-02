@@ -29,18 +29,18 @@ impl Display for CurrentType {
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Current {
-    watts: f64, // Non-negative
+    amps: f64, // Non-negative
 }
 
 impl Current {
-    pub fn new(watts: f64) -> Self {
-        Self { watts }
+    pub fn new(amps: f64) -> Self {
+        Self { amps }
     }
 }
 
 impl Default for Current {
     fn default() -> Self {
-        Self { watts: 0. }
+        Self { amps: 0. }
     }
 }
 
@@ -61,29 +61,29 @@ impl<const N: usize> CurrentArray<N> {
 
     #[allow(dead_code)]
     /// Gives a positive value if the array is producing current, and negative if it is draining current
-    pub fn combine(&self, current_types: &[CurrentType; N]) -> isize {
+    pub fn combine(&self, current_types: &[CurrentType; N]) -> f64 {
         self.iter()
             .zip(current_types)
             .map(|(p, c_t)| match c_t {
-                CurrentType::Source => p.watts as isize,
-                CurrentType::Drain => -(p.watts as isize),
-                CurrentType::Unknown => -(p.watts as isize),
+                CurrentType::Source => p.amps,
+                CurrentType::Drain => -p.amps,
+                CurrentType::Unknown => -p.amps,
             })
             .sum()
     }
 
-    pub fn combine_ignoring(&self, current_types: &[CurrentType; N], to_ignore: &[usize]) -> isize {
+    pub fn combine_ignoring(&self, current_types: &[CurrentType; N], to_ignore: &[usize]) -> f64 {
         self.iter()
             .zip(current_types)
             .enumerate()
             .map(|(i, (p, c_t))| {
                 if to_ignore.contains(&i) {
-                    0
+                    0.
                 } else {
                     match c_t {
-                        CurrentType::Source => p.watts as isize,
-                        CurrentType::Drain => -(p.watts as isize),
-                        CurrentType::Unknown => -(p.watts as isize),
+                        CurrentType::Source => p.amps,
+                        CurrentType::Drain => -p.amps,
+                        CurrentType::Unknown => -p.amps,
                     }
                 }
             })
@@ -93,7 +93,7 @@ impl<const N: usize> CurrentArray<N> {
     pub fn generate_line(&self) -> String {
         let mut line = String::new();
         self.iter()
-            .for_each(|p| line.push_str(&format!(",{}", p.watts)));
+            .for_each(|p| line.push_str(&format!(",{}", p.amps)));
         line
     }
 }
@@ -125,7 +125,7 @@ impl<const N: usize> CurrentMonitor<N> {
             line[1..N + 1]
                 .iter()
                 .enumerate()
-                .for_each(|(i, p)| currents[i] = Current::new(p.parse::<f64>().unwrap()));
+                .for_each(|(i, p)| currents[i] = Current::new(p.parse::<f64>().unwrap()/240.));
             Ok(CurrentArray::new(currents))
         } else {
             panic!("What happened here: {:?} -- {:?}", lines, line);
