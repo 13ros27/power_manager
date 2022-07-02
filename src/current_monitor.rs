@@ -1,4 +1,4 @@
-use serial_core::{BaudRate, SerialDevice, SerialPortSettings};
+use serial_core::{BaudRate, SerialPort};
 use serial_unix::TTYPort;
 use std::fmt::{Display, Formatter};
 use std::io;
@@ -105,18 +105,17 @@ pub struct CurrentMonitor<const N: usize> {
 impl<const N: usize> CurrentMonitor<N> {
     pub fn default() -> Result<CurrentMonitor<N>, serial_core::Error> {
         let mut port = TTYPort::open(Path::new("/dev/ttyAMA0"))?;
-        let mut settings = port.read_settings()?;
-        settings.set_baud_rate(BaudRate::Baud38400)?;
-        port.write_settings(&settings)?;
+        port.reconfigure(&|settings| {
+            settings.set_baud_rate(BaudRate::Baud38400)?;
+            Ok(())
+        })?;
         port.set_timeout(std::time::Duration::from_secs(10))?;
         Ok(CurrentMonitor { port })
     }
 
     pub fn read_current(&mut self) -> Result<CurrentArray<N>, io::Error> {
         let mut lines = String::new();
-        println!("Hello");
         self.port.read_to_string(&mut lines)?;
-        println!("HI");
         let line: Vec<&str> = lines
             .split('\n')
             .last()
