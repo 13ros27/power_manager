@@ -104,10 +104,10 @@ pub struct CurrentMonitor<const N: usize> {
 
 impl<const N: usize> CurrentMonitor<N> {
     pub fn default() -> Result<CurrentMonitor<N>, serial_core::Error> {
-        let mut port = TTYPort::open(Path::new("/dev/ttyAMA0"))?;
-        let mut settings = port.read_settings()?;
-        settings.set_baud_rate(BaudRate::Baud38400)?;
-        port.write_settings(&settings)?;
+        let mut port = TTYPort::open(Path::new("/dev/ttyAMA0")).unwrap();
+        let mut settings = port.read_settings().unwrap();
+        settings.set_baud_rate(BaudRate::Baud38400).unwrap();
+        port.write_settings(&settings).unwrap();
         Ok(CurrentMonitor { port })
     }
 
