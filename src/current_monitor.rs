@@ -114,7 +114,9 @@ impl<const N: usize> CurrentMonitor<N> {
 
     pub fn read_current(&mut self) -> Result<CurrentArray<N>, io::Error> {
         let mut lines = String::new();
+        println!("Hello");
         self.port.read_to_string(&mut lines)?;
+        println!("HI");
         let line: Vec<&str> = lines
             .split('\n')
             .last()
