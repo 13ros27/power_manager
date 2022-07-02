@@ -21,35 +21,10 @@ fn main() {
         CURRENT_TYPES,
         NAMES,
     );
-    // datalogger.tick(&current_monitor::CurrentArray::new([
-    //     current_monitor::Current::new(1.2),
-    //     current_monitor::Current::new(1.0),
-    //     current_monitor::Current::new(9.3),
-    //     current_monitor::Current::new(1.5),
-    //     current_monitor::Current::new(7.6),
-    // ]));
-    // datalogger.tick(&current_monitor::CurrentArray::new([
-    //     current_monitor::Current::new(1.2),
-    //     current_monitor::Current::new(1.0),
-    //     current_monitor::Current::new(9.3),
-    //     current_monitor::Current::new(1.7),
-    //     current_monitor::Current::new(7.4),
-    // ]));
-    // std::thread::sleep(std::time::Duration::from_secs(65));
-    // datalogger.tick(&current_monitor::CurrentArray::new([
-    //     current_monitor::Current::new(1.5),
-    //     current_monitor::Current::new(0.3),
-    //     current_monitor::Current::new(12.9),
-    //     current_monitor::Current::new(8.7),
-    //     current_monitor::Current::new(0.5),
-    // ]));
     let mut cm = CurrentMonitor::default().unwrap();
-    datalogger.tick(&cm.read_current().unwrap());
-    let current = cm.read_current().unwrap();
-    println!(
-        "Current: {:?}, Combined: {}",
-        current,
-        current.combine_ignoring(CURRENT_TYPES, &[3, 4])
-    );
-    datalogger.tick(&cm.read_current().unwrap());
+    loop {
+        let current = cm.read_current().unwrap();
+        datalogger.tick(&current);
+        println!("Current: {:?}, Combined: {}", current, current.combine_ignoring(CURRENT_TYPES, &[3, 4]));
+    }
 }
