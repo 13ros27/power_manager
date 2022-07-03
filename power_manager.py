@@ -36,7 +36,9 @@ class CurrentMonitor:
 
     def read(self) -> [Current]:
         """Read one line in from the serial port and reduce it to currents."""
-        line = ser.readline().split(' ')
+        line = ser.readline()
+        line = line[:-2]
+        line = line.split(' ')
         if len(line) > self.num + 1:
             return [Current(float(p) / 240) for p in line[1:self.num + 1]]
         else:
@@ -59,18 +61,14 @@ class DataLogger:
 
     def _new_file(self, names: [str]):
         day = self.start_time // 86400
-        print(day)
         root_filename = f'D{int(day)}'
         i = 1
         while True:
-            print(i)
             if i == 1:
                 test_filename = f'{root_filename}.csv'
             else:
                 test_filename = f'{root_filename}_{i}.csv'
-            print(test_filename)
             path = self.folder / test_filename
-            print(path)
             if not path.is_file():
                 print("Hi")
                 self.fp = path
@@ -104,11 +102,8 @@ CURRENT_TYPES = [
     CurrentType.Unknown,
 ]
 data_logger = DataLogger(15, Path('/home/pi/data'), NAMES, CURRENT_TYPES)
-print(data_logger)
 current_monitor = CurrentMonitor(len(NAMES))
-print(current_monitor)
 
 while True:
     currents = current_monitor.read()
-    print(currents)
     data_logger.tick(currents)
