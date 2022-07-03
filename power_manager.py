@@ -36,7 +36,9 @@ class CurrentMonitor:
 
     def read(self) -> [Current]:
         """Read one line in from the serial port and reduce it to currents."""
+        print("Reading")
         line = ser.readline().split(' ')
+        print(line)
         if len(line) > self.num + 1:
             return [Current(float(p) / 240) for p in line[1:self.num + 1]]
         else:
