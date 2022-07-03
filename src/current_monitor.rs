@@ -122,7 +122,7 @@ impl<const N: usize> CurrentMonitor<N> {
             .expect("Error")
             .split(' ')
             .collect();
-        if line.len() > 15 {
+        if line.len() > 8 {
             let mut currents = [Current::default(); N];
             line[1..N + 1]
                 .iter()
