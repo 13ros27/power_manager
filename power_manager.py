@@ -39,7 +39,6 @@ class CurrentMonitor:
         line = ser.readline()
         line = line[:-2]
         line = ''.join(map(chr, line))
-        print(line)
         line = line.split(' ')
         if len(line) > self.num + 1:
             return [Current(float(p) / 240) for p in line[1:self.num + 1]]
@@ -60,6 +59,7 @@ class DataLogger:
         self.current_types = types
         self.start_time = time.time()
         self._new_file(names)
+        self.last_tick = None
 
     def _new_file(self, names: [str]):
         day = self.start_time // 86400
@@ -107,4 +107,5 @@ current_monitor = CurrentMonitor(len(NAMES))
 
 while True:
     currents = current_monitor.read()
+    print(currents)
     data_logger.tick(currents)
