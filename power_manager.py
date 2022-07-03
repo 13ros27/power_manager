@@ -62,12 +62,16 @@ class DataLogger:
         root_filename = f'D{day}'
         i = 1
         while True:
+            print(i)
             if i == 1:
                 test_filename = f'{root_filename}.csv'
             else:
                 test_filename = f'{root_filename}_{i}.csv'
+            print(test_filename)
             path = self.folder / test_filename
+            print(path)
             if not path.is_file():
+                print("Hi")
                 self.fp = path
                 with open(path, 'x') as fp:
                     mes = f'Time' + ''.join([f',{n}({t})' for (n, t) in
