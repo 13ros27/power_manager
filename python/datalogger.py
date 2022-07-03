@@ -39,7 +39,7 @@ class DataLogger:
                     mes = 'Time'
                     mes += ''.join([f',{n}({t.name})' for (n, t) in
                                     zip(self.names, self.current_types)])
-                    fp.write(mes + '\n')
+                    fp.write(mes)
                 break
             i += 1
 
@@ -56,4 +56,9 @@ class DataLogger:
         with open(self.fp, 'a') as fp:
             mes = str(datetime.now().replace(microsecond=0).isoformat())
             mes += ''.join([f',{c.amps}' for c in currents])
-            fp.write(mes+'\n')
+            fp.write(f'\n{mes}')
+
+    def add_metadata(self, metadata: str):
+        """Add a bit of metadata to the datalog."""
+        with open(self.fp, 'a') as fp:
+            fp.write(f',{metadata}')

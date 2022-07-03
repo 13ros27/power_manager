@@ -28,9 +28,10 @@ class TelegramBot:
         self.updater = Updater(self.info.token)
         self.dispatcher = self.updater.dispatcher
         self._add_command('start', self._start)
-        self._add_command('status', self._status2)
+        self._add_command('status', self._status)
         self._add_command('latest_file', self._latest_file)
         self._add_command('get_live', self._get_live)
+        self._add_command('log', self._log)
         self.updater.start_polling()
         self.current = None
         self.live = []
@@ -64,20 +65,6 @@ class TelegramBot:
             self.info.add_chat(update.effective_chat.id)
             update.message.reply_text('Password correct')
 
-    @password
-    def _status(self, update, context):
-        if self.current is None:
-            message = 'N/A'
-        else:
-            message = []
-            for (name, ct, current) in zip(self.config.names,
-                                           self.config.current_types,
-                                           self.current):
-                message.append(
-                    f'{name} ({ct.name}): {round(current.amps, 1)}A')
-            message = '\n'.join(message)
-        update.message.reply_text(message)
-
     def _formatted_current(self):
         if self.current is None:
             message = 'N/A'
@@ -91,8 +78,8 @@ class TelegramBot:
         return message
 
     @password
-    def _status2(self, update, context):
-        update.message.reply_html(f'<pre>{self._formatted_current()}</pre>')
+    def _status(self, update, context):
+        update.message.reply_text(f'{self._formatted_current()}')
 
     @password
     def _latest_file(self, update, context):
@@ -108,3 +95,13 @@ class TelegramBot:
         mes = update.message.reply_text(self._formatted_current())
         self.live.append((update.effective_chat.id, mes.message_id,
                           live_until))
+
+    @password
+    def _log(self, update, context):
+        sp = update.message.text.split(' ')
+        if len(sp) >= 2:
+            self.data_logger.add_metadata(sp[1])
+            update.message.reply_text(f'Added \'{sp[1]}\' to the log')
+        else:
+            update.message.reply_text('Incorrectly formatted command, please \
+                                       specify something to log')
