@@ -45,13 +45,16 @@ class TelegramBot:
     def _update_lives(self):
         formatted = self._formatted_current()
         if formatted != self.last_message:
-            for (chat_id, mes_id, live_until) in self.live:            
+            to_remove = []
+            for (i, (chat_id, mes_id, live_until)) in self.live.enumerate():            
                 self.updater.bot.edit_message_text(self._formatted_current(),
                                                    chat_id, mes_id)
                 if time.time() > live_until:
                     self.updater.bot.send_message(chat_id,
                                                   "Live session ended")
-                    del self.live[(chat_id, mes_id, live_until)]
+                    to_remove.append(i)
+            for index in to_remove:
+                del self.live[index]
 
     def _add_command(self, name, func):
         self.dispatcher.add_handler(CommandHandler(name, func))
