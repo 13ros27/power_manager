@@ -1,5 +1,6 @@
 """Handles datalogging."""
-from current import Current, CurrentType
+from config import Config
+from current import Current
 from datetime import datetime
 from os import mkdir
 from pathlib import Path
@@ -9,15 +10,15 @@ import time
 class DataLogger:
     """Logs the data."""
 
-    def __init__(self, freq: int, folder: Path, names: [str],
-                 types: [CurrentType]):
+    def __init__(self, config: Config, freq: int, folder: Path):
         """Create the file to log in and fills in the titles."""
+        folder = config.path / folder
         if not folder.is_dir():
             mkdir(folder)
         self.freq = freq
         self.folder = folder
-        self.names = names
-        self.current_types = types
+        self.names = config.names
+        self.current_types = config.current_types
         self.start_time = time.time()
         self._new_file()
         self.last_tick = None

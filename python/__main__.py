@@ -1,21 +1,25 @@
 """Datalogs the current readings."""
+from config import Config
 from current import CurrentMonitor, CurrentType
 from datalogger import DataLogger
 from pathlib import Path
+from tele_bot import TelegramBot
 
 
-NAMES = ['Solar', 'House', 'HeatPump', 'Outside', 'Grid']
+NAMES = ['Solar', 'House', 'Car', 'HeatPump', 'Grid']
 CURRENT_TYPES = [
     CurrentType.Source,
     CurrentType.Drain,
-    CurrentType.Drain,
     CurrentType.Unknown,
+    CurrentType.Drain,
     CurrentType.Unknown,
 ]
 
+CONFIG = Config("/home/pi/power_manager", NAMES, CURRENT_TYPES)
+
 if __name__ == '__main__':
-    data_logger = DataLogger(15, Path('/home/pi/power_manager/data'), NAMES,
-                             CURRENT_TYPES)
+    tele_bot = TelegramBot(CONFIG)
+    data_logger = DataLogger(CONFIG, 15, Path('data'))
     current_monitor = CurrentMonitor(len(NAMES))
 
     while True:
