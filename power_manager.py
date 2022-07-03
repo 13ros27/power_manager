@@ -82,7 +82,7 @@ class DataLogger:
             if not path.is_file():
                 self.fp = path
                 with open(path, 'x') as fp:
-                    mes = f'Time' + ''.join([f',{n}({t})' for (n, t) in
+                    mes = f'Time' + ''.join([f',{n}({t.name})' for (n, t) in
                                              zip(names, self.current_types)])
                     fp.write(mes + '\n')
                 break
