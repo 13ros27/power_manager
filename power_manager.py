@@ -28,6 +28,9 @@ class Current:
         """Print this in a human readable way."""
         f'{self.amps}A'
 
+    def __repr__(self):
+        self.__str__()
+
 
 class CurrentMonitor:
     """Monitors the current readings from the Lechacal HAT."""
