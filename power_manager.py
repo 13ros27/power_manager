@@ -24,6 +24,10 @@ class Current:
         """Links amps to the wrapper type."""
         self.amps = amps
 
+    def __str__(self):
+        """Print this in a human readable way."""
+        f'{self.amps}A'
+
 
 class CurrentMonitor:
     """Monitors the current readings from the Lechacal HAT."""
