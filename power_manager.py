@@ -36,9 +36,7 @@ class CurrentMonitor:
 
     def read(self) -> [Current]:
         """Read one line in from the serial port and reduce it to currents."""
-        print("Reading")
         line = ser.readline().split(' ')
-        print(line)
         if len(line) > self.num + 1:
             return [Current(float(p) / 240) for p in line[1:self.num + 1]]
         else:
@@ -98,8 +96,11 @@ CURRENT_TYPES = [
     CurrentType.Unknown,
     CurrentType.Unknown,
 ]
+print("HI")
 data_logger = DataLogger(15, Path('/home/pi/data'), NAMES, CURRENT_TYPES)
+print(data_logger)
 current_monitor = CurrentMonitor(len(NAMES))
+print(current_monitor)
 
 while True:
     currents = current_monitor.read()
