@@ -46,9 +46,10 @@ class TelegramBot:
         if self.current is None:
             message = 'N/A'
         else:
-            message = ''
+            message = []
             for (name, current_type, current) in zip(self.config.names,
                                                      self.config.current_types,
                                                      self.current):
-                message += f'{name} ({current_type.name}): {current}'
+                message.append(f'{name} ({current_type.name}): {current}')
+            message = '\n'.join(message)
         update.message.reply_text(message)
