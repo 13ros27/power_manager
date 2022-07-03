@@ -46,3 +46,8 @@ class CurrentMonitor:
             return [Current(float(p) / 240) for p in line[1:self.num + 1]]
         else:
             raise TypeError(f'Did not expect: {line}')
+
+
+def current_combine(currents: [Current], current_types: [CurrentType]) -> int:
+    """Return the number of amps the currents give, Unknown is ignored."""
+    return sum([c * ct.val for (c, ct) in zip(currents, current_types)])
