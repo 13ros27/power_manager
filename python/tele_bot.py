@@ -20,8 +20,6 @@ class TelegramBot:
         """Set up the necessary functions and operations."""
         self.info = NonVolatileInformation(config.path /
                                            Path('telegram_info.json'))
-        self.pause_info = {chat_id: {'enabled': None, 'silent': None}
-                           for chat_id in self.info}
         self.updater = Updater(self.info.token)
         self.dispatcher = self.updater.dispatcher
         self._add_command('start', self._start)
@@ -34,8 +32,6 @@ class TelegramBot:
     def _start(self, update, context):
         if update.message.text == '/start lego':
             self.info.add_chat(update.effective_chat.id)
-            self.pause_info[str(update.effective_chat.id)] = \
-                {'enabled': None, 'silent': None}
             update.message.reply_text('Password correct')
 
     @password
