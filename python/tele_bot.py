@@ -34,19 +34,24 @@ class TelegramBot:
         self.updater.start_polling()
         self.current = None
         self.live = []
+        self.last_message = None
 
     def update_current(self, current: [Current]):
         """Update its known current."""
+        self.last_message = self._formatted_current()
         self.current = current
         self._update_lives()
 
     def _update_lives(self):
-        for (chat_id, mes_id, live_until) in self.live:
-            self.updater.bot.edit_message_text(self._formatted_current(),
-                                               chat_id, mes_id)
-            if time.time() > live_until:
-                self.updater.bot.send_message(chat_id, "Live session ended")
-                del self.live[(chat_id, mes_id, live_until)]
+        formatted = self._formatted_current()
+        if formatted != self.last_message:
+            for (chat_id, mes_id, live_until) in self.live:            
+                self.updater.bot.edit_message_text(self._formatted_current(),
+                                                   chat_id, mes_id)
+                if time.time() > live_until:
+                    self.updater.bot.send_message(chat_id,
+                                                  "Live session ended")
+                    del self.live[(chat_id, mes_id, live_until)]
 
     def _add_command(self, name, func):
         self.dispatcher.add_handler(CommandHandler(name, func))
@@ -74,18 +79,16 @@ class TelegramBot:
         if self.current is None:
             message = 'N/A'
         else:
-            message = '<pre>'
             for (name, ct, current) in zip(self.config.names,
                                            self.config.current_types,
                                            self.current):
                 message += f'{name} ({ct.name}):'.ljust(18)
                 message += f'{round(current.amps, 1)}A\n'
-            message += '</pre>'
         return message
 
     @password
     def _status2(self, update, context):
-        update.message.reply_html(self._formatted_current())
+        update.message.reply_html(f'<pre>{self._formatted_current()}</pre>')
 
     @password
     def _latest_file(self, update, context):
