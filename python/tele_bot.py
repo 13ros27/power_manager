@@ -69,12 +69,12 @@ class TelegramBot:
         if self.current is None:
             message = 'N/A'
         else:
-            message = ''
+            message = []
             for (name, ct, current) in zip(self.config.names,
                                            self.config.current_types,
                                            self.current):
-                message += f'{name} ({ct.name}):'.ljust(18)
-                message += f'{round(current.amps, 1)}A\n'
+                message.append(f'{round(current.amps,1)}A: {name} ({ct.name})')
+            message = '\n'.join(message)
         return message
 
     @password
