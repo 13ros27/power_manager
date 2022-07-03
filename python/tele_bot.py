@@ -60,11 +60,10 @@ class TelegramBot:
         if self.current is None:
             message = 'N/A'
         else:
-            message = '<table border="0">'
+            message = ''
             for (name, ct, current) in zip(self.config.names,
                                            self.config.current_types,
                                            self.current):
-                message += f'<tr><td><b>{name}</b> ({ct.name}): </td>\
-                             <td>{round(current.amps, 1)}A</td></tr>'
-            message += '</table>'
+                message += f'<pre><b>{name}</b> ({ct.name}):'.ljust(30)
+                message += f'{round(current.amps, 1)}A</pre>'
         update.message.reply_html(message)
