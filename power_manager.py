@@ -49,18 +49,13 @@ class DataLogger:
     def __init__(self, freq: int, folder: Path, names: [str],
                  types: [CurrentType]):
         """Create the file to log in and fills in the titles."""
-        print(1)
         if not folder.is_dir():
-            print(2)
             mkdir(folder)
-            print(3)
         self.freq = freq
         self.folder = folder
         self.current_types = types
         self.start_time = time.time()
-        print(4)
         self._new_file(names)
-        print(5)
 
     def _new_file(self, names: [str]):
         day = self.start_time // 86400
@@ -74,7 +69,7 @@ class DataLogger:
             path = self.folder / test_filename
             if not path.is_file():
                 self.fp = path
-                with open(path, 'x') as fp:
+                with open(path, 'w') as fp:
                     mes = f'Time' + ''.join([f',{n}({t})' for (n, t) in
                                              zip(names, self.current_types)])
                     fp.write(mes)
