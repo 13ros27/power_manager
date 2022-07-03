@@ -69,10 +69,11 @@ class DataLogger:
             path = self.folder / test_filename
             if not path.is_file():
                 self.fp = path
-                with open(path, 'w') as fp:
+                with open(path, 'x') as fp:
                     mes = f'Time' + ''.join([f',{n}({t})' for (n, t) in
                                              zip(names, self.current_types)])
                     fp.write(mes)
+                break
 
     def tick(self, currents: [Current]):
         """Log the data if enough time has passed."""
