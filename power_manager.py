@@ -59,7 +59,8 @@ class DataLogger:
 
     def _new_file(self, names: [str]):
         day = self.start_time // 86400
-        root_filename = f'D{day}'
+        print(day)
+        root_filename = f'D{int(day)}'
         i = 1
         while True:
             print(i)
@@ -78,6 +79,7 @@ class DataLogger:
                                              zip(names, self.current_types)])
                     fp.write(mes)
                 break
+            i += 1
 
     def tick(self, currents: [Current]):
         """Log the data if enough time has passed."""
