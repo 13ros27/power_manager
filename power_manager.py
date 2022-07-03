@@ -24,12 +24,12 @@ class Current:
         """Links amps to the wrapper type."""
         self.amps = amps
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Print this in a human readable way."""
         f'{self.amps}A'
 
-    def __repr__(self):
-        self.__str__()
+    def __repr__(self) -> str:
+        f'{self.amps}A'
 
 
 class CurrentMonitor:
