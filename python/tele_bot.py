@@ -46,7 +46,7 @@ class TelegramBot:
         formatted = self._formatted_current()
         if formatted != self.last_message:
             to_remove = []
-            for (i, (chat_id, mes_id, live_until)) in self.live.enumerate():            
+            for (i, (chat_id, mes_id, live_until)) in enumerate(self.live):            
                 self.updater.bot.edit_message_text(self._formatted_current(),
                                                    chat_id, mes_id)
                 if time.time() > live_until:
