@@ -104,10 +104,10 @@ class TelegramBot:
 
     @password
     def _log(self, update, context):
-        sp = update.message.text.split(' ')
-        if len(sp) >= 2:
-            self.data_logger.add_metadata(sp[1])
-            update.message.reply_text(f'Added \'{sp[1]}\' to the log')
+        sp = update.message.text[5:]
+        if len(sp) > 0:
+            self.data_logger.add_metadata(sp)
+            update.message.reply_text(f'Added \'{sp}\' to the log')
         else:
             update.message.reply_text('Incorrectly formatted command, please \
                                        specify something to log')

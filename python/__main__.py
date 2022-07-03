@@ -6,7 +6,7 @@ from pathlib import Path
 from tele_bot import TelegramBot
 
 
-NAMES = ['Solar', 'House', 'Car', 'HeatPump', 'Grid']
+NAMES = ['Solar', 'House', 'Car', 'Heat Pump', 'Grid']
 CURRENT_TYPES = [
     CurrentType.Source,
     CurrentType.Drain,
