@@ -84,7 +84,7 @@ class DataLogger:
                 with open(path, 'x') as fp:
                     mes = f'Time' + ''.join([f',{n}({t})' for (n, t) in
                                              zip(names, self.current_types)])
-                    fp.write(mes)
+                    fp.write(mes + '\n')
                 break
             i += 1
 
@@ -99,7 +99,7 @@ class DataLogger:
         with open(self.fp, 'a') as fp:
             mes = str(datetime.now().isoformat())
             mes += ''.join([f',{c.amps}' for c in currents])
-            fp.write(mes)
+            fp.write(mes+'\n')
 
 
 NAMES = ['Solar', 'House', 'HeatPump', 'Outside', 'Grid']
@@ -110,7 +110,8 @@ CURRENT_TYPES = [
     CurrentType.Unknown,
     CurrentType.Unknown,
 ]
-data_logger = DataLogger(15, Path('/home/pi/data'), NAMES, CURRENT_TYPES)
+data_logger = DataLogger(15, Path('/home/pi/power_manager/data'), NAMES,
+                         CURRENT_TYPES)
 current_monitor = CurrentMonitor(len(NAMES))
 
 while True:
