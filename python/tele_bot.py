@@ -26,6 +26,7 @@ class TelegramBot:
         self.dispatcher = self.updater.dispatcher
         self._add_command('start', self._start)
         self._add_command('status', self._status)
+        self._add_command('status2', self._status2)
         self.updater.start_polling()
         self.current = None
 
@@ -54,3 +55,16 @@ class TelegramBot:
                     f'{name} ({ct.name}): {round(current.amps, 1)}A')
             message = '\n'.join(message)
         update.message.reply_text(message)
+
+    def _status2(self, update, context):
+        if self.current is None:
+            message = 'N/A'
+        else:
+            message = '<table border="0">'
+            for (name, ct, current) in zip(self.config.names,
+                                           self.config.current_types,
+                                           self.current):
+                message += f'<tr><td><b>{name}</b> ({ct.name}): </td>\
+                             <td>{round(current.amps, 1)}A</td></tr>'
+            message += '</table>'
+        update.message.reply_html(message)
