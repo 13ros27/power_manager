@@ -45,4 +45,4 @@ class CurrentMonitor:
         if len(line) > self.num + 1:
             return [Current(float(p) / 240) for p in line[1:self.num + 1]]
         else:
-            print(len(line))  # TODO: Figure out what to do here
+            raise TypeError(f'Did not expect: {line}')
