@@ -34,11 +34,11 @@ class CurrentMonitor:
                  baudrate: int = 38400, timeout: int = 10):
         """Open the serial connection."""
         self.num = num
-        self.ser = serial.Serial(port, baudrate, timeout=timeout)
+        self.ser = Serial(port, baudrate, timeout=timeout)
 
     def read(self) -> [Current]:
         """Read one line in from the serial port and reduce it to currents."""
-        line = ser.readline()
+        line = self.ser.readline()
         line = line[:-2]
         line = ''.join(map(chr, line))
         line = line.split(' ')
