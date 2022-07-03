@@ -60,10 +60,11 @@ class TelegramBot:
         if self.current is None:
             message = 'N/A'
         else:
-            message = ''
+            message = '<pre>'
             for (name, ct, current) in zip(self.config.names,
                                            self.config.current_types,
                                            self.current):
-                message += f'<pre><b>{name}</b> ({ct.name}):'.ljust(30)
-                message += f'{round(current.amps, 1)}A</pre>'
+                message += f'<b>{name}</b> ({ct.name}):'.ljust(25)
+                message += f'{round(current.amps, 1)}A\n'
+            message += '</pre>'
         update.message.reply_html(message)
