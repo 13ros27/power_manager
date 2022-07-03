@@ -58,7 +58,7 @@ class DataLogger:
         self._new_file(names)
 
     def _new_file(self, names: [str]):
-        day = self.start_time() // 86400
+        day = self.start_time // 86400
         root_filename = f'D{day}'
         i = 1
         while True:
