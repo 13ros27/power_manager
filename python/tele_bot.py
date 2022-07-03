@@ -50,6 +50,7 @@ class TelegramBot:
             for (name, ct, current) in zip(self.config.names,
                                            self.config.current_types,
                                            self.current):
-                message.append(f'{name} ({ct.name}): {round(current, 1)}')
+                message.append(
+                    f'{name} ({ct.name}): {round(current.amps, 1)}A')
             message = '\n'.join(message)
         update.message.reply_text(message)
