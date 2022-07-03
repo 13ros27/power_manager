@@ -15,7 +15,7 @@ CURRENT_TYPES = [
     CurrentType.Unknown,
 ]
 
-CONFIG = Config("/home/pi/power_manager", NAMES, CURRENT_TYPES)
+CONFIG = Config(Path("/home/pi/power_manager"), NAMES, CURRENT_TYPES)
 
 if __name__ == '__main__':
     tele_bot = TelegramBot(CONFIG)

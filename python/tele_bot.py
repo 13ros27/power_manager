@@ -1,6 +1,7 @@
 """Contains the class that handles anything to do with the telegram bot."""
 from config import Config
 from nvi import NonVolatileInformation
+from pathlib import Path
 from telegram.ext import CommandHandler, Updater
 
 
@@ -17,7 +18,8 @@ class TelegramBot:
 
     def __init__(self, config: Config):
         """Set up the necessary functions and operations."""
-        self.info = NonVolatileInformation(config.path / 'telegram_info.json')
+        self.info = NonVolatileInformation(config.path /
+                                           Path('telegram_info.json'))
         self.pause_info = {chat_id: {'enabled': None, 'silent': None}
                            for chat_id in self.info}
         self.updater = Updater(self.info.token)
