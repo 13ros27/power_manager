@@ -98,7 +98,7 @@ class TelegramBot:
             live_until = time.time() + int(sp[1])
         else:
             live_until = time.time() + 300
-        mes = update.message.reply_text(self._formatted_current())
+        mes = update.message.reply_text(f'LIVE\n{self._formatted_current()}')
         self.live.append((update.effective_chat.id, mes.message_id,
                           live_until))
 
