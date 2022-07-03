@@ -50,4 +50,5 @@ class CurrentMonitor:
 
 def current_combine(currents: [Current], current_types: [CurrentType]) -> int:
     """Return the number of amps the currents give, Unknown is ignored."""
+    print(currents[0].amps, current_types[0].value)
     return sum([c.amps * ct.value for (c, ct) in zip(currents, current_types)])
