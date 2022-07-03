@@ -94,8 +94,8 @@ class TelegramBot:
     @password
     def _get_live(self, update, context):
         sp = update.message.text.split(' ')
-        if len(sp) >= 1:
-            live_until = time.time() + sp[1]
+        if len(sp) >= 2:
+            live_until = time.time() + int(sp[1])
         else:
             live_until = time.time() + 300
         mes = update.message.reply_text(self._formatted_current())
