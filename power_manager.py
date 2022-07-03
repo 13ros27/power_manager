@@ -20,13 +20,13 @@ class CurrentType(Enum):
 class Current:
     """A simple wrapper type for Current."""
 
-    def __init__(self, amps: int):
+    def __init__(self, amps: float):
         """Links amps to the wrapper type."""
-        self.amps = amps
+        self.amps = round(amps, 4)
 
     def __str__(self) -> str:
         """Print this in a human readable way."""
-        return f'{round(self.amps, 5)}A'
+        return f'{self.amps}A'
 
     def __repr__(self) -> str:
         """Print this in a human readable way."""
@@ -97,7 +97,7 @@ class DataLogger:
 
     def _log_to_file(self, currents: [Current]):
         with open(self.fp, 'a') as fp:
-            mes = str(datetime.now().isoformat())
+            mes = str(datetime.now().replace(microsecond=0).isoformat())
             mes += ''.join([f',{c.amps}' for c in currents])
             fp.write(mes+'\n')
 
