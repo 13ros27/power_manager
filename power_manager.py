@@ -38,6 +38,7 @@ class CurrentMonitor:
         """Read one line in from the serial port and reduce it to currents."""
         line = ser.readline()
         line = line[:-2]
+        print(line)
         line = line.split(' ')
         if len(line) > self.num + 1:
             return [Current(float(p) / 240) for p in line[1:self.num + 1]]
@@ -70,7 +71,6 @@ class DataLogger:
                 test_filename = f'{root_filename}_{i}.csv'
             path = self.folder / test_filename
             if not path.is_file():
-                print("Hi")
                 self.fp = path
                 with open(path, 'x') as fp:
                     mes = f'Time' + ''.join([f',{n}({t})' for (n, t) in
