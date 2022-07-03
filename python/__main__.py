@@ -26,3 +26,4 @@ if __name__ == '__main__':
         currents = current_monitor.read()
         print(currents)
         data_logger.tick(currents)
+        tele_bot.update_current(currents)

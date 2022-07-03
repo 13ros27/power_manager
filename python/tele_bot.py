@@ -1,5 +1,6 @@
 """Contains the class that handles anything to do with the telegram bot."""
 from config import Config
+from current import Current
 from nvi import NonVolatileInformation
 from pathlib import Path
 from telegram.ext import CommandHandler, Updater
@@ -18,13 +19,19 @@ class TelegramBot:
 
     def __init__(self, config: Config):
         """Set up the necessary functions and operations."""
+        self.config = config
         self.info = NonVolatileInformation(config.path /
                                            Path('telegram_info.json'))
         self.updater = Updater(self.info.token)
         self.dispatcher = self.updater.dispatcher
         self._add_command('start', self._start)
-        self._add_command('verified', self._verified)
+        self._add_command('status', self._status)
         self.updater.start_polling()
+        self.current = None
+
+    def update_current(self, current: [Current]):
+        """Update its known current."""
+        self.current = current
 
     def _add_command(self, name, func):
         self.dispatcher.add_handler(CommandHandler(name, func))
@@ -35,5 +42,13 @@ class TelegramBot:
             update.message.reply_text('Password correct')
 
     @password
-    def _verified(self, update, context):
-        update.message.reply_text('You are verified')
+    def _status(self, update, context):
+        if self.current is None:
+            message = 'N/A'
+        else:
+            message = ''
+            for (name, current_type, current) in zip(self.config.names,
+                                                     self.config.current_types,
+                                                     self.current):
+                message += f'{name} ({current_type.name}): {current}'
+        update.message.reply_text(message)
