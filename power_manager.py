@@ -49,13 +49,18 @@ class DataLogger:
     def __init__(self, freq: int, folder: Path, names: [str],
                  types: [CurrentType]):
         """Create the file to log in and fills in the titles."""
+        print(1)
         if not folder.is_dir():
+            print(2)
             mkdir(folder)
+            print(3)
         self.freq = freq
         self.folder = folder
         self.current_types = types
         self.start_time = time.time()
+        print(4)
         self._new_file(names)
+        print(5)
 
     def _new_file(self, names: [str]):
         day = self.start_time // 86400
@@ -96,7 +101,6 @@ CURRENT_TYPES = [
     CurrentType.Unknown,
     CurrentType.Unknown,
 ]
-print("HI")
 data_logger = DataLogger(15, Path('/home/pi/data'), NAMES, CURRENT_TYPES)
 print(data_logger)
 current_monitor = CurrentMonitor(len(NAMES))
