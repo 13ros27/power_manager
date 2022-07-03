@@ -57,7 +57,7 @@ class TelegramBot:
                     self.updater.bot.send_message(chat_id,
                                                   "Live session ended")
                     to_remove.append(i)
-            for index in to_remove:
+            for index in to_remove[::-1]:
                 del self.live[index]
 
     def _add_command(self, name, func):
