@@ -26,10 +26,10 @@ class Current:
 
     def __str__(self) -> str:
         """Print this in a human readable way."""
-        f'{self.amps}A'
+        return f'{self.amps}A'
 
     def __repr__(self) -> str:
-        f'{self.amps}A'
+        return f'{self.amps}A'
 
 
 class CurrentMonitor:
