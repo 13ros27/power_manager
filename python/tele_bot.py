@@ -47,9 +47,12 @@ class TelegramBot:
         formatted = self._formatted_current()
         if formatted != self.last_message:
             to_remove = []
-            for (i, (chat_id, mes_id, live_until)) in enumerate(self.live):            
-                self.updater.bot.edit_message_text(self._formatted_current(),
-                                                   chat_id, mes_id)
+            for (i, (chat_id, mes_id, live_until)) in enumerate(self.live):
+                if time.time() > live_until:
+                    message = f'{formatted}'
+                else:
+                    message = f'LIVE\n{formatted}'
+                self.updater.bot.edit_message_text(message, chat_id, mes_id)
                 if time.time() > live_until:
                     self.updater.bot.send_message(chat_id,
                                                   "Live session ended")
