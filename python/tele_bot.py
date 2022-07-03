@@ -25,8 +25,7 @@ class TelegramBot:
         self.updater = Updater(self.info.token)
         self.dispatcher = self.updater.dispatcher
         self._add_command('start', self._start)
-        self._add_command('status', self._status)
-        self._add_command('status2', self._status2)
+        self._add_command('status', self._status2)
         self.updater.start_polling()
         self.current = None
 
