@@ -6,8 +6,8 @@ from serial import Serial
 class CurrentType(Enum):
     """What type this current expected to be."""
 
-    Source = 1,
-    Drain = -1,
+    Source = -1,
+    Drain = 1,
     Unknown = 0,
 
 
