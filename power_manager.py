@@ -36,7 +36,7 @@ class CurrentMonitor:
 
     def read(self) -> [Current]:
         """Read one line in from the serial port and reduce it to currents."""
-        line = ser.readline()
+        line = str(ser.readline())
         line = line[:-2]
         print(line)
         line = line.split(' ')
