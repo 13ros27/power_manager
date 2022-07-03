@@ -30,7 +30,7 @@ class TelegramBot:
         self._add_command('start', self._start)
         self._add_command('status', self._status)
         self._add_command('latest_file', self._latest_file)
-        self._add_command('get_live', self._get_live)
+        self._add_command('live', self._live)
         self._add_command('log', self._log)
         self.updater.start_polling()
         self.current = None
@@ -92,10 +92,10 @@ class TelegramBot:
         update.message.reply_document(open(self.data_logger.fp, 'rb'))
 
     @password
-    def _get_live(self, update, context):
+    def _live(self, update, context):
         sp = update.message.text.split(' ')
         if len(sp) >= 2:
-            live_until = time.time() + int(sp[1])
+            live_until = time.time() + int(sp[1])*60
         else:
             live_until = time.time() + 300
         mes = update.message.reply_text(f'LIVE\n{self._formatted_current()}')
