@@ -67,11 +67,11 @@ class TelegramBot:
             for (name, ct, current) in zip(self.config.names,
                                            self.config.current_types,
                                            self.current):
-                message += f'<b>{name}</b> ({ct.name}):'.ljust(25)
+                message += f'{name} ({ct.name}):'.ljust(18)
                 message += f'{round(current.amps, 1)}A\n'
             message += '</pre>'
         update.message.reply_html(message)
 
     @password
     def _latest_file(self, update, context):
-        update.message.reply_document(self.data_logger.fp)
+        update.message.reply_document(open(self.data_logger.fp, 'rb'))
