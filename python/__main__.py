@@ -18,8 +18,8 @@ CURRENT_TYPES = [
 CONFIG = Config(Path("/home/pi/power_manager"), NAMES, CURRENT_TYPES)
 
 if __name__ == '__main__':
-    tele_bot = TelegramBot(CONFIG)
     data_logger = DataLogger(CONFIG, 15, Path('data'))
+    tele_bot = TelegramBot(CONFIG, data_logger)
     current_monitor = CurrentMonitor(len(NAMES))
 
     while True:

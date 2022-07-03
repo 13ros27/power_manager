@@ -1,6 +1,7 @@
 """Contains the class that handles anything to do with the telegram bot."""
 from config import Config
 from current import Current
+from datalogger import DataLogger
 from nvi import NonVolatileInformation
 from pathlib import Path
 from telegram.ext import CommandHandler, Updater
@@ -17,15 +18,17 @@ def password(f):
 class TelegramBot:
     """Control all the aspects of the telegram bot side of it."""
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, data_logger: DataLogger):
         """Set up the necessary functions and operations."""
         self.config = config
+        self.data_logger = data_logger
         self.info = NonVolatileInformation(config.path /
                                            Path('telegram_info.json'))
         self.updater = Updater(self.info.token)
         self.dispatcher = self.updater.dispatcher
         self._add_command('start', self._start)
         self._add_command('status', self._status2)
+        self._add_command('latest_file', self._latest_file)
         self.updater.start_polling()
         self.current = None
 
@@ -55,6 +58,7 @@ class TelegramBot:
             message = '\n'.join(message)
         update.message.reply_text(message)
 
+    @password
     def _status2(self, update, context):
         if self.current is None:
             message = 'N/A'
@@ -67,3 +71,7 @@ class TelegramBot:
                 message += f'{round(current.amps, 1)}A\n'
             message += '</pre>'
         update.message.reply_html(message)
+
+    @password
+    def _latest_file(self, update, context):
+        update.message.reply_document(self.data_logger.fp)
