@@ -229,7 +229,6 @@ specify a file')
     def _recommend(self, update, context):
         chat_id = update.effective_chat.id
         sp = update.message.text.split(' ')
-        print(sp)
         if len(sp) == 1:
             toggle = True
         else:
@@ -244,7 +243,8 @@ specify a file')
         else:
             self.reply_text(update,
                             f'Toggled recommend on for {sp[1]} minutes')
-            self.info.setitem(chat_id, 'recommend', time.time() + sp[1]*60)
+            self.info.setitem(chat_id, 'recommend',
+                              time.time() + float(sp[1])*60)
 
     @password
     def _kill(self, update, context):
