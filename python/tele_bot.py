@@ -47,7 +47,7 @@ class TelegramBot:
     def _send(self, command, *args, **kwargs):
         try:
             self.logger.info(f'Sending with command {command}, args: {args}, \
-                              kwargs: {kwargs}')
+kwargs: {kwargs}')
             return command(*args, **kwargs)
         except:  # noqa
             self.logger.exception('Telegram Bot: ')
@@ -136,4 +136,4 @@ class TelegramBot:
             self.reply_text(update, f'Added \'{sp}\' to the log')
         else:
             self.reply_text(update, 'Incorrectly formatted command, please \
-                                       specify something to log')
+specify something to log')
