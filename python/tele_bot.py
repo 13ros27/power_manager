@@ -4,7 +4,8 @@ from current import current_combine, recommended_current
 from datalogger import DataLogger
 from nvi import NonVolatileInformation
 from pathlib import Path
-from telegram.ext import CommandHandler, Updater
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import CallbackQueryHandler, CommandHandler, Updater
 import time
 
 
@@ -36,6 +37,7 @@ class TelegramBot:
         self._add_command('listfiles', self._list_files)
         self._add_command('file', self._file)
         self._add_command('statuskw', self._statuskw)
+        self.dispatcher.add_handler(CallbackQueryHandler(self.button))
         self.updater.start_polling()
         self.current = None
         self.live = []
@@ -84,10 +86,22 @@ class TelegramBot:
                     message = f'LIVE\n{formatted}'
                 self.edit_message_text(message, chat_id, mes_id)
                 if time.time() > live_until:
-                    self.send_text("Live session ended", chat_id, silent=True)
+                    markup = InlineKeyboardMarkup([
+                        InlineKeyboardButton('Continue',
+                                             callback_data=(chat_id, mes_id))])
+                    self.send_text("Live session ended", chat_id, silent=True,
+                                   reply_markup=markup)
                     to_remove.append(i)
             for index in to_remove[::-1]:
                 del self.live[index]
+
+    def button(self, update, context):
+        """Run the continue button from _update_lives."""
+        query = update.callback_query
+        query.answer()
+        (chat_id, mes_id) = query.data
+        self._go_live(chat_id, mes_id=mes_id)
+        query.delete_message()
 
     def _add_command(self, name, func):
         self.dispatcher.add_handler(CommandHandler(name, func))
@@ -116,6 +130,16 @@ class TelegramBot:
             message = '\n'.join(message)
         return message
 
+    def _go_live(self, chat_id, secs_for=300, mes_id=None):
+        live_until = time.time() + secs_for
+        text = f'LIVE\n{self._formatted_current()}'
+        if mes_id is None:
+            mes = self.send_text(text, chat_id)
+            mes_id = mes.mes_id
+        else:
+            self.edit_message_text(text, chat_id, mes_id)
+        self.live.append((chat_id, mes_id, live_until))
+
     @password
     def _status(self, update, context):
         self.reply_text(update, self._formatted_current())
@@ -127,13 +151,10 @@ class TelegramBot:
     @password
     def _live(self, update, context):
         sp = update.message.text.split(' ')
+        secs_for = 300
         if len(sp) >= 2:
-            live_until = time.time() + int(sp[1])*60
-        else:
-            live_until = time.time() + 300
-        mes = self.reply_text(update, f'LIVE\n{self._formatted_current()}')
-        self.live.append((update.effective_chat.id, mes.message_id,
-                          live_until))
+            secs_for = int(sp[1])*60
+        self._go_live(update.effective_chat.id, secs_for)
 
     @password
     def _log(self, update, context):
