@@ -34,6 +34,7 @@ class TelegramBot:
         self._add_command('live', self._live)
         self._add_command('log', self._log)
         self._add_command('listfiles', self._list_files)
+        self._add_command('file', self._file)
         self.updater.start_polling()
         self.current = None
         self.live = []
@@ -115,7 +116,7 @@ class TelegramBot:
 
     @password
     def _latest_file(self, update, context):
-        self.reply_document(self.data_logger.fp)
+        self.reply_document(update, self.data_logger.fp)
 
     @password
     def _live(self, update, context):
@@ -142,3 +143,16 @@ specify something to log')
     def _list_files(self, update, context):
         files = [f.stem for f in self.data_logger.folder.iterdir()]
         self.reply_text(update, ', '.join(files))
+
+    @password
+    def _file(self, update, context):
+        sp = update.message.text.split(' ')
+        if len(sp) == 1:
+            self.reply_text(update, 'Incorrectly formatted command, please \
+specify a file')
+        else:
+            file = self.data_logger.folder / Path(f'{sp}.csv')
+            if not file.exists():
+                self.reply_text(update, f'File: {file} does not exist')
+            else:
+                self.reply_document(update, file)
