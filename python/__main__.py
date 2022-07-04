@@ -15,7 +15,8 @@ CURRENT_TYPES = [
     CurrentType.Unknown,
 ]
 
-CONFIG = Config(Path("/home/pi/power_manager"), NAMES, CURRENT_TYPES)
+CONFIG = Config(Path("/home/pi/power_manager"), NAMES, CURRENT_TYPES, 30.0,
+                7.0)
 
 if __name__ == '__main__':
     try:

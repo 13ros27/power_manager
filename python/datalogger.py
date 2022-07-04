@@ -1,6 +1,5 @@
 """Handles datalogging."""
 from config import Config
-from current import Current
 from datetime import datetime
 from pathlib import Path
 import time
@@ -49,7 +48,7 @@ class DataLogger:
                 break
             i += 1
 
-    def tick(self, currents: [Current]):
+    def tick(self, currents: [float]):
         """Log the data if enough time has passed."""
         this_tick = time.time() // self.freq
         if self.last_tick is None or self.last_tick < this_tick:
@@ -58,10 +57,10 @@ class DataLogger:
                 self._new_file()
             self._log_to_file(currents)
 
-    def _log_to_file(self, currents: [Current]):
+    def _log_to_file(self, currents: [float]):
         with open(self.fp, 'a') as fp:
             mes = str(datetime.now().replace(microsecond=0).isoformat())
-            mes += ''.join([f',{c.amps}' for c in currents])
+            mes += ''.join([f',{c}' for c in currents])
             fp.write(f'\n{mes}')
 
     def add_metadata(self, metadata: str):

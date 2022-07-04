@@ -1,6 +1,6 @@
 """Contains the class that handles anything to do with the telegram bot."""
 from config import Config
-from current import Current, current_combine
+from current import current_combine
 from datalogger import DataLogger
 from nvi import NonVolatileInformation
 from pathlib import Path
@@ -40,7 +40,7 @@ class TelegramBot:
         self.live = []
         self.last_message = None
 
-    def update_current(self, current: [Current]):
+    def update_current(self, current: [float]):
         """Update its known current."""
         self.last_message = self._formatted_current()
         self.current = current
@@ -104,7 +104,7 @@ class TelegramBot:
             for (name, ct, current) in zip(self.config.names,
                                            self.config.current_types,
                                            self.current):
-                message.append(f'{round(current.amps,1)}A: {name} ({ct.name})')
+                message.append(f'{round(current,1)}A: {name} ({ct.name})')
             estimated = current_combine(self.current,
                                         self.config.current_types)
             message.append(f'{round(estimated, 1)}A: Estimated')
