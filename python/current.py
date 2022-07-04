@@ -42,8 +42,6 @@ class CurrentMonitor:
         line = line[:-2]
         line = ''.join(map(chr, line))
         line = line.split(' ')
-        if len(line) == 1:
-            line = line[0].split(',') # Why did it comma separate?
         if len(line) > self.num + 1:
             return [Current(float(p) / 240) for p in line[1:self.num + 1]]
         else:
