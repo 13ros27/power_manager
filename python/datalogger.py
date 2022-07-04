@@ -38,8 +38,7 @@ class DataLogger:
             file_header = None
             if path.is_file():
                 with open(path, 'r') as fp:
-                    file_header = fp.readline()
-                print(repr(file_header))
+                    file_header = fp.readline().replace('\n', '')
                 if file_header == header:
                     self.fp = path
                     break
