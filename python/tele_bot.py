@@ -214,4 +214,4 @@ specify a file')
             self.edit_message_text(self._formatted_current(), chat_id, mes_id)
         self.live = []
         for chat in chats:
-            self.send_text("Going offline", chat)
+            self.send_text("Going offline", chat, silent=True)
