@@ -151,7 +151,7 @@ specify something to log')
             self.reply_text(update, 'Incorrectly formatted command, please \
 specify a file')
         else:
-            file = self.data_logger.folder / Path(f'{sp}.csv')
+            file = self.data_logger.folder / Path(f'{sp[1]}.csv')
             if not file.exists():
                 self.reply_text(update, f'File: {file} does not exist')
             else:
