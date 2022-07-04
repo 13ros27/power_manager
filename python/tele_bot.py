@@ -48,10 +48,11 @@ class TelegramBot:
 
     def _send(self, command, *args, **kwargs):
         try:
-            self.logger.info(f'{command}({", ".join(args)}, {kwargs})')
+            self.logger.info(f'{command}({", ".join(map(str, args))}, \
+{kwargs})')
             return command(*args, **kwargs)
         except:  # noqa
-            self.logger.exception('Telegram Bot: ')
+            self.logger.exception('Telegram Bot:')
 
     def reply_text(self, update, text: str):
         """Reply with a text message, with error handling."""
