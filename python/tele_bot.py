@@ -51,7 +51,7 @@ class TelegramBot:
 
     def _send(self, command, *args, **kwargs):
         try:
-            for (i, kwarg) in kwargs:
+            for (i, kwarg) in enumerate(kwargs):
                 if type(kwarg) == InlineKeyboardMarkup:
                     print('Hello')
                     kwargs = []
