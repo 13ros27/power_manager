@@ -241,7 +241,8 @@ specify a file')
                 self.reply_text(update, 'Toggled recommend off')
                 self.info.setitem(chat_id, 'recommend', False)
         else:
-            self.reply_text(update, 'Toggled recommend on for {sp[1]} minutes')
+            self.reply_text(update,
+                            f'Toggled recommend on for {sp[1]} minutes')
             self.info.setitem(chat_id, 'recommend', time.time() + sp[1]*60)
 
     @password
