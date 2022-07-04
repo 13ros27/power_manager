@@ -56,7 +56,8 @@ class TelegramBot:
                 self.updater.bot.edit_message_text(message, chat_id, mes_id)
                 if time.time() > live_until:
                     self.updater.bot.send_message(chat_id,
-                                                  "Live session ended")
+                                                  "Live session ended",
+                                                  disable_notification=True)
                     to_remove.append(i)
             for index in to_remove[::-1]:
                 del self.live[index]
