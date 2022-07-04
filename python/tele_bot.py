@@ -148,7 +148,9 @@ class TelegramBot:
                                         self.config.current_types)
             message.append(f'{round(estimated, 1)}A: Estimated')
             old_recommended = self.recommended
+            print(old_recommended)
             self.recommended = recommended_current(self.config, estimated)
+            print(self.recommended, old_recommended)
             if self.recommended > 0:
                 self.recommended = f'+{self.recommended}'
             if old_recommended != self.recommended:
