@@ -82,6 +82,10 @@ class TelegramBot:
         return self._send(self.updater.bot.edit_message_text, text, chat_id,
                           mes_id, **kwargs)
 
+    def delete_message(self, chat_id, mes_id):
+        """Delete a given message."""
+        return self._send(self.updater.bot.delete_message, chat_id, mes_id)
+
     def _update_lives(self):
         formatted = self._formatted_current()
         if formatted != self.last_message:
@@ -129,7 +133,7 @@ class TelegramBot:
                                      chat_id)
                 self.last_recommendations[chat_id] = mes.message_id
                 if last is not None:
-                    self.updater.bot.delete_message(chat_id, last)
+                    self.delete_message(chat_id, last)
 
     def _start(self, update, context):
         if update.message.text == '/start lego':
@@ -235,6 +239,7 @@ specify a file')
         else:
             toggle = False
         if toggle:
+            # TODO: First updating timing recommendations
             if self.info[chat_id]['recommend'] is False:
                 self.reply_text(update, 'Toggled recommend on')
                 self.info.setitem(chat_id, 'recommend', True)
