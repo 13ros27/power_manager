@@ -39,6 +39,8 @@ class DataLogger:
             if path.is_file():
                 with open(path, 'r') as fp:
                     file_header = fp.readline()
+                print(file_header)
+                print(header)
                 if file_header == header:
                     self.fp = path
                     break
