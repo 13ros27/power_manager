@@ -30,7 +30,7 @@ class TelegramBot:
         self.dispatcher = self.updater.dispatcher
         self._add_command('start', self._start)
         self._add_command('status', self._status)
-        self._add_command('latest_file', self._latest_file)
+        self._add_command('latestfile', self._latest_file)
         self._add_command('live', self._live)
         self._add_command('log', self._log)
         self._add_command('listfiles', self._list_files)
