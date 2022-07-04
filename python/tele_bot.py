@@ -143,6 +143,7 @@ specify something to log')
     @password
     def _list_files(self, update, context):
         files = [f.stem for f in self.data_logger.folder.iterdir()]
+        files.sort()
         self.reply_text(update, ', '.join(files))
 
     @password
