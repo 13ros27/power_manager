@@ -49,14 +49,14 @@ def recommended_current(config, total: float) -> int:
         else:
             return 0
     else:
-        part = total // 1
+        part = total % 1
         if total < 0:
             if part < 1 - config.rate_frac:
-                return - floor(total)
+                return -floor(total)
             else:
-                return - ceil(total)
+                return -ceil(total)
         else:
             if part < config.rate_frac:
-                return - floor(total)
+                return -floor(total)
             else:
-                return - ceil(total)
+                return -ceil(total)
