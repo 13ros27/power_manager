@@ -65,10 +65,10 @@ class TelegramBot:
         """Reply with a document from a particular filepath."""
         return self._send(update.message.reply_document, open(filepath, 'rb'))
 
-    def send_text(self, text: str, chat_id, silent=False):
+    def send_text(self, text: str, chat_id, silent=False, **kwargs):
         """Send a text message to a given chat."""
         return self._send(self.updater.bot.send_message, chat_id, text,
-                          disable_notification=silent)
+                          disable_notification=silent, **kwargs)
 
     def edit_message_text(self, text: str, chat_id, mes_id):
         """Edit a given message."""
