@@ -35,6 +35,7 @@ class TelegramBot:
         self._add_command('log', self._log)
         self._add_command('listfiles', self._list_files)
         self._add_command('file', self._file)
+        self._add_command('statuskw', self._statuskw)
         self.updater.start_polling()
         self.current = None
         self.live = []
@@ -117,7 +118,7 @@ class TelegramBot:
 
     @password
     def _status(self, update, context):
-        self.reply_text(update, f'{self._formatted_current()}')
+        self.reply_text(update, self._formatted_current())
 
     @password
     def _latest_file(self, update, context):
@@ -162,3 +163,16 @@ specify a file')
                 self.reply_text(update, f'File: {file} does not exist')
             else:
                 self.reply_document(update, file)
+
+    @password
+    def _statuskw(self, update, context):
+        if self.current is None:
+            message = 'N/A'
+        else:
+            message = ''
+            for (name, ct, current) in zip(self.config.names,
+                                           self.config.current_types,
+                                           self.current):
+                message.append(f'{round(current*0.24, 2)}kW: {name} \
+({ct.name})')
+        self.reply_text(update, '\n'.join(message))
