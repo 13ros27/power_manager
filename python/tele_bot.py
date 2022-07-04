@@ -116,7 +116,6 @@ class TelegramBot:
     def _update_recommended(self):
         for chat_id in self.info:
             recommended = self.info[chat_id]['recommend']
-            print(recommended)
             send = recommended is True
             if isinstance(recommended, float):
                 if time.time() > recommended:
@@ -245,6 +244,7 @@ specify a file')
             self.reply_text(update,
                             f'Toggled recommend on for {sp[1]} minutes')
             self.info.setitem(chat_id, 'recommend', time.time() + sp[1]*60)
+            print(self.info._info['chats'])
 
     @password
     def _kill(self, update, context):
