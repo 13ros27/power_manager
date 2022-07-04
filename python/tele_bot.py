@@ -43,6 +43,10 @@ class TelegramBot:
         self.current = None
         self.live = []
         self.last_message = None
+        self.last_recommendations = {}
+
+    def _add_command(self, name, func):
+        self.dispatcher.add_handler(CommandHandler(name, func))
 
     def update_current(self, current: [float]):
         """Update its known current."""
@@ -107,8 +111,22 @@ class TelegramBot:
             mes_id = int(data[1])
         self._go_live(chat_id, mes_id=mes_id)
 
-    def _add_command(self, name, func):
-        self.dispatcher.add_handler(CommandHandler(name, func))
+    def _update_recommended(self):
+        for chat_id in enumerate(self.nvi):
+            recommended = self.nvi[chat_id]['recommend']
+            send = recommended is True
+            if isinstance(recommended, float):
+                if time.time() > recommended:
+                    self.nvi.setitem(chat_id, 'recommend', False)
+                    self.last_recommendations[chat_id] = None
+                else:
+                    send = True
+            if send:
+                last = self.last_recommendations.get(chat_id)
+                mes = self.send_text(f'Recommendation: {self.recommended}A')
+                self.last_recommendations[chat_id] = mes.message_id
+                if last is not None:
+                    self.updater.bot.delete_message(chat_id, last)
 
     def _start(self, update, context):
         if update.message.text == '/start lego':
@@ -127,10 +145,13 @@ class TelegramBot:
             estimated = current_combine(self.current,
                                         self.config.current_types)
             message.append(f'{round(estimated, 1)}A: Estimated')
-            recommended = recommended_current(self.config, estimated)
-            if recommended > 0:
-                recommended = f'+{recommended}'
-            message.append(f'{recommended}A: Recommended')
+            old_recommended = self.recommended
+            self.recommended = recommended_current(self.config, estimated)
+            if self.recommended > 0:
+                self.recommended = f'+{self.recommended}'
+            if old_recommended != self.recommended:
+                self._update_recommended()
+            message.append(f'{self.recommended}A: Recommended')
             message = '\n'.join(message)
         return message
 
@@ -201,6 +222,25 @@ specify a file')
                 message.append(f'{round(current*0.24, 2)}kW: {name} \
 ({ct.name})')
         self.reply_text(update, '\n'.join(message))
+
+    @password
+    def _recommend(self, update, context):
+        chat_id = update.effective_chat.id
+        sp = update.message.text.split(' ')
+        if len(sp) == 1:
+            toggle = True
+        else:
+            toggle = False
+        if toggle:
+            if self.nvi[chat_id]['recommend'] is False:
+                self.reply_text(update, 'Toggled recommend on')
+                self.nvi.setitem(chat_id, 'recommend', True)
+            else:
+                self.reply_text(update, 'Toggled recommend off')
+                self.nvi.setitem(chat_id, 'recommend', False)
+        else:
+            self.reply_text(update, 'Toggled recommend on for {sp[1]} minutes')
+            self.nvi.setitem(chat_id, 'recommend', time.time() + sp[1]*60)
 
     @password
     def _kill(self, update, context):

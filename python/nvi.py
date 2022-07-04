@@ -15,12 +15,17 @@ class NonVolatileInformation:
 
     def add_chat(self, chat_id: int):
         """Create a new chat with default information."""
-        self._info['chats'].append(str(chat_id))
+        self._info['chats'][str(chat_id)] = {'recommend': False}
         self._update()
 
-    def __getitem__(self, chat_id: int) -> dict:
+    def __getitem__(self, chat_id: int) -> dict | None:
         """Get the information about a given chat."""
-        return str(chat_id) in self._info['chats']
+        return self._info['chats'].get(str(chat_id))
+
+    def setitem(self, chat_id: int, setting: str, new_val):
+        """Set a piece of information about a given chat."""
+        self._info['chats'][str(chat_id)][setting] = new_val
+        self._update()
 
     def _update(self):
         with open(self.file, 'w') as fp:
@@ -29,3 +34,7 @@ class NonVolatileInformation:
     def is_valid(self, chat_id: int):
         """Check if a given chat id is validated."""
         return str(chat_id) in self._info['chats']
+
+    def __iter__(self):
+        """Iterate through the chat ids."""
+        return iter(self._info['chats'])
