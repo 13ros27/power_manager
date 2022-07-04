@@ -1,5 +1,6 @@
 """Handles everything to do with current monitoring."""
 from enum import Enum
+from config import Config
 from serial import Serial
 
 
@@ -38,6 +39,25 @@ def current_combine(currents: [float], current_types: [CurrentType]) -> float:
                 zip(currents, current_types)])
 
 
-# def recommended(total: float):
-#     """Recommend a certain amount of current."""
-
+def recommended_current(config: Config, total: float) -> int:
+    """Recommend a certain amount of current."""
+    if abs(total) <= 3:
+        step_over = config.rate_frac * 3
+        if total >= 3 - step_over:
+            return 3
+        elif total <= - step_over:
+            return -3
+        else:
+            return 0
+    else:
+        part = total // 1
+        if total < 0:
+            if part < config.rate_frac:
+                return total.floor()
+            else:
+                return total.ceil()
+        else:
+            if part < 1 - config.rate_frac:
+                return total.floor()
+            else:
+                return total.ceil()

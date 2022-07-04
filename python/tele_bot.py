@@ -1,6 +1,6 @@
 """Contains the class that handles anything to do with the telegram bot."""
 from config import Config
-from current import current_combine
+from current import current_combine, recommended_current
 from datalogger import DataLogger
 from nvi import NonVolatileInformation
 from pathlib import Path
@@ -104,10 +104,14 @@ class TelegramBot:
             for (name, ct, current) in zip(self.config.names,
                                            self.config.current_types,
                                            self.current):
-                message.append(f'{round(current,1)}A: {name} ({ct.name})')
+                message.append(f'{round(current, 1)}A: {name} ({ct.name})')
             estimated = current_combine(self.current,
                                         self.config.current_types)
             message.append(f'{round(estimated, 1)}A: Estimated')
+            recommended = recommended_current(self.config, estimated)
+            if recommended > 0:
+                recommended = f'+{recommended}'
+            message.append(f'{recommended}A: Recommended')
             message = '\n'.join(message)
         return message
 
