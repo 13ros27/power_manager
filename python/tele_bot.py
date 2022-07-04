@@ -22,6 +22,7 @@ class TelegramBot:
     def __init__(self, config: Config, data_logger: DataLogger):
         """Set up the necessary functions and operations."""
         self.config = config
+        self.logger = config.logger
         self.data_logger = data_logger
         self.info = NonVolatileInformation(config.path /
                                            Path('telegram_info.json'))

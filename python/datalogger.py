@@ -12,6 +12,7 @@ class DataLogger:
 
     def __init__(self, config: Config, freq: int, folder: Path):
         """Create the file to log in and fills in the titles."""
+        self.logger = config.logger
         folder = config.path / folder
         if not folder.is_dir():
             mkdir(folder)
