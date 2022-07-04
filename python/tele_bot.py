@@ -37,6 +37,7 @@ class TelegramBot:
         self._add_command('listfiles', self._list_files)
         self._add_command('file', self._file)
         self._add_command('statuskw', self._statuskw)
+        self._add_command('recommend', self._recommend)
         self._add_command('kill', self._kill)
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
         self.updater.start_polling()
@@ -113,12 +114,12 @@ class TelegramBot:
         self._go_live(chat_id, mes_id=mes_id)
 
     def _update_recommended(self):
-        for chat_id in enumerate(self.nvi):
-            recommended = self.nvi[chat_id]['recommend']
+        for chat_id in enumerate(self.info):
+            recommended = self.info[chat_id]['recommend']
             send = recommended is True
             if isinstance(recommended, float):
                 if time.time() > recommended:
-                    self.nvi.setitem(chat_id, 'recommend', False)
+                    self.info.setitem(chat_id, 'recommend', False)
                     self.last_recommendations[chat_id] = None
                 else:
                     send = True
@@ -233,15 +234,15 @@ specify a file')
         else:
             toggle = False
         if toggle:
-            if self.nvi[chat_id]['recommend'] is False:
+            if self.info[chat_id]['recommend'] is False:
                 self.reply_text(update, 'Toggled recommend on')
-                self.nvi.setitem(chat_id, 'recommend', True)
+                self.info.setitem(chat_id, 'recommend', True)
             else:
                 self.reply_text(update, 'Toggled recommend off')
-                self.nvi.setitem(chat_id, 'recommend', False)
+                self.info.setitem(chat_id, 'recommend', False)
         else:
             self.reply_text(update, 'Toggled recommend on for {sp[1]} minutes')
-            self.nvi.setitem(chat_id, 'recommend', time.time() + sp[1]*60)
+            self.info.setitem(chat_id, 'recommend', time.time() + sp[1]*60)
 
     @password
     def _kill(self, update, context):
