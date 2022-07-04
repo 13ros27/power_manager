@@ -1,5 +1,6 @@
 """Handles everything to do with current monitoring."""
 from enum import Enum
+from math import ceil, floor
 from serial import Serial
 
 
@@ -51,11 +52,11 @@ def recommended_current(config, total: float) -> int:
         part = total // 1
         if total > 0:
             if part < 1 - config.rate_frac:
-                return total.floor()
+                return floor(total)
             else:
-                return total.ceil()
+                return ceil(total)
         else:
             if part < config.rate_frac:
-                return total.floor()
+                return floor(total)
             else:
-                return total.ceil()
+                return ceil(total)
