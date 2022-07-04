@@ -44,6 +44,7 @@ class TelegramBot:
         self.live = []
         self.last_message = None
         self.last_recommendations = {}
+        self.recommended = '0'
 
     def _add_command(self, name, func):
         self.dispatcher.add_handler(CommandHandler(name, func))
