@@ -44,6 +44,31 @@ class TelegramBot:
         self.current = current
         self._update_lives()
 
+    def _send(self, command, *args, **kwargs):
+        try:
+            self.logger.info('Sending with command {command}, args: {args}, \
+                              kwargs: {kwargs}')
+            command(*args, **kwargs)
+        except:  # noqa
+            self.logger.exception('Telegram Bot: ')
+
+    def reply_text(self, update, text: str):
+        """Reply with a text message, with error handling."""
+        self._send(update.message.reply_text, text)
+
+    def reply_document(self, update, filepath: Path):
+        """Reply with a document from a particular filepath."""
+        self._send(update.message.reply_document, open(filepath, 'rb'))
+
+    def send_text(self, text: str, chat_id, silent=False):
+        """Send a text message to a given chat."""
+        self._send(self.updater.bot.send_message, chat_id, text,
+                   disable_notification=silent)
+
+    def edit_message_text(self, text: str, chat_id, mes_id):
+        """Edit a given message."""
+        self._send(self.updater.bot.edit_message_text, text, chat_id, mes_id)
+
     def _update_lives(self):
         formatted = self._formatted_current()
         if formatted != self.last_message:
@@ -53,11 +78,9 @@ class TelegramBot:
                     message = f'{formatted}'
                 else:
                     message = f'LIVE\n{formatted}'
-                self.updater.bot.edit_message_text(message, chat_id, mes_id)
+                self.edit_message_text(message, chat_id, mes_id)
                 if time.time() > live_until:
-                    self.updater.bot.send_message(chat_id,
-                                                  "Live session ended",
-                                                  disable_notification=True)
+                    self.send_text("Live session ended", chat_id, silent=True)
                     to_remove.append(i)
             for index in to_remove[::-1]:
                 del self.live[index]
@@ -68,7 +91,7 @@ class TelegramBot:
     def _start(self, update, context):
         if update.message.text == '/start lego':
             self.info.add_chat(update.effective_chat.id)
-            update.message.reply_text('Password correct')
+            self.reply_text(update, 'Password correct')
 
     def _formatted_current(self):
         if self.current is None:
@@ -87,11 +110,11 @@ class TelegramBot:
 
     @password
     def _status(self, update, context):
-        update.message.reply_text(f'{self._formatted_current()}')
+        self.reply_text(update, f'{self._formatted_current()}')
 
     @password
     def _latest_file(self, update, context):
-        update.message.reply_document(open(self.data_logger.fp, 'rb'))
+        self.reply_document(self.data_logger.fp)
 
     @password
     def _live(self, update, context):
@@ -100,7 +123,7 @@ class TelegramBot:
             live_until = time.time() + int(sp[1])*60
         else:
             live_until = time.time() + 300
-        mes = update.message.reply_text(f'LIVE\n{self._formatted_current()}')
+        mes = self.reply_text(update, f'LIVE\n{self._formatted_current()}')
         self.live.append((update.effective_chat.id, mes.message_id,
                           live_until))
 
@@ -109,7 +132,7 @@ class TelegramBot:
         sp = update.message.text[5:]
         if len(sp) > 0:
             self.data_logger.add_metadata(sp)
-            update.message.reply_text(f'Added \'{sp}\' to the log')
+            self.reply_text(update, f'Added \'{sp}\' to the log')
         else:
-            update.message.reply_text('Incorrectly formatted command, please \
+            self.reply_text(update, 'Incorrectly formatted command, please \
                                        specify something to log')
