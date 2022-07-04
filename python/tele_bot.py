@@ -51,11 +51,6 @@ class TelegramBot:
 
     def _send(self, command, *args, **kwargs):
         try:
-            for (i, kwarg) in enumerate(kwargs):
-                if type(kwarg) == InlineKeyboardMarkup:
-                    print('Hello')
-                    kwargs = []
-                    break
             self.logger.info(f'{command}({", ".join(map(str, args))}, \
 {kwargs})')
             return command(*args, **kwargs)
@@ -91,9 +86,9 @@ class TelegramBot:
                     message = f'LIVE\n{formatted}'
                 self.edit_message_text(message, chat_id, mes_id)
                 if time.time() > live_until:
-                    markup = InlineKeyboardMarkup([
+                    markup = InlineKeyboardMarkup([[
                         InlineKeyboardButton('Continue', callback_data=f'\
-                                             {chat_id} {mes_id}')])
+                                             {chat_id} {mes_id}')]])
                     self.send_text("Live session ended", chat_id, silent=True,
                                    reply_markup=markup)
                     to_remove.append(i)
