@@ -2,7 +2,6 @@
 from current import CurrentType
 from datetime import datetime
 import logging
-from os import mkdir
 from pathlib import Path
 
 
@@ -20,7 +19,7 @@ class Config:
         """Set up all the logging stuff."""
         folder = self.path / Path('logs')
         if not folder.is_dir():
-            mkdir(folder)
+            folder.mkdir()
         logging.basicConfig(
             filename=folder / Path(f'{datetime.now():%Y%m%dT%H%M%S}.log'),
             filemode='w',

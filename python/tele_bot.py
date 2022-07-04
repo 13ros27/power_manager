@@ -33,6 +33,7 @@ class TelegramBot:
         self._add_command('latest_file', self._latest_file)
         self._add_command('live', self._live)
         self._add_command('log', self._log)
+        self._add_command('listfiles', self._list_files)
         self.updater.start_polling()
         self.current = None
         self.live = []
@@ -46,8 +47,7 @@ class TelegramBot:
 
     def _send(self, command, *args, **kwargs):
         try:
-            self.logger.info(f'Sending with command {command}, args: {args}, \
-kwargs: {kwargs}')
+            self.logger.info(f'{command}({", ".join(args)}, {kwargs})')
             return command(*args, **kwargs)
         except:  # noqa
             self.logger.exception('Telegram Bot: ')
@@ -137,3 +137,8 @@ kwargs: {kwargs}')
         else:
             self.reply_text(update, 'Incorrectly formatted command, please \
 specify something to log')
+
+    @password
+    def _list_files(self, update, context):
+        files = [f.stem() for f in self.data_logger.folder.iterdir()]
+        self.reply_text(update, ', '.join(files))

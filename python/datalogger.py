@@ -2,7 +2,6 @@
 from config import Config
 from current import Current
 from datetime import datetime
-from os import mkdir
 from pathlib import Path
 import time
 
@@ -15,7 +14,7 @@ class DataLogger:
         self.logger = config.logger
         folder = config.path / folder
         if not folder.is_dir():
-            mkdir(folder)
+            folder.mkdir()
         self.freq = freq
         self.folder = folder
         self.names = config.names
