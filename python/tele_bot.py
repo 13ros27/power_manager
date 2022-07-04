@@ -114,7 +114,7 @@ class TelegramBot:
         self._go_live(chat_id, mes_id=mes_id)
 
     def _update_recommended(self):
-        for chat_id in enumerate(self.info):
+        for chat_id in self.info:
             recommended = self.info[chat_id]['recommend']
             send = recommended is True
             if isinstance(recommended, float):
