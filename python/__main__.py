@@ -30,5 +30,6 @@ if __name__ == '__main__':
             data_logger.tick(currents)
             tele_bot.update_current(currents)
     except:  # noqa
+        tele_bot.kill()
         CONFIG.logger.exception('Overall:')
         raise

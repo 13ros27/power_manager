@@ -204,6 +204,10 @@ specify a file')
 
     @password
     def _kill(self, update, context):
+        self.kill()
+
+    def kill(self):
+        """Kills all live messages."""
         chats = set()
         for (chat_id, mes_id, live_until) in self.live:
             chats.add(chat_id)
