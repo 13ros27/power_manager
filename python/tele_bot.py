@@ -140,5 +140,5 @@ specify something to log')
 
     @password
     def _list_files(self, update, context):
-        files = [Path(f).stem() for f in self.data_logger.folder.iterdir()]
+        files = [f.stem for f in self.data_logger.folder.iterdir()]
         self.reply_text(update, ', '.join(files))
