@@ -24,6 +24,8 @@ class DataLogger:
         self.last_tick = None
 
     def _new_file(self):
+        header = 'Time' + ''.join([f',{n}({t.name})' for (n, t) in
+                                   zip(self.names, self.current_types)])
         self.day = int(time.time() // 86400)
         root_filename = f'D{self.day}'
         i = 1
@@ -33,13 +35,17 @@ class DataLogger:
             else:
                 test_filename = f'{root_filename}_{i}.csv'
             path = self.folder / test_filename
+            file_header = None
+            if path.is_file():
+                with open(path, 'r') as fp:
+                    file_header = fp.readline()
+                if file_header == header:
+                    self.fp = path
+                    break
             if not path.is_file():
                 self.fp = path
                 with open(path, 'x') as fp:
-                    mes = 'Time'
-                    mes += ''.join([f',{n}({t.name})' for (n, t) in
-                                    zip(self.names, self.current_types)])
-                    fp.write(mes)
+                    fp.write(header)
                 break
             i += 1
 
