@@ -48,26 +48,27 @@ class TelegramBot:
         try:
             self.logger.info('Sending with command {command}, args: {args}, \
                               kwargs: {kwargs}')
-            command(*args, **kwargs)
+            return command(*args, **kwargs)
         except:  # noqa
             self.logger.exception('Telegram Bot: ')
 
     def reply_text(self, update, text: str):
         """Reply with a text message, with error handling."""
-        self._send(update.message.reply_text, text)
+        return self._send(update.message.reply_text, text)
 
     def reply_document(self, update, filepath: Path):
         """Reply with a document from a particular filepath."""
-        self._send(update.message.reply_document, open(filepath, 'rb'))
+        return self._send(update.message.reply_document, open(filepath, 'rb'))
 
     def send_text(self, text: str, chat_id, silent=False):
         """Send a text message to a given chat."""
-        self._send(self.updater.bot.send_message, chat_id, text,
-                   disable_notification=silent)
+        return self._send(self.updater.bot.send_message, chat_id, text,
+                          disable_notification=silent)
 
     def edit_message_text(self, text: str, chat_id, mes_id):
         """Edit a given message."""
-        self._send(self.updater.bot.edit_message_text, text, chat_id, mes_id)
+        return self._send(self.updater.bot.edit_message_text, text, chat_id,
+                          mes_id)
 
     def _update_lives(self):
         formatted = self._formatted_current()
