@@ -18,7 +18,7 @@ class NonVolatileInformation:
         self._info['chats'][str(chat_id)] = {'recommend': False}
         self._update()
 
-    def __getitem__(self, chat_id: int) -> dict | None:
+    def __getitem__(self, chat_id: int) -> dict:
         """Get the information about a given chat."""
         return self._info['chats'].get(str(chat_id))
 
