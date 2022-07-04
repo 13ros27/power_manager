@@ -70,10 +70,10 @@ class TelegramBot:
         return self._send(self.updater.bot.send_message, chat_id, text,
                           disable_notification=silent, **kwargs)
 
-    def edit_message_text(self, text: str, chat_id, mes_id):
+    def edit_message_text(self, text: str, chat_id, mes_id, **kwargs):
         """Edit a given message."""
         return self._send(self.updater.bot.edit_message_text, text, chat_id,
-                          mes_id)
+                          mes_id, **kwargs)
 
     def _update_lives(self):
         formatted = self._formatted_current()
@@ -82,16 +82,15 @@ class TelegramBot:
             for (i, (chat_id, mes_id, live_until)) in enumerate(self.live):
                 if time.time() > live_until:
                     message = f'{formatted}'
-                else:
-                    message = f'LIVE\n{formatted}'
-                self.edit_message_text(message, chat_id, mes_id)
-                if time.time() > live_until:
                     markup = InlineKeyboardMarkup([[
                         InlineKeyboardButton('Continue', callback_data=f'\
                                              {chat_id} {mes_id}')]])
-                    self.send_text("Live session ended", chat_id, silent=True,
-                                   reply_markup=markup)
                     to_remove.append(i)
+                else:
+                    message = f'LIVE\n{formatted}'
+                    markup = None
+                self.edit_message_text(message, chat_id, mes_id,
+                                       reply_markup=markup)
             for index in to_remove[::-1]:
                 del self.live[index]
 
@@ -106,7 +105,6 @@ class TelegramBot:
             chat_id = int(data[0])
             mes_id = int(data[1])
         self._go_live(chat_id, mes_id=mes_id)
-        query.delete_message()
 
     def _add_command(self, name, func):
         self.dispatcher.add_handler(CommandHandler(name, func))
