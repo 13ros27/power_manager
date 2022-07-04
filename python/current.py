@@ -34,8 +34,7 @@ class CurrentMonitor:
 
 def current_combine(currents: [float], current_types: [CurrentType]) -> float:
     """Return the number of amps the currents give, Unknown is ignored."""
-    return sum([c.amps * ct.value[0] for (c, ct) in
-                zip(currents, current_types)])
+    return sum([c * ct.value[0] for (c, ct) in zip(currents, current_types)])
 
 
 def recommended_current(config, total: float) -> int:
