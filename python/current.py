@@ -39,24 +39,23 @@ def current_combine(currents: [float], current_types: [CurrentType]) -> float:
 
 def recommended_current(config, total: float) -> int:
     """Recommend a certain amount of current."""
-    total = -total
     if abs(total) <= 3:
         step_over = config.rate_frac * 3
-        if total >= 3 - step_over:
+        if total >= step_over:
             return 3
-        elif total <= - step_over:
+        elif total <= 3 - step_over:
             return -3
         else:
             return 0
     else:
         part = total // 1
-        if total < 0:
-            if part < config.rate_frac:
+        if total > 0:
+            if part < 1 - config.rate_frac:
                 return total.floor()
             else:
                 return total.ceil()
         else:
-            if part < 1 - config.rate_frac:
+            if part < config.rate_frac:
                 return total.floor()
             else:
                 return total.ceil()
