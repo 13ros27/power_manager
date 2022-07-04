@@ -135,7 +135,7 @@ class TelegramBot:
         text = f'LIVE\n{self._formatted_current()}'
         if mes_id is None:
             mes = self.send_text(text, chat_id)
-            mes_id = mes.mes_id
+            mes_id = mes.message_id
         else:
             self.edit_message_text(text, chat_id, mes_id)
         self.live.append((chat_id, mes_id, live_until))
