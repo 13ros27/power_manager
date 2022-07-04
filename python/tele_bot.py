@@ -37,6 +37,7 @@ class TelegramBot:
         self._add_command('listfiles', self._list_files)
         self._add_command('file', self._file)
         self._add_command('statuskw', self._statuskw)
+        self._add_command('kill', self._kill)
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
         self.updater.start_polling()
         self.current = None
@@ -81,7 +82,7 @@ class TelegramBot:
             to_remove = []
             for (i, (chat_id, mes_id, live_until)) in enumerate(self.live):
                 if time.time() > live_until:
-                    message = f'{formatted}'
+                    message = formatted
                     markup = InlineKeyboardMarkup([[
                         InlineKeyboardButton('Continue', callback_data=f'\
                                              {chat_id} {mes_id}')]])
@@ -200,3 +201,13 @@ specify a file')
                 message.append(f'{round(current*0.24, 2)}kW: {name} \
 ({ct.name})')
         self.reply_text(update, '\n'.join(message))
+
+    @password
+    def _kill(self, update, context):
+        chats = set()
+        for (chat_id, mes_id, live_until) in self.live:
+            chats.add(chat_id)
+            self.edit_message_text(self._formatted_current(), chat_id, mes_id)
+        self.live = []
+        for chat in chats:
+            self.send_text("Going offline")
