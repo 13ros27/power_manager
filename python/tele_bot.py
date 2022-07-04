@@ -114,6 +114,7 @@ class TelegramBot:
         self._go_live(chat_id, mes_id=mes_id)
 
     def _update_recommended(self):
+        print(self.id)
         for chat_id in self.info:
             recommended = self.info[chat_id]['recommend']
             send = recommended is True
@@ -148,9 +149,7 @@ class TelegramBot:
                                         self.config.current_types)
             message.append(f'{round(estimated, 1)}A: Estimated')
             old_recommended = self.recommended
-            print(old_recommended)
             self.recommended = recommended_current(self.config, estimated)
-            print(self.recommended, old_recommended)
             if self.recommended > 0:
                 self.recommended = f'+{self.recommended}'
             if old_recommended != self.recommended:
