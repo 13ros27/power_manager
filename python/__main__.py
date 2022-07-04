@@ -29,5 +29,5 @@ if __name__ == '__main__':
             data_logger.tick(currents)
             tele_bot.update_current(currents)
     except:  # noqa
-        CONFIG.logger.exception('')
+        CONFIG.logger.exception('Overall:')
         raise
