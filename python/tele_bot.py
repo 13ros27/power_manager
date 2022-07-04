@@ -87,8 +87,9 @@ class TelegramBot:
                 self.edit_message_text(message, chat_id, mes_id)
                 if time.time() > live_until:
                     markup = InlineKeyboardMarkup([[
-                        InlineKeyboardButton('Continue', callback_data=f'\
-                                             {chat_id} {mes_id}')]])
+                        InlineKeyboardButton('Continue',
+                                             callback_data=(chat_id, mes_id))
+                    ]])
                     self.send_text("Live session ended", chat_id, silent=True,
                                    reply_markup=markup)
                     to_remove.append(i)
@@ -99,12 +100,7 @@ class TelegramBot:
         """Run the continue button from _update_lives."""
         query = update.callback_query
         query.answer()
-        data = query.data.split(' ')
-        if len(data) < 2:
-            raise TypeError(f'Did not expect {data}')
-        else:
-            chat_id = int(data[0])
-            mes_id = int(data[1])
+        (chat_id, mes_id) = query.data
         self._go_live(chat_id, mes_id=mes_id)
         query.delete_message()
 
