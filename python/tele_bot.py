@@ -125,7 +125,8 @@ class TelegramBot:
                     send = True
             if send:
                 last = self.last_recommendations.get(chat_id)
-                mes = self.send_text(f'Recommendation: {self.recommended}A')
+                mes = self.send_text(f'Recommendation: {self.recommended}A',
+                                     chat_id)
                 self.last_recommendations[chat_id] = mes.message_id
                 if last is not None:
                     self.updater.bot.delete_message(chat_id, last)
