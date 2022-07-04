@@ -46,7 +46,7 @@ class TelegramBot:
 
     def _send(self, command, *args, **kwargs):
         try:
-            self.logger.info('Sending with command {command}, args: {args}, \
+            self.logger.info(f'Sending with command {command}, args: {args}, \
                               kwargs: {kwargs}')
             return command(*args, **kwargs)
         except:  # noqa
