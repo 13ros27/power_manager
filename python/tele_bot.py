@@ -169,7 +169,7 @@ specify a file')
         if self.current is None:
             message = 'N/A'
         else:
-            message = ''
+            message = []
             for (name, ct, current) in zip(self.config.names,
                                            self.config.current_types,
                                            self.current):
