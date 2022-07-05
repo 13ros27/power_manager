@@ -5,6 +5,7 @@ from datalogger import DataLogger
 from nvi import NonVolatileInformation
 from pathlib import Path
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.error import NetworkError
 from telegram.ext import CallbackQueryHandler, CommandHandler, Updater
 import time
 
@@ -61,6 +62,8 @@ class TelegramBot:
             self.logger.info(f'{command}({", ".join(map(str, args))}, \
 {kwargs})')
             return command(*args, **kwargs)
+        except NetworkError:
+            self.logger.warning('Network Error')
         except:  # noqa
             self.logger.exception('Telegram Bot:')
 
