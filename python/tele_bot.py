@@ -268,6 +268,10 @@ specify a file')
         for (chat_id, mes_id, live_until) in self.live:
             chats.add(chat_id)
             self.edit_message_text(self._formatted_current(), chat_id, mes_id)
+        for (chat_id, mes_id) in self.last_recommendations.items():
+            if mes_id is not None:
+                chats.add(chat_id)
+                self.delete_message(chat_id, mes_id)
         self.live = []
         for chat in chats:
             self.send_text("Going offline", chat, silent=True)
