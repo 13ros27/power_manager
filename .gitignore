@@ -1,5 +1,3 @@
-/target
-/.cargo/config.toml
 /data
 /logs
 /python/__pycache__
