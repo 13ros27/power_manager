@@ -5,7 +5,7 @@ from datalogger import DataLogger
 from nvi import NonVolatileInformation
 from pathlib import Path
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.constants import HTML
+from telegram.constants import PARSEMODE_HTML as HTML
 from telegram.error import NetworkError
 from telegram.ext import CallbackQueryHandler, CommandHandler, Updater
 import time
