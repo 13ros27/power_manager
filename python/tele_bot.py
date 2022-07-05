@@ -255,7 +255,7 @@ specify a file')
             else:
                 self.reply_text(update, 'Toggled recommendations off')
                 self.info.setitem(chat_id, 'recommend', False)
-                mes_id = last_recommendations.get(chat_id)
+                mes_id = self.last_recommendations.get(chat_id)
                 if mes_id is not None:
                     self.delete_message(chat_id, mes_id)
         else:
