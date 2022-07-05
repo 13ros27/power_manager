@@ -129,17 +129,19 @@ class TelegramBot:
             self.info.setitem(chat_id, 'recommend', False)
             self.last_recommendations[chat_id] = None
 
+    def _send_recommendation(self, chat_id):
+        last = self.last_recommendations.get(chat_id)
+        mes = self.send_text(f'Recommendation: {self.recommended}A', chat_id)
+        self.last_recommendations[chat_id] = mes.message_id
+        if last is not None:
+            self.delete_message(chat_id, last)
+
     def _update_recommended(self):
         for chat_id in self.info:
             self._timing_recommended(chat_id)
             recommended = self.info[chat_id]['recommend']
             if recommended is not False:
-                last = self.last_recommendations.get(chat_id)
-                mes = self.send_text(f'Recommendation: {self.recommended}A',
-                                     chat_id)
-                self.last_recommendations[chat_id] = mes.message_id
-                if last is not None:
-                    self.delete_message(chat_id, last)
+                self._send_recommendation(chat_id)
 
     def _start(self, update, context):
         if update.message.text == '/start lego':
@@ -249,14 +251,19 @@ specify a file')
             if self.info[chat_id]['recommend'] is False:
                 self.reply_text(update, 'Toggled recommendations on')
                 self.info.setitem(chat_id, 'recommend', True)
+                self._send_recommendation(chat_id)
             else:
                 self.reply_text(update, 'Toggled recommendations off')
                 self.info.setitem(chat_id, 'recommend', False)
+                mes_id = last_recommendations.get(chat_id)
+                if mes_id is not None:
+                    self.delete_message(chat_id, mes_id)
         else:
             self.reply_text(update,
                             f'Toggled recommendations on for {sp[1]} minutes')
             self.info.setitem(chat_id, 'recommend',
                               time.time() + float(sp[1])*60)
+            self._send_recommendation(chat_id)
 
     @password
     def _kill(self, update, context):
