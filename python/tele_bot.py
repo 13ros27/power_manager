@@ -5,6 +5,7 @@ from datalogger import DataLogger
 from nvi import NonVolatileInformation
 from pathlib import Path
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.constants import HTML
 from telegram.error import NetworkError
 from telegram.ext import CallbackQueryHandler, CommandHandler, Updater
 import time
@@ -101,10 +102,10 @@ class TelegramBot:
                                              {chat_id} {mes_id}')]])
                     to_remove.append(i)
                 else:
-                    message = f'LIVE\n{formatted}'
+                    message = f'<b>LIVE</b>\n{formatted}'
                     markup = None
                 self.edit_message_text(message, chat_id, mes_id,
-                                       reply_markup=markup)
+                                       reply_markup=markup, parse_mode=HTML)
             for index in to_remove[::-1]:
                 del self.live[index]
 
@@ -172,12 +173,12 @@ class TelegramBot:
 
     def _go_live(self, chat_id, secs_for=300, mes_id=None):
         live_until = time.time() + secs_for
-        text = f'LIVE\n{self._formatted_current()}'
+        text = f'<b>LIVE</b>\n{self._formatted_current()}'
         if mes_id is None:
-            mes = self.send_text(text, chat_id)
+            mes = self.send_text(text, chat_id, parse_mode=HTML)
             mes_id = mes.message_id
         else:
-            self.edit_message_text(text, chat_id, mes_id)
+            self.edit_message_text(text, chat_id, mes_id, parse_mode=HTML)
         self.live.append((chat_id, mes_id, live_until))
 
     @password
