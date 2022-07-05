@@ -120,17 +120,20 @@ class TelegramBot:
             mes_id = int(data[1])
         self._go_live(chat_id, mes_id=mes_id)
 
+    def _timing_recommended(self, chat_id):
+        recommended = self.info[chat_id]['recommend']
+        if isinstance(recommended, float) and time.time() > recommended:
+            last = self.last_recommendations.get(chat_id)
+            if last is not None:
+                self.delete_message(chat_id, last)
+            self.info.setitem(chat_id, 'recommend', False)
+            self.last_recommendations[chat_id] = None
+
     def _update_recommended(self):
         for chat_id in self.info:
+            self._timing_recommended(chat_id)
             recommended = self.info[chat_id]['recommend']
-            send = recommended is True
-            if isinstance(recommended, float):
-                if time.time() > recommended:
-                    self.info.setitem(chat_id, 'recommend', False)
-                    self.last_recommendations[chat_id] = None
-                else:
-                    send = True
-            if send:
+            if recommended is not False:
                 last = self.last_recommendations.get(chat_id)
                 mes = self.send_text(f'Recommendation: {self.recommended}A',
                                      chat_id)
@@ -242,16 +245,16 @@ specify a file')
         else:
             toggle = False
         if toggle:
-            # TODO: First updating timing recommendations
+            self._timing_recommended(chat_id)
             if self.info[chat_id]['recommend'] is False:
-                self.reply_text(update, 'Toggled recommend on')
+                self.reply_text(update, 'Toggled recommendations on')
                 self.info.setitem(chat_id, 'recommend', True)
             else:
-                self.reply_text(update, 'Toggled recommend off')
+                self.reply_text(update, 'Toggled recommendations off')
                 self.info.setitem(chat_id, 'recommend', False)
         else:
             self.reply_text(update,
-                            f'Toggled recommend on for {sp[1]} minutes')
+                            f'Toggled recommendations on for {sp[1]} minutes')
             self.info.setitem(chat_id, 'recommend',
                               time.time() + float(sp[1])*60)
 
