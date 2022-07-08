@@ -29,7 +29,8 @@ if __name__ == '__main__':
             data_logger.tick(currents)
             tele_bot.update_current(currents)
     except:  # noqa
-        if tele_bot is not None:
-            tele_bot.cleanup()
         CONFIG.logger.exception('Overall:')
         raise
+    finally:
+        if tele_bot is not None:
+            tele_bot.cleanup()
