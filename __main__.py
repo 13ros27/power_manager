@@ -15,10 +15,8 @@ CURRENT_TYPES = [
     CurrentType.Unknown,
 ]
 
-CONFIG = Config(Path("/home/pi/power_manager"), NAMES, CURRENT_TYPES, 30.7,
-                7.5)
-
 if __name__ == '__main__':
+    CONFIG = Config(Path("/home/pi/power_manager"), NAMES, CURRENT_TYPES, 30.7, 7.5)
     tele_bot = None
     try:
         data_logger = DataLogger(CONFIG, 15, Path('data'))
