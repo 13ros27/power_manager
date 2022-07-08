@@ -19,6 +19,7 @@ CONFIG = Config(Path("/home/pi/power_manager"), NAMES, CURRENT_TYPES, 30.7,
                 7.5)
 
 if __name__ == '__main__':
+    tele_bot = None
     try:
         data_logger = DataLogger(CONFIG, 15, Path('data'))
         tele_bot = TelegramBot(CONFIG, data_logger)
@@ -30,6 +31,7 @@ if __name__ == '__main__':
             data_logger.tick(currents)
             tele_bot.update_current(currents)
     except:  # noqa
-        tele_bot.kill()
+        if tele_bot is not None:
+            tele_bot.cleanup()
         CONFIG.logger.exception('Overall:')
         raise
