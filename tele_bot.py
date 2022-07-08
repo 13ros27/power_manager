@@ -40,7 +40,7 @@ class TelegramBot:
         self._add_command('file', self._file)
         self._add_command('statuskw', self._statuskw)
         self._add_command('recommend', self._recommend)
-        self._add_command('kill', self._kill)
+        self._add_command('cleanup', self._cleanup)
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
         self.updater.start_polling()
         self.current = None
@@ -52,7 +52,7 @@ class TelegramBot:
     def _add_command(self, name, func):
         self.dispatcher.add_handler(CommandHandler(name, func))
 
-    def update_current(self, current: [float]):
+    def update_current(self, current: list[float]):
         """Update its known current."""
         self.last_message = self._formatted_current()
         self.current = current
@@ -109,7 +109,7 @@ class TelegramBot:
             for index in to_remove[::-1]:
                 del self.live[index]
 
-    def button(self, update, context):
+    def button(self, update, _):
         """Run the continue button from _update_lives."""
         query = update.callback_query
         query.answer()
@@ -144,7 +144,7 @@ class TelegramBot:
             if recommended is not False:
                 self._send_recommendation(chat_id)
 
-    def _start(self, update, context):
+    def _start(self, update, _):
         if update.message.text == '/start lego':
             self.info.add_chat(update.effective_chat.id)
             self.reply_text(update, 'Password correct')
@@ -182,15 +182,15 @@ class TelegramBot:
         self.live.append((chat_id, mes_id, live_until))
 
     @password
-    def _status(self, update, context):
+    def _status(self, update, _):
         self.reply_text(update, self._formatted_current())
 
     @password
-    def _latest_file(self, update, context):
+    def _latest_file(self, update, _):
         self.reply_document(update, self.data_logger.fp)
 
     @password
-    def _live(self, update, context):
+    def _live(self, update, _):
         sp = update.message.text.split(' ')
         secs_for = 300
         if len(sp) >= 2:
@@ -198,7 +198,7 @@ class TelegramBot:
         self._go_live(update.effective_chat.id, secs_for)
 
     @password
-    def _log(self, update, context):
+    def _log(self, update, _):
         sp = update.message.text[5:]
         if len(sp) > 0:
             self.data_logger.add_metadata(sp)
@@ -208,13 +208,13 @@ class TelegramBot:
 specify something to log')
 
     @password
-    def _list_files(self, update, context):
+    def _list_files(self, update, _):
         files = [f.stem for f in self.data_logger.folder.iterdir()]
         files.sort()
         self.reply_text(update, ', '.join(files))
 
     @password
-    def _file(self, update, context):
+    def _file(self, update, _):
         sp = update.message.text.split(' ')
         if len(sp) == 1:
             self.reply_text(update, 'Incorrectly formatted command, please \
@@ -227,7 +227,7 @@ specify a file')
                 self.reply_document(update, file)
 
     @password
-    def _statuskw(self, update, context):
+    def _statuskw(self, update, _):
         if self.current is None:
             message = 'N/A'
         else:
@@ -240,7 +240,7 @@ specify a file')
         self.reply_text(update, '\n'.join(message))
 
     @password
-    def _recommend(self, update, context):
+    def _recommend(self, update, _):
         chat_id = update.effective_chat.id
         sp = update.message.text.split(' ')
         if len(sp) == 1:
@@ -267,13 +267,13 @@ specify a file')
             self._send_recommendation(chat_id)
 
     @password
-    def _kill(self, update, context):
-        self.kill()
+    def _cleanup(self, *_):
+        self.cleanup()
 
-    def kill(self):
+    def cleanup(self):
         """Kills all live messages."""
         chats = set()
-        for (chat_id, mes_id, live_until) in self.live:
+        for (chat_id, mes_id, _) in self.live:
             chats.add(chat_id)
             self.edit_message_text(self._formatted_current(), chat_id, mes_id)
         for (chat_id, mes_id) in self.last_recommendations.items():

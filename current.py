@@ -21,7 +21,7 @@ class CurrentMonitor:
         self.num = num
         self.ser = Serial(port, baudrate, timeout=timeout)
 
-    def read(self) -> [float]:
+    def read(self) -> list[float]:
         """Read one line in from the serial port and reduce it to currents."""
         line = self.ser.readline()
         line = line[:-2]
@@ -33,7 +33,7 @@ class CurrentMonitor:
             raise TypeError(f'Did not expect: {line}')
 
 
-def current_combine(currents: [float], current_types: [CurrentType]) -> float:
+def current_combine(currents: list[float], current_types: list[CurrentType]) -> float:
     """Return the number of amps the currents give, Unknown is ignored."""
     return sum([c * ct.value[0] for (c, ct) in zip(currents, current_types)])
 

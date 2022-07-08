@@ -48,7 +48,7 @@ class DataLogger:
                 break
             i += 1
 
-    def tick(self, currents: [float]):
+    def tick(self, currents: list[float]):
         """Log the data if enough time has passed."""
         this_tick = time.time() // self.freq
         if self.last_tick is None or self.last_tick < this_tick:
@@ -57,7 +57,7 @@ class DataLogger:
                 self._new_file()
             self._log_to_file(currents)
 
-    def _log_to_file(self, currents: [float]):
+    def _log_to_file(self, currents: list[float]):
         with open(self.fp, 'a') as fp:
             mes = str(datetime.now().replace(microsecond=0).isoformat())
             mes += ''.join([f',{c}' for c in currents])
