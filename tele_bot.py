@@ -27,8 +27,7 @@ class TelegramBot:
         self.config = config
         self.logger = config.logger
         self.data_logger = data_logger
-        self.info = NonVolatileInformation(config.path /
-                                           Path('telegram_info.json'))
+        self.info = NonVolatileInformation(config.path / Path('telegram_info.json'))
         self.updater = Updater(self.info.token)
         self.dispatcher = self.updater.dispatcher
         self._add_command('start', self._start)
@@ -60,8 +59,7 @@ class TelegramBot:
 
     def _send(self, command, *args, **kwargs):
         try:
-            self.logger.info(f'{command}({", ".join(map(str, args))}, \
-{kwargs})')
+            self.logger.info(f'{command}({", ".join(map(str, args))}, {kwargs})')
             return command(*args, **kwargs)
         except NetworkError:
             self.logger.warning('Network Error')
@@ -78,13 +76,11 @@ class TelegramBot:
 
     def send_text(self, text: str, chat_id, silent=False, **kwargs):
         """Send a text message to a given chat."""
-        return self._send(self.updater.bot.send_message, chat_id, text,
-                          disable_notification=silent, **kwargs)
+        return self._send(self.updater.bot.send_message, chat_id, text, disable_notification=silent, **kwargs)
 
     def edit_message_text(self, text: str, chat_id, mes_id, **kwargs):
         """Edit a given message."""
-        return self._send(self.updater.bot.edit_message_text, text, chat_id,
-                          mes_id, **kwargs)
+        return self._send(self.updater.bot.edit_message_text, text, chat_id, mes_id, **kwargs)
 
     def delete_message(self, chat_id, mes_id):
         """Delete a given message."""
@@ -97,15 +93,12 @@ class TelegramBot:
             for (i, (chat_id, mes_id, live_until)) in enumerate(self.live):
                 if time.time() > live_until:
                     message = formatted
-                    markup = InlineKeyboardMarkup([[
-                        InlineKeyboardButton('Continue', callback_data=f'\
-                                             {chat_id} {mes_id}')]])
+                    markup = InlineKeyboardMarkup([[InlineKeyboardButton('Continue', callback_data=f'{chat_id} {mes_id}')]])
                     to_remove.append(i)
                 else:
                     message = f'<b>LIVE</b>\n{formatted}'
                     markup = None
-                self.edit_message_text(message, chat_id, mes_id,
-                                       reply_markup=markup, parse_mode=HTML)
+                self.edit_message_text(message, chat_id, mes_id, reply_markup=markup, parse_mode=HTML)
             for index in to_remove[::-1]:
                 del self.live[index]
 
@@ -154,12 +147,9 @@ class TelegramBot:
             message = 'N/A'
         else:
             message = []
-            for (name, ct, current) in zip(self.config.names,
-                                           self.config.current_types,
-                                           self.current):
+            for (name, ct, current) in zip(self.config.names, self.config.current_types, self.current):
                 message.append(f'{round(current, 1)}A: {name} ({ct.name})')
-            estimated = current_combine(self.current,
-                                        self.config.current_types)
+            estimated = current_combine(self.current, self.config.current_types)
             message.append(f'{round(estimated, 1)}A: Estimated')
             old_recommended = self.recommended
             self.recommended = recommended_current(self.config, estimated)
@@ -204,8 +194,7 @@ class TelegramBot:
             self.data_logger.add_metadata(sp)
             self.reply_text(update, f'Added \'{sp}\' to the log')
         else:
-            self.reply_text(update, 'Incorrectly formatted command, please \
-specify something to log')
+            self.reply_text(update, 'Incorrectly formatted command, please specify something to log')
 
     @password
     def _list_files(self, update, _):
@@ -217,8 +206,7 @@ specify something to log')
     def _file(self, update, _):
         sp = update.message.text.split(' ')
         if len(sp) == 1:
-            self.reply_text(update, 'Incorrectly formatted command, please \
-specify a file')
+            self.reply_text(update, 'Incorrectly formatted command, please specify a file')
         else:
             file = self.data_logger.folder / Path(f'{sp[1]}.csv')
             if not file.exists():
@@ -232,11 +220,8 @@ specify a file')
             message = 'N/A'
         else:
             message = []
-            for (name, ct, current) in zip(self.config.names,
-                                           self.config.current_types,
-                                           self.current):
-                message.append(f'{round(current*0.24, 2)}kW: {name} \
-({ct.name})')
+            for (name, ct, current) in zip(self.config.names, self.config.current_types, self.current):
+                message.append(f'{round(current*0.24, 2)}kW: {name} ({ct.name})')
         self.reply_text(update, '\n'.join(message))
 
     @password
@@ -260,10 +245,8 @@ specify a file')
                 if mes_id is not None:
                     self.delete_message(chat_id, mes_id)
         else:
-            self.reply_text(update,
-                            f'Toggled recommendations on for {sp[1]} minutes')
-            self.info.setitem(chat_id, 'recommend',
-                              time.time() + float(sp[1])*60)
+            self.reply_text(update, f'Toggled recommendations on for {sp[1]} minutes')
+            self.info.setitem(chat_id, 'recommend', time.time() + float(sp[1])*60)
             self._send_recommendation(chat_id)
 
     @password

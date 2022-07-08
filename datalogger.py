@@ -23,8 +23,7 @@ class DataLogger:
         self.last_tick = None
 
     def _new_file(self):
-        header = 'Time' + ''.join([f',{n}({t.name})' for (n, t) in
-                                   zip(self.names, self.current_types)])
+        header = 'Time' + ''.join([f',{n}({t.name})' for (n, t) in zip(self.names, self.current_types)])
         self.day = int(time.time() // 86400)
         root_filename = f'D{self.day}'
         i = 1
