@@ -21,8 +21,10 @@ class Quasar:
         if take_control:
             self.take_control()
         self.write_register(0x53, 0)  # Make sure it is in current mode
-        self._charging = True
-        self.stop_charging()
+        if self.read_register(0x102) == 1:
+            self._charging = True
+        else:
+            self._charging = False
         self.current = None
 
     def take_control(self):
