@@ -42,6 +42,7 @@ class TelegramBot:
         self._add_command('statuskw', self._statuskw)
         self._add_command('recommend', self._recommend)
         self._add_command('follow', self._follow)
+        self._add_command('charger_status', self._charger_status)
         self._add_command('cleanup', self._cleanup)
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
         self.updater.start_polling()
@@ -263,6 +264,10 @@ class TelegramBot:
         else:
             self.reply_text(update, 'Toggled following on')
         self.following = not self.following
+
+    @password
+    def _charger_status(self, update, _):
+        self.reply_text(update, self.quasar.read_charger_status.value)
 
     @password
     def _cleanup(self, *_):
