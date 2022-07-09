@@ -64,7 +64,7 @@ class Quasar:
             self.stop_charging()
         else:
             self.set_current_setpoint(amps)
-        self.start_charging()
+            self.start_charging()
 
     def read_state_of_charge(self) -> int:
         return self.read_register(0x21A)
