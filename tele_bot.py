@@ -56,7 +56,7 @@ class TelegramBot:
     def _add_command(self, name, func):
         self.dispatcher.add_handler(CommandHandler(name, func))
 
-    def update_current(self, current: list[float]):
+    def update_current(self, current: list):
         """Update its known current."""
         self.last_message = self._formatted_current()
         self.current = current
