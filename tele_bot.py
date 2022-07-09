@@ -267,7 +267,7 @@ class TelegramBot:
 
     @password
     def _charger_status(self, update, _):
-        self.reply_text(update, self.quasar.read_charger_status.value)
+        self.reply_text(update, self.quasar.read_charger_status().name)
 
     @password
     def _cleanup(self, *_):
