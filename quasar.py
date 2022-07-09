@@ -43,9 +43,7 @@ class Quasar:
             self._charging = True
 
     def stop_charging(self):
-        print('hi')
         if self._charging:
-            print('hello')
             self.write_register(0x101, 2)
             self._charging = False
 
