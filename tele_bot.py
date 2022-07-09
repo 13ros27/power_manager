@@ -2,6 +2,7 @@
 from config import Config
 from current import current_combine, recommended_current
 from datalogger import DataLogger
+from modbus_test.quasar import Quasar
 from nvi import NonVolatileInformation
 from pathlib import Path
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
@@ -9,6 +10,7 @@ from telegram.constants import PARSEMODE_HTML as HTML
 from telegram.error import NetworkError
 from telegram.ext import CallbackQueryHandler, CommandHandler, Updater
 import time
+from quasar import Quasar
 
 
 def password(f):
@@ -22,11 +24,12 @@ def password(f):
 class TelegramBot:
     """Control all the aspects of the telegram bot side of it."""
 
-    def __init__(self, config: Config, data_logger: DataLogger):
+    def __init__(self, config: Config, data_logger: DataLogger, quasar: Quasar):
         """Set up the necessary functions and operations."""
         self.config = config
         self.logger = config.logger
         self.data_logger = data_logger
+        self.quasar = quasar
         self.info = NonVolatileInformation(config.path / Path('telegram_info.json'))
         self.updater = Updater(self.info.token)
         self.dispatcher = self.updater.dispatcher
@@ -39,6 +42,7 @@ class TelegramBot:
         self._add_command('file', self._file)
         self._add_command('statuskw', self._statuskw)
         self._add_command('recommend', self._recommend)
+        self._add_command('follow', self._follow)
         self._add_command('cleanup', self._cleanup)
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
         self.updater.start_polling()
@@ -47,6 +51,7 @@ class TelegramBot:
         self.last_message = None
         self.last_recommendations = {}
         self.recommended = '0'
+        self.following = False
 
     def _add_command(self, name, func):
         self.dispatcher.add_handler(CommandHandler(name, func))
@@ -131,6 +136,9 @@ class TelegramBot:
             self.delete_message(chat_id, last)
 
     def _update_recommended(self):
+        if self.following:
+            self.logger.info(f'Setting charge rate to {self.recommended}')
+            self.quasar.set_charge_rate(int(self.recommended))
         for chat_id in self.info:
             self._timing_recommended(chat_id)
             recommended = self.info[chat_id]['recommend']
@@ -248,6 +256,14 @@ class TelegramBot:
             self.reply_text(update, f'Toggled recommendations on for {sp[1]} minutes')
             self.info.setitem(chat_id, 'recommend', time.time() + float(sp[1])*60)
             self._send_recommendation(chat_id)
+
+    @password
+    def _follow(self, update, _):
+        if self.following:
+            self.reply_text(update, 'Toggled following off')
+        else:
+            self.reply_text(update, 'Toggled following on')
+        self.following = not self.following
 
     @password
     def _cleanup(self, *_):

@@ -4,6 +4,7 @@ from current import CurrentMonitor, CurrentType
 from datalogger import DataLogger
 from pathlib import Path
 from tele_bot import TelegramBot
+from quasar import Quasar
 
 
 NAMES = ['Solar', 'House', 'Car', 'Heat Pump', 'Grid']
@@ -14,13 +15,15 @@ CURRENT_TYPES = [
     CurrentType.Drain,
     CurrentType.Unknown,
 ]
+QUASAR_ADDR = '192.168.1.74'
 
 if __name__ == '__main__':
     CONFIG = Config(Path("/home/pi/power_manager"), NAMES, CURRENT_TYPES, 30.7, 7.5)
     tele_bot = None
     try:
         data_logger = DataLogger(CONFIG, 15, Path('data'))
-        tele_bot = TelegramBot(CONFIG, data_logger)
+        quasar = Quasar(QUASAR_ADDR)
+        tele_bot = TelegramBot(CONFIG, data_logger, quasar)
         current_monitor = CurrentMonitor(len(NAMES))
 
         while True:
