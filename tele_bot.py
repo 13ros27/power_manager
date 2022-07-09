@@ -2,7 +2,6 @@
 from config import Config
 from current import current_combine, recommended_current
 from datalogger import DataLogger
-from modbus_test.quasar import Quasar
 from nvi import NonVolatileInformation
 from pathlib import Path
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
