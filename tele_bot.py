@@ -270,6 +270,7 @@ class TelegramBot:
 
     def cleanup(self):
         """Kills all live messages."""
+        self.quasar.cleanup()
         chats = set()
         for (chat_id, mes_id, _) in self.live:
             chats.add(chat_id)
