@@ -22,7 +22,7 @@ if __name__ == '__main__':
     tele_bot = None
     try:
         data_logger = DataLogger(CONFIG, 15, Path('data'))
-        quasar = Quasar(QUASAR_ADDR)
+        quasar = Quasar(QUASAR_ADDR, take_control=False)
         tele_bot = TelegramBot(CONFIG, data_logger, quasar)
         current_monitor = CurrentMonitor(len(NAMES))
 

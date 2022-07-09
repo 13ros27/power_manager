@@ -19,10 +19,16 @@ class Quasar:
     def __init__(self, host: str, take_control: bool = True, port: int = 502):
         self._client = ModbusClient(host=host, port=port, auto_open=True, auto_close=True)
         if take_control:
-            self.write_register(0x51, 1)  # Allow remote control
-            self.write_register(0x53, 0)  # Make sure it is in current mode
-        self._charging = False
+            self.take_control()
+        self.write_register(0x53, 0)  # Make sure it is in current mode
+        self.stop_charging()
         self.current = None
+
+    def take_control(self):
+        self.write_register(0x51, 1)
+
+    def relinquish_control(self):
+        self.write_register(0x51, 0)
 
     def read_register(self, address: int) -> int:
         return self._client.read_holding_registers(address)[0]
@@ -36,7 +42,9 @@ class Quasar:
             self._charging = True
 
     def stop_charging(self):
+        print('hi')
         if self._charging:
+            print('hello')
             self.write_register(0x101, 2)
             self._charging = False
 
@@ -71,4 +79,4 @@ class Quasar:
 
     def cleanup(self):
         self.stop_charging()
-        self.write_register(0x51, 0)  # Set it to user control
+        self.relinquish_control()

@@ -260,8 +260,10 @@ class TelegramBot:
     @password
     def _follow(self, update, _):
         if self.following:
+            self.quasar.relinquish_control()
             self.reply_text(update, 'Toggled following off')
         else:
+            self.quasar.take_control()
             self.reply_text(update, 'Toggled following on')
         self.following = not self.following
 
