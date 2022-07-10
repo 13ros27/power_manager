@@ -18,7 +18,7 @@ class TelegramBot:
         self.updater = Updater(self.nvinfo.token)
         self.dispatcher = self.updater.dispatcher
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
-        self.change_handlers = [[], [], []]
+        self.change_handlers = {}
         self.info = (None, None, None)
         self.last_info = (None, None, None)
         self.last_recommendations = {}
@@ -45,14 +45,16 @@ class TelegramBot:
                 return default
 
     def add_handler(self, handler):
-        for i in handler.updates_on():
-            self.change_handlers[i].append(handler)
+        should_update = handler.should_update
+        if self.change_handlers.get(should_update) is None:
+            self.change_handlers[should_update] = []
+        self.change_handlers[should_update].append(handler)
 
     def remove_handler(self, handler):
         handler.remove()
-        for (i, handlers) in enumerate(self.change_handlers):
+        for (updater, handlers) in self.change_handlers.items():
             if handler in handlers:
-                del self.change_handlers[i][handlers.index(handler)]
+                del self.change_handlers[updater][handlers.index(handler)]
 
     def get_chat_id(self, update: Update):
         if update.effective_chat is not None:
@@ -117,8 +119,8 @@ class TelegramBot:
         self.info = (currents, estimated, recommended)
         self.logger.warning(f'{self.info}, {self.last_info}')
         to_update = set()
-        for (i, handlers) in enumerate(self.change_handlers):
-            if self.info[i] != self.last_info[i]:
+        for (updater, handlers) in self.change_handlers.items():
+            if updater():
                 for handler in handlers:
                     to_update.add(handler)
         for handler in to_update:
@@ -140,7 +142,7 @@ class TelegramBot:
     def cleanup(self):
         """Kills all handlers."""
         handlers = set()
-        for handler_group in self.change_handlers:
+        for handler_group in self.change_handlers.values():
             for handler in handler_group:
                 handlers.add(handler)
         for handler in handlers:

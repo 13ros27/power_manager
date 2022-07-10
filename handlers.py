@@ -7,7 +7,8 @@ class LiveStatusHandler:
         self.tbot = tbot
         self.chat_id = chat_id
         self.live_until = time.time() + secs_for
-        text = f'<b>LIVE</b>\n{tbot.formatted_current()}'
+        self.last_formatted = tbot.formatted_current()
+        text = f'<b>LIVE</b>\n{self.last_formatted}'
         if mes_id is None:
             mes = tbot.send_text(text, chat_id, parse_mode=HTML)
             self.mes_id = mes.message_id
@@ -16,17 +17,17 @@ class LiveStatusHandler:
             self.mes_id = mes_id
         self.run_out = False
 
-    def updates_on(self) -> list:
-        return [0, 1, 2]
+    def should_update(self) -> bool:
+        return self.tbot.formatted_current() != self.last_formatted
 
     def update(self) -> bool:
-        formatted = self.tbot.formatted_current()
+        self.last_formatted = self.tbot.formatted_current()
         if time.time() > self.live_until:
-            message = formatted
+            message = self.last_formatted
             markup = InlineKeyboardMarkup([[InlineKeyboardButton('Continue', callback_data=f'{self.chat_id} {self.mes_id}')]])
             self.run_out = True
         else:
-            message = f'<b>LIVE</b>\n{formatted}'
+            message = f'<b>LIVE</b>\n{self.last_formatted}'
             markup = None
         self.tbot.edit_message_text(message, self.chat_id, self.mes_id, reply_markup=markup, parse_mode=HTML)
         return not self.run_out
@@ -45,8 +46,8 @@ class RecommendHandler:
             self.live_until = time.time() + secs_for
         self.last_mes_id = self._send_recommendation()
 
-    def updates_on(self) -> list:
-        return [2]
+    def should_update(self) -> bool:
+        return self.tbot.info[2] != self.tbot.last_info[2]
 
     def is_finished(self) -> bool:
         return self.live_until is not None and time.time() > self.live_until
