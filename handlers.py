@@ -59,7 +59,6 @@ class RecommendHandler:
             message = f'{self.tbot.info[2]}A'
         else:
             message = 'N/A'
-        print(message)
         return self.tbot.send_text(f'Recommendation: {message}', self.chat_id).message_id
 
     def update(self) -> bool:
