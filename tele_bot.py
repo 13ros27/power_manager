@@ -117,7 +117,6 @@ class TelegramBot:
         """Update what it knows about the state."""
         self.last_info = self.info
         self.info = (currents, estimated, recommended)
-        self.logger.warning(f'{self.info}, {self.last_info}')
         to_update = set()
         for (updater, handlers) in self.change_handlers.items():
             if updater():
