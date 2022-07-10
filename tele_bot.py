@@ -101,6 +101,7 @@ class TelegramBot:
                 symbol = 'A'
             (currents, estimated, recommended) = self.info
             if currents is None or estimated is None:
+                print(currents, estimated, self.info)
                 raise TypeError('Unreachable')
             message = []
             for (name, ct, current) in zip(self.config.names, self.config.current_types, currents):
