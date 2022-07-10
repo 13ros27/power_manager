@@ -23,7 +23,7 @@ if __name__ == '__main__':
     quasar = None
     try:
         data_logger = DataLogger(CONFIG, 15, Path('data'))
-        quasar = Quasar(QUASAR_ADDR, take_control=False)
+        quasar = Quasar(QUASAR_ADDR)
         commands = TeleCommands(CONFIG, data_logger, quasar)
         current_monitor = CurrentMonitor(len(NAMES))
 

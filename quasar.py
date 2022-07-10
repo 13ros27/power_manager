@@ -16,10 +16,8 @@ class QuasarStatus(Enum):
     DISCHARGING = 11
 
 class Quasar:
-    def __init__(self, host: str, take_control: bool = True, port: int = 502):
+    def __init__(self, host: str, port: int = 502):
         self._client = ModbusClient(host=host, port=port, auto_open=True, auto_close=True)
-        if take_control:
-            self.take_control()
         if self.read_register(0x102) == 1:
             self._charging = True
         else:
