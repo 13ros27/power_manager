@@ -1,66 +1,66 @@
 """Contains the class that handles anything to do with the telegram bot."""
 from config import Config
-from current import current_combine, recommended_current
-from datalogger import DataLogger
+from handlers import LiveStatusHandler
 from nvi import NonVolatileInformation
 from pathlib import Path
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.constants import PARSEMODE_HTML as HTML
+from telegram import Update
 from telegram.error import NetworkError
 from telegram.ext import CallbackQueryHandler, CommandHandler, Updater
-import time
-from quasar import Quasar
-
-
-def password(f):
-    """Check if this chat has entered the correct password."""
-    def wrapper(self, update, context):
-        if self.info.is_valid(update.effective_chat.id):
-            f(self, update, context)
-    return wrapper
-
 
 class TelegramBot:
     """Control all the aspects of the telegram bot side of it."""
 
-    def __init__(self, config: Config, data_logger: DataLogger, quasar: Quasar):
+    def __init__(self, config: Config):
         """Set up the necessary functions and operations."""
         self.config = config
         self.logger = config.logger
-        self.data_logger = data_logger
-        self.quasar = quasar
-        self.info = NonVolatileInformation(config.path / Path('telegram_info.json'))
-        self.updater = Updater(self.info.token)
+        self.nvinfo = NonVolatileInformation(config.path / Path('telegram_info.json'))
+        self.updater = Updater(self.nvinfo.token)
         self.dispatcher = self.updater.dispatcher
-        self._add_command('start', self._start)
-        self._add_command('status', self._status)
-        self._add_command('latestfile', self._latest_file)
-        self._add_command('live', self._live)
-        self._add_command('log', self._log)
-        self._add_command('listfiles', self._list_files)
-        self._add_command('file', self._file)
-        self._add_command('statuskw', self._statuskw)
-        self._add_command('recommend', self._recommend)
-        self._add_command('follow', self._follow)
-        self._add_command('charger_status', self._charger_status)
-        self._add_command('cleanup', self._cleanup)
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
-        self.updater.start_polling()
-        self.current = None
-        self.live = []
-        self.last_message = None
+        self.change_handlers = [[], [], []]
+        self.info = (None, None, None)
+        self.last_info = (None, None, None)
         self.last_recommendations = {}
-        self.recommended = '0'
         self.following = False
+        self.updater.start_polling()
 
-    def _add_command(self, name, func):
+    def add_command(self, name: str, func):
         self.dispatcher.add_handler(CommandHandler(name, func))
 
-    def update_current(self, current: list):
-        """Update its known current."""
-        self.last_message = self._formatted_current()
-        self.current = current
-        self._update_lives()
+    def add_chat(self, update: Update):
+        if update.effective_chat is not None:
+            self.nvinfo.add_chat(update.effective_chat.id)
+        self.logger.warning('Could not add member to chat')
+
+    def second_item(self, update: Update, default=None, error='Internal Error') -> str:
+        sp = update.message.text.split(' ')
+        if len(sp) >= 2:
+            return sp[1]
+        else:
+            if default is None:
+                self.reply_text(update, error)
+                return ''
+            else:
+                return default
+
+    def add_handler(self, handler):
+        triggers = handler.updates_on()
+        for (i, trigger) in triggers:
+            if trigger:
+                self.change_handlers[i].append(handler)
+
+    def remove_handler(self, handler):
+        handler.remove()
+        for (i, handlers) in enumerate(self.change_handlers):
+            if handler in handlers:
+                del self.change_handlers[i][handlers.index(handler)]
+
+    def get_chat_id(self, update: Update):
+        if update.effective_chat is not None:
+            return update.effective_chat.id
+        else:
+            raise TypeError('update.effective_chat is None')
 
     def _send(self, command, *args, **kwargs):
         try:
@@ -71,44 +71,63 @@ class TelegramBot:
         except:  # noqa
             self.logger.exception('Telegram Bot:')
 
-    def reply_text(self, update, text: str):
+    def reply_text(self, update: Update, text: str, **kwargs):
         """Reply with a text message, with error handling."""
-        return self._send(update.message.reply_text, text)
+        return self._send(update.message.reply_text, text, **kwargs)
 
-    def reply_document(self, update, filepath: Path):
+    def reply_document(self, update: Update, filepath: Path, **kwargs):
         """Reply with a document from a particular filepath."""
-        return self._send(update.message.reply_document, open(filepath, 'rb'))
+        return self._send(update.message.reply_document, open(filepath, 'rb'), **kwargs)
 
-    def send_text(self, text: str, chat_id, silent=False, **kwargs):
+    def send_text(self, text: str, chat_id: int, silent=False, **kwargs):
         """Send a text message to a given chat."""
         return self._send(self.updater.bot.send_message, chat_id, text, disable_notification=silent, **kwargs)
 
-    def edit_message_text(self, text: str, chat_id, mes_id, **kwargs):
+    def edit_message_text(self, text: str, chat_id: int, mes_id: int, **kwargs):
         """Edit a given message."""
         return self._send(self.updater.bot.edit_message_text, text, chat_id, mes_id, **kwargs)
 
-    def delete_message(self, chat_id, mes_id):
+    def delete_message(self, chat_id: int, mes_id: int, **kwargs):
         """Delete a given message."""
-        return self._send(self.updater.bot.delete_message, chat_id, mes_id)
+        return self._send(self.updater.bot.delete_message, chat_id, mes_id, **kwargs)
 
-    def _update_lives(self):
-        formatted = self._formatted_current()
-        if formatted != self.last_message:
-            to_remove = []
-            for (i, (chat_id, mes_id, live_until)) in enumerate(self.live):
-                if time.time() > live_until:
-                    message = formatted
-                    markup = InlineKeyboardMarkup([[InlineKeyboardButton('Continue', callback_data=f'{chat_id} {mes_id}')]])
-                    to_remove.append(i)
-                else:
-                    message = f'<b>LIVE</b>\n{formatted}'
-                    markup = None
-                self.edit_message_text(message, chat_id, mes_id, reply_markup=markup, parse_mode=HTML)
-            for index in to_remove[::-1]:
-                del self.live[index]
+    def formatted_current(self, rounding: int = 1, kw: bool = False):
+        if self.info is (None, None, None):
+            message = 'N/A'
+        else:
+            if kw:
+                multiplier = 0.24
+                symbol = 'kW'
+            else:
+                multiplier = 1
+                symbol = 'A'
+            (currents, estimated, recommended) = self.info
+            if currents is None or estimated is None:
+                raise TypeError('Unreachable')
+            message = []
+            for (name, ct, current) in zip(self.config.names, self.config.current_types, currents):
+                message.append(f'{round(current * multiplier, rounding)}{symbol}: {name} ({ct.name})')
+            if not kw:
+                message.append(f'{round(estimated, rounding)}A: Estimated')
+                message.append(f'{recommended}A: Recommended')
+            message = '\n'.join(message)
+        return message
+
+    def update_info(self, currents: list, estimated: float, recommended: int):
+        """Update what it knows about the state."""
+        self.last_info = self.info
+        self.info = (currents, estimated, recommended)
+        to_update = set()
+        for (i, handlers) in enumerate(self.change_handlers):
+            if self.info[i] != self.last_info[i]:
+                for handler in handlers:
+                    to_update.add(handler)
+        for handler in to_update:
+            if handler.update() is False:
+                self.remove_handler(handler)
 
     def button(self, update, _):
-        """Run the continue button from _update_lives."""
+        """Run the continue button from LiveStatus.update."""
         query = update.callback_query
         query.answer()
         data = query.data.strip().split(' ')
@@ -117,171 +136,14 @@ class TelegramBot:
         else:
             chat_id = int(data[0])
             mes_id = int(data[1])
-        self._go_live(chat_id, mes_id=mes_id)
-
-    def _timing_recommended(self, chat_id):
-        recommended = self.info[chat_id]['recommend']
-        if isinstance(recommended, float) and time.time() > recommended:
-            last = self.last_recommendations.get(chat_id)
-            if last is not None:
-                self.delete_message(chat_id, last)
-            self.info.setitem(chat_id, 'recommend', False)
-            self.last_recommendations[chat_id] = None
-
-    def _send_recommendation(self, chat_id):
-        last = self.last_recommendations.get(chat_id)
-        mes = self.send_text(f'Recommendation: {self.recommended}A', chat_id)
-        self.last_recommendations[chat_id] = mes.message_id
-        if last is not None:
-            self.delete_message(chat_id, last)
-
-    def _update_recommended(self):
-        if self.following:
-            self.logger.info(f'Setting charge rate to {self.recommended}')
-            self.quasar.set_charge_rate(int(self.recommended))
-        for chat_id in self.info:
-            self._timing_recommended(chat_id)
-            recommended = self.info[chat_id]['recommend']
-            if recommended is not False:
-                self._send_recommendation(chat_id)
-
-    def _start(self, update, _):
-        if update.message.text == '/start lego':
-            self.info.add_chat(update.effective_chat.id)
-            self.reply_text(update, 'Password correct')
-
-    def _formatted_current(self):
-        if self.current is None:
-            message = 'N/A'
-        else:
-            message = []
-            for (name, ct, current) in zip(self.config.names, self.config.current_types, self.current):
-                message.append(f'{round(current, 1)}A: {name} ({ct.name})')
-            estimated = current_combine(self.current, self.config.current_types)
-            message.append(f'{round(estimated, 1)}A: Estimated')
-            old_recommended = self.recommended
-            self.recommended = recommended_current(self.config, estimated)
-            if self.recommended > 0:
-                self.recommended = f'+{self.recommended}'
-            if old_recommended != self.recommended:
-                self._update_recommended()
-            message.append(f'{self.recommended}A: Recommended')
-            message = '\n'.join(message)
-        return message
-
-    def _go_live(self, chat_id, secs_for=300, mes_id=None):
-        live_until = time.time() + secs_for
-        text = f'<b>LIVE</b>\n{self._formatted_current()}'
-        if mes_id is None:
-            mes = self.send_text(text, chat_id, parse_mode=HTML)
-            mes_id = mes.message_id
-        else:
-            self.edit_message_text(text, chat_id, mes_id, parse_mode=HTML)
-        self.live.append((chat_id, mes_id, live_until))
-
-    @password
-    def _status(self, update, _):
-        self.reply_text(update, self._formatted_current())
-
-    @password
-    def _latest_file(self, update, _):
-        self.reply_document(update, self.data_logger.fp)
-
-    @password
-    def _live(self, update, _):
-        sp = update.message.text.split(' ')
-        secs_for = 300
-        if len(sp) >= 2:
-            secs_for = int(sp[1])*60
-        self._go_live(update.effective_chat.id, secs_for)
-
-    @password
-    def _log(self, update, _):
-        sp = update.message.text[5:]
-        if len(sp) > 0:
-            self.data_logger.add_metadata(sp)
-            self.reply_text(update, f'Added \'{sp}\' to the log')
-        else:
-            self.reply_text(update, 'Incorrectly formatted command, please specify something to log')
-
-    @password
-    def _list_files(self, update, _):
-        files = [f.stem for f in self.data_logger.folder.iterdir()]
-        files.sort()
-        self.reply_text(update, ', '.join(files))
-
-    @password
-    def _file(self, update, _):
-        sp = update.message.text.split(' ')
-        if len(sp) == 1:
-            self.reply_text(update, 'Incorrectly formatted command, please specify a file')
-        else:
-            file = self.data_logger.folder / Path(f'{sp[1]}.csv')
-            if not file.exists():
-                self.reply_text(update, f'File: {file} does not exist')
-            else:
-                self.reply_document(update, file)
-
-    @password
-    def _statuskw(self, update, _):
-        if self.current is None:
-            message = 'N/A'
-        else:
-            message = []
-            for (name, ct, current) in zip(self.config.names, self.config.current_types, self.current):
-                message.append(f'{round(current*0.24, 2)}kW: {name} ({ct.name})')
-        self.reply_text(update, '\n'.join(message))
-
-    @password
-    def _recommend(self, update, _):
-        chat_id = update.effective_chat.id
-        sp = update.message.text.split(' ')
-        if len(sp) == 1:
-            toggle = True
-        else:
-            toggle = False
-        if toggle:
-            self._timing_recommended(chat_id)
-            if self.info[chat_id]['recommend'] is False:
-                self.reply_text(update, 'Toggled recommendations on')
-                self.info.setitem(chat_id, 'recommend', True)
-                self._send_recommendation(chat_id)
-            else:
-                self.reply_text(update, 'Toggled recommendations off')
-                self.info.setitem(chat_id, 'recommend', False)
-                mes_id = self.last_recommendations.get(chat_id)
-                if mes_id is not None:
-                    self.delete_message(chat_id, mes_id)
-        else:
-            self.reply_text(update, f'Toggled recommendations on for {sp[1]} minutes')
-            self.info.setitem(chat_id, 'recommend', time.time() + float(sp[1])*60)
-            self._send_recommendation(chat_id)
-
-    @password
-    def _follow(self, update, _):
-        if self.following:
-            self.quasar.relinquish_control()
-            self.reply_text(update, 'Toggled following off')
-        else:
-            self.quasar.take_control()
-            self.reply_text(update, 'Toggled following on')
-        self.following = not self.following
-
-    @password
-    def _charger_status(self, update, _):
-        self.reply_text(update, self.quasar.read_charger_status().name)
-
-    @password
-    def _cleanup(self, *_):
-        self.cleanup()
+        self.add_handler(LiveStatusHandler(self, chat_id, 300, mes_id))
 
     def cleanup(self):
         """Kills all live messages."""
-        self.quasar.cleanup()
         chats = set()
         for (chat_id, mes_id, _) in self.live:
             chats.add(chat_id)
-            self.edit_message_text(self._formatted_current(), chat_id, mes_id)
+            self.edit_message_text(self.formatted_current(), chat_id, mes_id)
         for (chat_id, mes_id) in self.last_recommendations.items():
             if mes_id is not None:
                 chats.add(chat_id)
