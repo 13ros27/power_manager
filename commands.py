@@ -9,8 +9,8 @@ from quasar import Quasar
 
 def password(f):
     """Check if this chat has entered the correct password."""
-    def wrapper(self, update: Update, context: CallbackContext):
-        if self.tele_bot.nvinfo.is_valid(self.tele_bot.get_chat_id(update)):
+    def wrapper(self: TeleCommands, update: Update, context: CallbackContext):
+        if self.tbot.nvinfo.is_valid(self.tbot.get_chat_id(update)):
             f(self, update, context)
     return wrapper
 
