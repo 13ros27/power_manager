@@ -1,4 +1,3 @@
-"""Datalogs the current readings."""
 from config import Config
 from current import CurrentMonitor, CurrentType, current_combine, recommended_current
 from datalogger import DataLogger
@@ -34,6 +33,8 @@ if __name__ == '__main__':
             estimated = current_combine(currents, CURRENT_TYPES)
             recommended = recommended_current(CONFIG, estimated)
             commands.tbot.update_info(currents, estimated, recommended)
+            if commands.tbot.following:
+                quasar.set_charge_rate(recommended)
     except:  # noqa
         CONFIG.logger.exception('Overall:')
         raise
