@@ -56,7 +56,7 @@ class RecommendHandler:
         self.live_until = time.time() + secs_for
 
     def _send_recommendation(self) -> int:
-        if self.tbot.info is not None:
+        if self.tbot.info[2] is not None:
             message = f'{self.tbot.info[2]}A'
         else:
             message = 'N/A'

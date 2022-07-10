@@ -20,7 +20,6 @@ class Quasar:
         self._client = ModbusClient(host=host, port=port, auto_open=True, auto_close=True)
         if take_control:
             self.take_control()
-        self.write_register(0x53, 0)  # Make sure it is in current mode
         if self.read_register(0x102) == 1:
             self._charging = True
         else:
@@ -28,6 +27,7 @@ class Quasar:
         self.current = None
 
     def take_control(self):
+        self.write_register(0x53, 0)  # Make sure it is in current mode
         self.write_register(0x51, 1)
 
     def relinquish_control(self):
