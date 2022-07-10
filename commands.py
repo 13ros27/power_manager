@@ -96,13 +96,17 @@ class TeleCommands:
                 self.tbot.remove_handler(recommending)
             else:
                 self.tbot.reply_text(update, 'Toggled recommendations on')
-                self.tbot.add_handler(RecommendHandler(self.tbot, chat_id))
+                handler = RecommendHandler(self.tbot, chat_id)
+                self.tbot.add_handler(handler)
+                self.recommending[chat_id] = handler
         else:
             secs_for = int(mins_for)*60
             if recommending is not None:
                 recommending.update_timer(secs_for)
             else:
-                self.tbot.add_handler(RecommendHandler(self.tbot, chat_id, secs_for))
+                handler = RecommendHandler(self.tbot, chat_id, secs_for)
+                self.tbot.add_handler(handler)
+                self.recommending[chat_id] = handler
 
     @password
     def follow(self, update: Update, _: CallbackContext):
