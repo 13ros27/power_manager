@@ -45,10 +45,8 @@ class TelegramBot:
                 return default
 
     def add_handler(self, handler):
-        triggers = handler.updates_on()
-        for (i, trigger) in triggers:
-            if trigger:
-                self.change_handlers[i].append(handler)
+        for i in handler.updates_on():
+            self.change_handlers[i].append(handler)
 
     def remove_handler(self, handler):
         handler.remove()
