@@ -3,7 +3,7 @@ from telegram.constants import PARSEMODE_HTML as HTML
 import time
 
 class LiveStatusHandler:
-    def __init__(self, tbot, chat_id: int, secs_for: int = 300, mes_id: int | None = None):
+    def __init__(self, tbot, chat_id: int, secs_for: int = 300, mes_id = None):
         self.tbot = tbot
         self.chat_id = chat_id
         self.live_until = time.time() + secs_for
@@ -36,7 +36,7 @@ class LiveStatusHandler:
             self.tbot.edit_message_text(self.tbot.formatted_current(), self.chat_id, self.mes_id)
 
 class RecommendHandler:
-    def __init__(self, tbot, chat_id: int, secs_for: int | None = None):
+    def __init__(self, tbot, chat_id: int, secs_for = None):
         self.tbot = tbot
         self.chat_id = chat_id
         if secs_for is None:
