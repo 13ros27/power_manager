@@ -103,8 +103,10 @@ class TeleCommands:
         else:
             secs_for = int(mins_for)*60
             if recommending is not None:
+                self.tbot.reply_text(update, f'Extending recommendations for {mins_for} minutes')
                 recommending.update_timer(secs_for)
             else:
+                self.tbot.reply_text(update, f'Toggling recommendations on for {mins_for} minutes')
                 handler = RecommendHandler(self.tbot, chat_id, secs_for)
                 self.tbot.add_handler(handler)
                 self.recommending[chat_id] = handler
