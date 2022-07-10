@@ -90,7 +90,7 @@ class TelegramBot:
         return self._send(self.updater.bot.delete_message, chat_id, mes_id, **kwargs)
 
     def formatted_current(self, rounding: int = 1, kw: bool = False):
-        if self.info is (None, None, None):
+        if self.info == (None, None, None):
             message = 'N/A'
         else:
             if kw:
@@ -101,7 +101,6 @@ class TelegramBot:
                 symbol = 'A'
             (currents, estimated, recommended) = self.info
             if currents is None or estimated is None:
-                print(currents, estimated, self.info)
                 raise TypeError('Unreachable')
             message = []
             for (name, ct, current) in zip(self.config.names, self.config.current_types, currents):
