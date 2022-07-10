@@ -10,11 +10,8 @@ from quasar import Quasar
 def password(f):
     """Check if this chat has entered the correct password."""
     def wrapper(self, update: Update, context: CallbackContext):
-        if update.effective_chat is not None:
-            if self.info.is_valid(update.effective_chat.id):
-                f(self, update, context)
-        else:
-            raise TypeError('update.effective_chat is None')
+        if self.tele_bot.nvinfo.is_valid(self.tele_bot.get_chat_id(update)):
+            f(self, update, context)
     return wrapper
 
 class TeleCommands:
