@@ -117,6 +117,7 @@ class TelegramBot:
         """Update what it knows about the state."""
         self.last_info = self.info
         self.info = (currents, estimated, recommended)
+        print(self.info, self.last_info)
         to_update = set()
         for (i, handlers) in enumerate(self.change_handlers):
             if self.info[i] != self.last_info[i]:
