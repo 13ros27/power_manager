@@ -1,6 +1,6 @@
 """Contains the class that handles anything to do with the telegram bot."""
 from config import Config
-from handlers import LiveStatusHandler
+from handlers import ChangeHandler, LiveStatusHandler
 from nvi import NonVolatileInformation
 from pathlib import Path
 from telegram import Update
@@ -21,7 +21,6 @@ class TelegramBot:
         self.change_handlers = {}
         self.info = (None, None, None)
         self.last_info = (None, None, None)
-        self.last_recommendations = {}
         self.following = False
         self.updater.start_polling()
 
@@ -44,7 +43,7 @@ class TelegramBot:
             else:
                 return default
 
-    def add_handler(self, handler):
+    def add_handler(self, handler: ChangeHandler):
         should_update = handler.should_update
         if self.change_handlers.get(should_update) is None:
             self.change_handlers[should_update] = []

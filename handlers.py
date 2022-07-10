@@ -2,7 +2,17 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import PARSEMODE_HTML as HTML
 import time
 
-class LiveStatusHandler:
+class ChangeHandler:
+    def should_update(self) -> bool:
+        return False
+
+    def update(self) -> bool:
+        return True
+
+    def remove(self):
+        pass
+
+class LiveStatusHandler(ChangeHandler):
     def __init__(self, tbot, chat_id: int, secs_for: int = 300, mes_id = None):
         self.tbot = tbot
         self.chat_id = chat_id
@@ -36,7 +46,7 @@ class LiveStatusHandler:
         if not self.run_out:
             self.tbot.edit_message_text(self.tbot.formatted_current(), self.chat_id, self.mes_id)
 
-class RecommendHandler:
+class RecommendHandler(ChangeHandler):
     def __init__(self, tbot, chat_id: int, secs_for = None):
         self.tbot = tbot
         self.chat_id = chat_id
