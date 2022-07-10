@@ -47,7 +47,7 @@ class RecommendHandler:
         self.last_mes_id = self._send_recommendation()
 
     def updates_on(self) -> list:
-        [2]
+        return [2]
 
     def is_finished(self) -> bool:
         return self.live_until is not None and time.time() > self.live_until

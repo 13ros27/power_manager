@@ -139,15 +139,10 @@ class TelegramBot:
         self.add_handler(LiveStatusHandler(self, chat_id, 300, mes_id))
 
     def cleanup(self):
-        """Kills all live messages."""
-        chats = set()
-        for (chat_id, mes_id, _) in self.live:
-            chats.add(chat_id)
-            self.edit_message_text(self.formatted_current(), chat_id, mes_id)
-        for (chat_id, mes_id) in self.last_recommendations.items():
-            if mes_id is not None:
-                chats.add(chat_id)
-                self.delete_message(chat_id, mes_id)
-        self.live = []
-        for chat in chats:
-            self.send_text("Going offline", chat, silent=True)
+        """Kills all handlers."""
+        handlers = set()
+        for handler_group in self.change_handlers:
+            for handler in handler_group:
+                handlers.add(handler)
+        for handler in handlers:
+            self.remove_handler(handler)
