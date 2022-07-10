@@ -94,6 +94,7 @@ class TeleCommands:
             if is_live:
                 self.tbot.reply_text(update, 'Toggled recommendations off')
                 self.tbot.remove_handler(recommending)
+                self.recommending[chat_id] = None
             else:
                 self.tbot.reply_text(update, 'Toggled recommendations on')
                 handler = RecommendHandler(self.tbot, chat_id)
