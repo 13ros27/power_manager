@@ -18,7 +18,7 @@ class TelegramBot:
         self.updater = Updater(self.nvinfo.token)
         self.dispatcher = self.updater.dispatcher
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
-        self.change_handlers = {}
+        self.change_handlers = []
         self.info = (None, None, None)
         self.last_info = (None, None, None)
         self.following = False
@@ -44,16 +44,11 @@ class TelegramBot:
                 return default
 
     def add_handler(self, handler: ChangeHandler):
-        should_update = handler.should_update
-        if self.change_handlers.get(should_update) is None:
-            self.change_handlers[should_update] = []
-        self.change_handlers[should_update].append(handler)
+        self.change_handlers.append(handler)
 
     def remove_handler(self, handler):
         handler.remove()
-        for (updater, handlers) in self.change_handlers.items():
-            if handler in handlers:
-                del self.change_handlers[updater][handlers.index(handler)]
+        del self.change_handlers[self.change_handlers.index(handler)]
 
     def get_chat_id(self, update: Update):
         if update.effective_chat is not None:
@@ -116,14 +111,10 @@ class TelegramBot:
         """Update what it knows about the state."""
         self.last_info = self.info
         self.info = (currents, estimated, recommended)
-        to_update = set()
-        for (updater, handlers) in self.change_handlers.items():
-            for handler in handlers:
-                if updater(handler):
-                    to_update.add(handler)
-        for handler in to_update:
-            if handler.update() is False:
-                self.remove_handler(handler)
+        for handler in self.change_handlers:
+            if handler.should_update():
+                if handler.update() is False:
+                    self.remove_handler(handler)
 
     def button(self, update, _):
         """Run the continue button from LiveStatus.update."""
@@ -139,9 +130,5 @@ class TelegramBot:
 
     def cleanup(self):
         """Kills all handlers."""
-        handlers = set()
-        for handler_group in self.change_handlers.values():
-            for handler in handler_group:
-                handlers.add(handler)
-        for handler in handlers:
+        for handler in self.change_handlers:
             self.remove_handler(handler)

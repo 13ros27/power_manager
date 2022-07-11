@@ -3,8 +3,7 @@ from telegram.constants import PARSEMODE_HTML as HTML
 import time
 
 class ChangeHandler:
-    @staticmethod
-    def should_update(_) -> bool:
+    def should_update(self) -> bool:
         return False
 
     def update(self) -> bool:
@@ -28,9 +27,8 @@ class LiveStatusHandler(ChangeHandler):
             self.mes_id = mes_id
         self.run_out = False
 
-    @staticmethod
-    def should_update(handler) -> bool:
-        return handler.tbot.formatted_current() != handler.last_formatted
+    def should_update(self) -> bool:
+        return self.tbot.formatted_current() != self.last_formatted
 
     def update(self) -> bool:
         self.last_formatted = self.tbot.formatted_current()
@@ -58,9 +56,8 @@ class RecommendHandler(ChangeHandler):
             self.live_until = time.time() + secs_for
         self.last_mes_id = self._send_recommendation()
 
-    @staticmethod
-    def should_update(handler) -> bool:
-        return handler.tbot.info[2] != handler.tbot.last_info[2]
+    def should_update(self) -> bool:
+        return self.tbot.info[2] != self.tbot.last_info[2]
 
     def is_finished(self) -> bool:
         return self.live_until is not None and time.time() > self.live_until
