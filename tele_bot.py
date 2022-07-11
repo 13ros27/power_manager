@@ -48,6 +48,7 @@ class TelegramBot:
         if self.change_handlers.get(should_update) is None:
             self.change_handlers[should_update] = []
         self.change_handlers[should_update].append(handler)
+        print(self.change_handlers)
 
     def remove_handler(self, handler):
         handler.remove()
