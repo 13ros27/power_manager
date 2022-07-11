@@ -119,8 +119,8 @@ class TelegramBot:
         self.info = (currents, estimated, recommended)
         to_update = set()
         for (updater, handlers) in self.change_handlers.items():
-            if updater():
-                for handler in handlers:
+            for handler in handlers:
+                if updater(handler):
                     to_update.add(handler)
         for handler in to_update:
             if handler.update() is False:
