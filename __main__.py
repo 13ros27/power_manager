@@ -1,9 +1,10 @@
+from commands import TeleCommands
 from config import Config
-from current import CurrentMonitor, CurrentType, current_combine, recommended_current
+from current import CurrentMonitor, CurrentType, current_combine
 from datalogger import DataLogger
 from pathlib import Path
-from commands import TeleCommands
 from quasar import Quasar
+from recommend import Recommend
 
 
 NAMES = ['Solar', 'House', 'Car', 'Heat Pump', 'Grid']
@@ -25,13 +26,14 @@ if __name__ == '__main__':
         quasar = Quasar(QUASAR_ADDR)
         commands = TeleCommands(CONFIG, data_logger, quasar)
         current_monitor = CurrentMonitor(len(NAMES))
+        recommend = Recommend(config)
 
         while True:
             currents = current_monitor.read()
             print(currents)
             data_logger.tick(currents)
             estimated = current_combine(currents, CURRENT_TYPES)
-            recommended = recommended_current(CONFIG, estimated)
+            recommended = recommend.current(estimated)
             commands.tbot.update_info(currents, estimated, recommended)
             if commands.tbot.following:
                 quasar.set_charge_rate(recommended)

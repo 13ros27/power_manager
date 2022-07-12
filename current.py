@@ -1,6 +1,5 @@
 """Handles everything to do with current monitoring."""
 from enum import Enum
-from math import ceil, floor
 from serial import Serial
 
 
@@ -35,27 +34,3 @@ class CurrentMonitor:
 def current_combine(currents: list, current_types: list) -> float:
     """Return the number of amps the currents give, Unknown is ignored."""
     return sum([c * ct.value[0] for (c, ct) in zip(currents, current_types)])
-
-
-def recommended_current(config, total: float) -> int:
-    """Recommend a certain amount of current."""
-    if abs(total) <= 3:
-        step_over = config.rate_frac * 3
-        if total >= step_over:
-            return -3
-        elif total <= -3 + step_over:
-            return 3
-        else:
-            return 0
-    else:
-        part = abs(total) % 1
-        if total < 0:
-            if part < 1 - config.charge_rate_frac:
-                return -ceil(total)
-            else:
-                return -floor(total)
-        else:
-            if part < config.discharge_rate_frac:
-                return -floor(total)
-            else:
-                return -ceil(total)
