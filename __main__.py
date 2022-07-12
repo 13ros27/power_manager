@@ -26,7 +26,7 @@ if __name__ == '__main__':
         quasar = Quasar(QUASAR_ADDR)
         commands = TeleCommands(CONFIG, data_logger, quasar)
         current_monitor = CurrentMonitor(len(NAMES))
-        recommend = Recommend(config)
+        recommend = Recommend(CONFIG)
 
         while True:
             currents = current_monitor.read()
