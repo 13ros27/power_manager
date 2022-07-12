@@ -2,7 +2,7 @@
 from config import Config
 from datetime import datetime
 from pathlib import Path
-import time
+import timing
 
 
 class DataLogger:
@@ -10,6 +10,7 @@ class DataLogger:
 
     def __init__(self, config: Config, freq: int, folder: Path):
         """Create the file to log in and fills in the titles."""
+        self.config = config
         self.logger = config.logger
         folder = config.path / folder
         if not folder.is_dir():
@@ -18,14 +19,14 @@ class DataLogger:
         self.folder = folder
         self.names = config.names
         self.current_types = config.current_types
-        self.start_time = time.time()
+        self.start_time = timing.second_number()
         self._new_file()
         self.last_tick = None
 
     def _new_file(self):
         header = 'Time' + ''.join([f',{n}({t.name})' for (n, t) in zip(self.names, self.current_types)])
-        self.day = int(time.time() // 86400)
-        root_filename = f'D{self.day}'
+        self.day = timing.comparison_day_number()
+        root_filename = f'D{timing.day_number()}'
         i = 1
         while True:
             if i == 1:
@@ -49,10 +50,10 @@ class DataLogger:
 
     def tick(self, currents: list):
         """Log the data if enough time has passed."""
-        this_tick = time.time() // self.freq
+        this_tick = timing.second_number() // self.freq
         if self.last_tick is None or self.last_tick < this_tick:
             self.last_tick = this_tick
-            if int(time.time() // 86400) != self.day:
+            if timing.comparison_day_number() != self.day and timing.past_this_time(self.config.night_start):
                 self._new_file()
             self._log_to_file(currents)
 

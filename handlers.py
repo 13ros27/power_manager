@@ -1,6 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import PARSEMODE_HTML as HTML
-import time
+import timing
 
 class ChangeHandler:
     def should_update(self) -> bool:
@@ -16,7 +16,7 @@ class LiveStatusHandler(ChangeHandler):
     def __init__(self, tbot, chat_id: int, secs_for: int = 300, mes_id = None):
         self.tbot = tbot
         self.chat_id = chat_id
-        self.live_until = time.time() + secs_for
+        self.live_until = timing.second_number() + secs_for
         self.last_formatted = tbot.formatted_current()
         text = f'<b>LIVE</b>\n{self.last_formatted}'
         if mes_id is None:
@@ -32,7 +32,7 @@ class LiveStatusHandler(ChangeHandler):
 
     def update(self) -> bool:
         self.last_formatted = self.tbot.formatted_current()
-        if time.time() > self.live_until:
+        if timing.second_number() > self.live_until:
             message = self.last_formatted
             markup = InlineKeyboardMarkup([[InlineKeyboardButton('Continue', callback_data=f'{self.chat_id} {self.mes_id}')]])
             self.run_out = True
@@ -53,17 +53,17 @@ class RecommendHandler(ChangeHandler):
         if secs_for is None:
             self.live_until = None
         else:
-            self.live_until = time.time() + secs_for
+            self.live_until = timing.second_number() + secs_for
         self.last_mes_id = self._send_recommendation()
 
     def should_update(self) -> bool:
         return self.tbot.info[2] != self.tbot.last_info[2]
 
     def is_finished(self) -> bool:
-        return self.live_until is not None and time.time() > self.live_until
+        return self.live_until is not None and timing.second_number() > self.live_until
 
     def update_timer(self, secs_for: int):
-        self.live_until = time.time() + secs_for
+        self.live_until = timing.second_number() + secs_for
 
     def _send_recommendation(self) -> int:
         if self.tbot.info[2] is not None:
