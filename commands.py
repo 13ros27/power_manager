@@ -34,6 +34,7 @@ class TeleCommands:
         tbot.add_command('recommend', self.recommend)
         tbot.add_command('follow', self.follow)
         tbot.add_command('charger_status', self.charger_status)
+        tbot.add_command('soc', self.soc)
 
     def start(self, update: Update, _: CallbackContext):
         if update.message.text == '/start lego':
@@ -124,6 +125,10 @@ class TeleCommands:
     @password
     def charger_status(self, update: Update, _: CallbackContext):
         self.tbot.reply_text(update, self.quasar.read_charger_status().name)
+
+    @password
+    def soc(self, update: Update, _: CallbackContext):
+        self.tbot.reply_text(update, f'{self.quasar.read_state_of_charge()}%')
 
     def cleanup(self):
         self.tbot.cleanup()
