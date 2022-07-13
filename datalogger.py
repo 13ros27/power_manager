@@ -2,6 +2,7 @@
 from config import Config
 from datetime import datetime
 from pathlib import Path
+from state import State
 import timing
 
 
@@ -24,7 +25,7 @@ class DataLogger:
         self.last_tick = None
 
     def _new_file(self):
-        header = 'Time' + ''.join([f',{n}({t.name})' for (n, t) in zip(self.names, self.current_types)])
+        header = 'Time,' + ','.join([f'{n}({t.name})' for (n, t) in zip(self.names, self.current_types)]) + ',Recommended,State,Metadata'
         self.day = timing.comparison_day_number()
         root_filename = f'D{timing.day_number()}'
         i = 1
@@ -48,19 +49,20 @@ class DataLogger:
                 break
             i += 1
 
-    def tick(self, currents: list):
+    def tick(self, currents: list, recommended: int, state: State):
         """Log the data if enough time has passed."""
         this_tick = timing.second_number() // self.freq
         if self.last_tick is None or self.last_tick < this_tick:
             self.last_tick = this_tick
             if timing.comparison_day_number() != self.day and timing.past_this_time(self.config.night_start):
                 self._new_file()
-            self._log_to_file(currents)
+            self._log_to_file(currents, recommended, state)
 
-    def _log_to_file(self, currents: list):
+    def _log_to_file(self, currents: list, recommended: int, state: State):
         with open(self.fp, 'a') as fp:
             mes = str(datetime.now().replace(microsecond=0).isoformat())
             mes += ''.join([f',{c}' for c in currents])
+            mes += f',{recommended},{state.name}'
             fp.write(f'\n{mes}')
 
     def add_metadata(self, metadata: str):

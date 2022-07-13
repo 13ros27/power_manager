@@ -5,6 +5,7 @@ from datalogger import DataLogger
 from pathlib import Path
 from quasar import Quasar
 from recommend import Recommend
+from state import State
 
 
 NAMES = ['Solar', 'House', 'Car', 'Heat Pump', 'Grid']
@@ -26,14 +27,15 @@ if __name__ == '__main__':
         quasar = Quasar(QUASAR_ADDR)
         commands = TeleCommands(CONFIG, data_logger, quasar)
         current_monitor = CurrentMonitor(len(NAMES))
-        recommend = Recommend(CONFIG)
+        state = State.PRESERVE
+        recommend = Recommend(CONFIG, state)
 
         while True:
             currents = current_monitor.read()
             print(currents)
-            data_logger.tick(currents)
             estimated = current_combine(currents, CURRENT_TYPES)
             recommended = recommend.current(estimated)
+            data_logger.tick(currents, recommended, state)
             commands.tbot.update_info(currents, estimated, recommended)
             if commands.tbot.following:
                 quasar.set_charge_rate(recommended)
