@@ -85,7 +85,7 @@ class TelegramBot:
         return self._send(self.updater.bot.delete_message, chat_id, mes_id, **kwargs)
 
     def formatted_current(self, rounding: int = 1, kw: bool = False):
-        if self.info == (None, None, None):
+        if self.info == (None, None, None, None):
             message = 'N/A'
         else:
             if kw:
