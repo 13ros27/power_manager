@@ -43,6 +43,7 @@ if __name__ == '__main__':
             data_logger.tick(currents, recommended, state)
             commands.tbot.update_info(currents, estimated, recommended)
             if commands.tbot.following:
+                print(f'Setting to {recommended}')
                 quasar.set_charge_rate(recommended)
     except:  # noqa
         CONFIG.logger.exception('Overall:')
