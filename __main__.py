@@ -6,6 +6,7 @@ from pathlib import Path
 from quasar import Quasar
 from recommend import Recommend
 from state import State
+import timing
 
 
 NAMES = ['Solar', 'House', 'Car', 'Heat Pump', 'Grid']
@@ -31,6 +32,10 @@ if __name__ == '__main__':
         recommend = Recommend(CONFIG, state)
 
         while True:
+            if timing.past_this_time(CONFIG.night_start) and not timing.past_this_time(CONFIG.night_end):
+                state = State.MAX_CHARGE
+            else:
+                state = State.PRESERVE
             currents = current_monitor.read()
             print(currents)
             estimated = current_combine(currents, CURRENT_TYPES)
