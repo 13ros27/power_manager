@@ -128,7 +128,11 @@ class TeleCommands:
 
     @password
     def soc(self, update: Update, _: CallbackContext):
-        self.tbot.reply_text(update, f'{self.quasar.read_state_of_charge()}%')
+        soc = self.quasar.soc()
+        if soc is None:
+            self.tbot.reply_text(update, f'Unknown')
+        else:
+            self.tbot.reply_text(update, f'{soc}%')
 
     def cleanup(self):
         self.tbot.cleanup()

@@ -20,6 +20,7 @@ class Quasar:
         self._client = ModbusClient(host=host, port=port, auto_open=True, auto_close=True)
         self._charging = None
         self.current = None
+        self._soc = None
 
     def take_control(self):
         self.write_register(0x53, 0)  # Make sure it is in current mode
@@ -61,8 +62,14 @@ class Quasar:
             self.set_current_setpoint(amps)
             self.start_charging()
 
-    def read_state_of_charge(self) -> int:
+    def _read_state_of_charge(self) -> int:
         return self.read_register(0x21A)
+
+    def soc(self) -> int | None:
+        reading = self._read_state_of_charge()
+        if reading != 0:
+            self._soc = reading
+        return self._soc
 
     def read_max_available_current(self) -> int:
         return self.read_register(0x200)
