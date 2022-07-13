@@ -21,7 +21,6 @@ class TelegramBot:
         self.change_handlers = []
         self.info = (None, None, None)
         self.last_info = (None, None, None)
-        self.following = False
         self.updater.start_polling()
 
     def add_command(self, name: str, func):
