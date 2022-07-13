@@ -51,14 +51,14 @@ class Recommend:
         if estimated >= 0:
             return 0
         else:
-            if estimated <= self.config.charge_rate_frac * 3 - 3:
-                return 3
-            elif estimated <= -3:
+            if estimated < -3:
                 part = abs(estimated) % 1
                 if part < 1 - self.config.charge_rate_frac:
                     return -ceil(estimated)
                 else:
                     return -floor(estimated)
+            elif estimated <= self.config.charge_rate_frac * 3 - 3:
+                return 3
             else:
                 return 0
 
