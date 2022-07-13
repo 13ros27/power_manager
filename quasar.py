@@ -18,10 +18,7 @@ class QuasarStatus(Enum):
 class Quasar:
     def __init__(self, host: str, port: int = 502):
         self._client = ModbusClient(host=host, port=port, auto_open=True, auto_close=True)
-        if self.read_register(0x102) == 1:
-            self._charging = True
-        else:
-            self._charging = False
+        self._charging = None
         self.current = None
 
     def take_control(self):
@@ -38,12 +35,12 @@ class Quasar:
         self._client.write_single_register(address, value)
 
     def start_charging(self):
-        if not self._charging:
+        if self._charging != True:
             self.write_register(0x101, 1)
             self._charging = True
 
     def stop_charging(self):
-        if self._charging:
+        if self._charging != False:
             self.write_register(0x101, 2)
             self._charging = False
 
