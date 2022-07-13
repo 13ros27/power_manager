@@ -19,8 +19,8 @@ class TelegramBot:
         self.dispatcher = self.updater.dispatcher
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
         self.change_handlers = []
-        self.info = (None, None, None)
-        self.last_info = (None, None, None)
+        self.info = (None, None, None, None)
+        self.last_info = (None, None, None, None)
         self.updater.start_polling()
 
     def add_command(self, name: str, func):
@@ -94,7 +94,7 @@ class TelegramBot:
             else:
                 multiplier = 1
                 symbol = 'A'
-            (currents, estimated, recommended) = self.info
+            (currents, estimated, recommended, charge_rate) = self.info
             if currents is None or estimated is None:
                 raise TypeError('Unreachable')
             message = []
@@ -103,13 +103,14 @@ class TelegramBot:
             if not kw:
                 message.append(f'{round(estimated, rounding)}A: Estimated')
                 message.append(f'{recommended}A: Recommended')
+                message.append(f'{charge_rate}A: Charge Rate')
             message = '\n'.join(message)
         return message
 
-    def update_info(self, currents: list, estimated: float, recommended: int):
+    def update_info(self, currents: list, estimated: float, recommended: int, charge_rate: int):
         """Update what it knows about the state."""
         self.last_info = self.info
-        self.info = (currents, estimated, recommended)
+        self.info = (currents, estimated, recommended, charge_rate)
         for handler in self.change_handlers:
             if handler.should_update():
                 if handler.update() is False:

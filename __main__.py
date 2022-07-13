@@ -2,6 +2,7 @@ from commands import TeleCommands
 from config import Config
 from current import CurrentMonitor, CurrentType, current_combine
 from datalogger import DataLogger
+from hysteresis import OnOff
 from pathlib import Path
 from quasar import Quasar
 from recommend import Recommend
@@ -30,6 +31,7 @@ if __name__ == '__main__':
         current_monitor = CurrentMonitor(len(NAMES))
         state = State.PRESERVE
         recommend = Recommend(CONFIG, state)
+        on_off_hysteresis = OnOff(4)
 
         while True:
             if timing.past_this_time(CONFIG.night_start) and not timing.past_this_time(CONFIG.night_end):
@@ -40,10 +42,11 @@ if __name__ == '__main__':
             print(currents)
             estimated = current_combine(currents, CURRENT_TYPES)
             recommended = recommend.current(estimated)
+            charge_rate = on_off_hysteresis.balance(recommended)
             data_logger.tick(currents, recommended, state)
-            commands.tbot.update_info(currents, estimated, recommended)
+            commands.tbot.update_info(currents, estimated, recommended, charge_rate)
             if commands.following:
-                quasar.set_charge_rate(recommended)
+                quasar.set_charge_rate(charge_rate)
     except:  # noqa
         CONFIG.logger.exception('Overall:')
         raise
