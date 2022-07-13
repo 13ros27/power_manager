@@ -38,4 +38,4 @@ class OnOff:
 			if change:
 				self._reset()
 				self.last = recommended
-			return self.last
+		return self.last
