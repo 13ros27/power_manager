@@ -65,7 +65,7 @@ class Quasar:
     def _read_state_of_charge(self) -> int:
         return self.read_register(0x21A)
 
-    def soc(self) -> int | None:
+    def soc(self):
         reading = self._read_state_of_charge()
         if reading != 0:
             self._soc = reading
