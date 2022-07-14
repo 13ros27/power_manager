@@ -23,7 +23,6 @@ class Quasar:
         self._soc = None
 
     def take_control(self):
-        self.write_register(0x53, 0)  # Make sure it is in current mode
         self.write_register(0x51, 1)
 
     def relinquish_control(self):
