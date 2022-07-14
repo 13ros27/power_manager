@@ -33,6 +33,7 @@ class TeleCommands:
         tbot.add_command('statuskw', self.statuskw)
         tbot.add_command('recommend', self.recommend)
         tbot.add_command('follow', self.follow)
+        tbot.add_command('following', self.isfollowing)
         tbot.add_command('charger_status', self.charger_status)
         tbot.add_command('soc', self.soc)
 
@@ -121,6 +122,13 @@ class TeleCommands:
             self.quasar.take_control()
             self.tbot.reply_text(update, 'Toggled following on')
         self.following = not self.following
+
+    @password
+    def isfollowing(self, update: Update, _: CallbackContext):
+        if self.following:
+            self.tbot.reply_text(update, 'I am following')
+        else:
+            self.tbot.reply_text(update, 'I am not following')
 
     @password
     def charger_status(self, update: Update, _: CallbackContext):
