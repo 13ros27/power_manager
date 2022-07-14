@@ -3,7 +3,7 @@ import time
 
 def past_this_time(time: tuple) -> bool:
     now = datetime.now()
-    return time[0] >= now.hour and time[1] >= now.minute
+    return (time[0] == now.hour and time[1] <= now.minute) or time[0] < now.hour
 
 def comparison_day_number() -> int:
     return datetime.now().day
