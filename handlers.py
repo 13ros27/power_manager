@@ -65,19 +65,24 @@ class RecommendHandler(ChangeHandler):
     def update_timer(self, secs_for: int):
         self.live_until = timing.second_number() + secs_for
 
-    def _send_recommendation(self) -> int:
+    def _send_recommendation(self):
         if self.tbot.info[2] is not None:
             message = f'{self.tbot.info[2]}A'
         else:
             message = 'N/A'
-        return self.tbot.send_text(f'Recommendation: {message}', self.chat_id).message_id
+        mes = self.tbot.send_text(f'Recommendation: {message}', self.chat_id)
+        if mes is None:
+            return None
+        else:
+            return mes.message_id
 
     def update(self) -> bool:
         if self.is_finished():
             return False
         else:
             mes_id = self._send_recommendation()
-            self.tbot.delete_message(self.chat_id, self.last_mes_id)
+            if self.last_mes_id is not None:
+                self.tbot.delete_message(self.chat_id, self.last_mes_id)
             self.last_mes_id = mes_id
             return True
 
