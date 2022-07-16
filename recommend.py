@@ -7,8 +7,8 @@ class Recommend:
         self.config = config
         self.state = start_state
 
-    def change_state(self, new_state: State):
-        self.state = new_state
+    # def change_state(self, new_state: State):
+    #     self.state = new_state
 
     def _summer_current(self, estimated: float) -> int:
         if abs(estimated) < 3:
@@ -62,12 +62,12 @@ class Recommend:
             else:
                 return 0
 
-    def current(self, estimated: float) -> int:
-        if self.state == State.MAX_CHARGE:
+    def current(self, estimated: float, state: State) -> int:
+        if state == State.MAX_CHARGE:
             return 32
-        elif self.state == State.SUMMER:
+        elif state == State.SUMMER:
             return self._summer_current(estimated)
-        elif self.state == State.WINTER:
+        elif state == State.WINTER:
             return self._winter_current(estimated)
         else:
             return self._preserve_current(estimated)
