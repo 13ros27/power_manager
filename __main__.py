@@ -31,12 +31,30 @@ if __name__ == '__main__':
         current_monitor = CurrentMonitor(len(NAMES))
         recommend = Recommend(CONFIG)
         on_off_hysteresis = OnOff(4)
+        power_overflow = False
+        remained_overflowed = False
 
         while True:
+            soc = quasar.soc
             if timing.past_this_time(CONFIG.night_start) and not timing.past_this_time(CONFIG.night_end):
-                state = State.MAX_CHARGE
+                if soc <= CONFIG.min_charge:
+                    remained_overflowed = True
+                if quasar.soc < CONFIG.max_charge:
+                    state = State.MAX_CHARGE
+                else:
+                    state = State.PRESERVE
             else:
-                state = State.PRESERVE
+                if not remained_overflowed:
+                    power_overflow = False
+                remained_overflowed = False
+                if quasar.soc <= CONFIG.min_charge:
+                    power_overflow = True
+                    state = State.PRESERVE
+                else:
+                    if power_overflow:
+                        state = State.WINTER
+                    else:
+                        state = State.SUMMER
             currents = current_monitor.read()
             print(currents)
             estimated = current_combine(currents, CURRENT_TYPES)
