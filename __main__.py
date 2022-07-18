@@ -29,8 +29,7 @@ if __name__ == '__main__':
         quasar = Quasar(QUASAR_ADDR)
         commands = TeleCommands(CONFIG, data_logger, quasar)
         current_monitor = CurrentMonitor(len(NAMES))
-        state = State.PRESERVE
-        recommend = Recommend(CONFIG, state)
+        recommend = Recommend(CONFIG)
         on_off_hysteresis = OnOff(4)
 
         while True:
