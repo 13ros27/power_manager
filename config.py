@@ -7,8 +7,8 @@ from pathlib import Path
 class Config:
     """All the config variables."""
 
-    def __init__(self, path: Path, names: list, current_types: list, night_rate: float,
-                 charge_rate: float, discharge_rate: float, night_start: tuple, night_end: tuple):
+    def __init__(self, path: Path, names: list, current_types: list, night_rate: float, charge_rate: float,
+                 discharge_rate: float, night_start: tuple, night_end: tuple, min_charge: int, max_charge: int):
         """Create all the variables."""
         self.path = path
         self.names = names
@@ -17,6 +17,8 @@ class Config:
         self.night_end = night_end
         self.charge_rate_frac = charge_rate / night_rate
         self.discharge_rate_frac = discharge_rate / night_rate
+        self.min_charge = min_charge
+        self.max_charge = max_charge
         self.setup_logging()
 
     def setup_logging(self):

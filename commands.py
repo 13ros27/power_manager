@@ -132,12 +132,12 @@ class TeleCommands:
 
     @password
     def charger_status(self, update: Update, _: CallbackContext):
-        self.tbot.reply_text(update, self.quasar.read_charger_status().name)
+        self.tbot.reply_text(update, self.quasar.charger_status.name)
 
     @password
     def soc(self, update: Update, _: CallbackContext):
-        soc = self.quasar.soc()
-        if soc is None:
+        soc = self.quasar.soc
+        if soc == 0:
             self.tbot.reply_text(update, f'Unknown')
         else:
             self.tbot.reply_text(update, f'{soc}%')
