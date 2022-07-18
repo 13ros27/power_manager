@@ -3,12 +3,8 @@ from math import ceil, floor
 from state import State
 
 class Recommend:
-    def __init__(self, config: Config, start_state: State = State.SUMMER):
+    def __init__(self, config: Config):
         self.config = config
-        self.state = start_state
-
-    # def change_state(self, new_state: State):
-    #     self.state = new_state
 
     def _summer_current(self, estimated: float) -> int:
         if abs(estimated) < 3:
