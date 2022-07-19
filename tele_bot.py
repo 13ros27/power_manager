@@ -7,6 +7,28 @@ from telegram import Update
 from telegram.error import NetworkError
 from telegram.ext import CallbackQueryHandler, CommandHandler, Updater
 
+class Info:
+    def __init__(self):
+        self.info = {}
+        self.last_info = {}
+
+    def get(self, *items, require=False):
+        stuff = [self.info.get(item) for item in items]
+        if require and filter(None, stuff) != stuff:
+            return None
+        else:
+            return stuff
+
+    def update(self, new_info: dict):
+        self.last_info = self.info
+        self.info = new_info
+
+    def item_has_changed(self, item: str):
+        return self.info.get(item) != self.last_info.get(item)
+
+    def __getitem__(self, item):
+        return self.info.get(item)
+
 class TelegramBot:
     """Control all the aspects of the telegram bot side of it."""
 
@@ -19,8 +41,7 @@ class TelegramBot:
         self.dispatcher = self.updater.dispatcher
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
         self.change_handlers = []
-        self.info = (None, None, None, None)
-        self.last_info = (None, None, None, None)
+        self.info = Info()
         self.updater.start_polling()
 
     def add_command(self, name: str, func):
@@ -85,19 +106,20 @@ class TelegramBot:
         return self._send(self.updater.bot.delete_message, chat_id, mes_id, **kwargs)
 
     def formatted_current(self, rounding: int = 1, kw: bool = False):
-        if self.info == (None, None, None, None):
+        info = self.info.get('currents', 'estimated', 'recommended', 'charge_rate', require=True)
+        if info is None:
             message = 'N/A'
         else:
+            (currents, estimated, recommended, charge_rate) = info
             if kw:
                 multiplier = 0.24
                 symbol = 'kW'
             else:
                 multiplier = 1
                 symbol = 'A'
-            (currents, estimated, recommended, charge_rate) = self.info
+            message = []
             if currents is None or estimated is None:
                 raise TypeError('Unreachable')
-            message = []
             for (name, ct, current) in zip(self.config.names, self.config.current_types, currents):
                 message.append(f'{round(current * multiplier, rounding)}{symbol}: {name} ({ct.name})')
             if not kw:
@@ -109,8 +131,7 @@ class TelegramBot:
 
     def update_info(self, currents: list, estimated: float, recommended: int, charge_rate: int):
         """Update what it knows about the state."""
-        self.last_info = self.info
-        self.info = (currents, estimated, recommended, charge_rate)
+        self.info.update({'currents': currents, 'estimated': estimated, 'recommended': recommended, 'charge_rate': charge_rate})
         for handler in self.change_handlers:
             if handler.should_update():
                 if handler.update() is False:

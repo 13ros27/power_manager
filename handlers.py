@@ -57,7 +57,7 @@ class RecommendHandler(ChangeHandler):
         self.last_mes_id = self._send_recommendation()
 
     def should_update(self) -> bool:
-        return self.tbot.info[2] != self.tbot.last_info[2]
+        return self.tbot.info.item_has_changed('recommended')
 
     def is_finished(self) -> bool:
         return self.live_until is not None and timing.second_number() > self.live_until
@@ -66,8 +66,8 @@ class RecommendHandler(ChangeHandler):
         self.live_until = timing.second_number() + secs_for
 
     def _send_recommendation(self):
-        if self.tbot.info[2] is not None:
-            message = f'{self.tbot.info[2]}A'
+        if self.tbot.info['recommended'] is not None:
+            message = f'{self.tbot.info["recommended"]}A'
         else:
             message = 'N/A'
         mes = self.tbot.send_text(f'Recommendation: {message}', self.chat_id)
