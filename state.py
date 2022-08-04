@@ -25,7 +25,7 @@ class StateSelect:
         self.quasar = quasar
 
     def set_mode(self, mode: Mode):
-        if mode != Mode.NORMAL:
+        if self.mode != Mode.NORMAL:
             self.remained_overflowed = False
             self.power_overflow = False
         self.mode = mode

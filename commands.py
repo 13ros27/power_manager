@@ -2,6 +2,7 @@ from pathlib import Path
 from config import Config
 from datalogger import DataLogger
 from handlers import LiveStatusHandler, RecommendHandler
+from state import StateSelect, Mode
 from tele_bot import TelegramBot
 from telegram import Update
 from telegram.ext import CallbackContext
@@ -19,6 +20,7 @@ class TeleCommands:
         self.config = config
         self.datalogger = datalogger
         self.quasar = quasar
+        self.state_select = StateSelect(Mode.PRESERVE, config, quasar)
         self.following = False
         tbot = TelegramBot(config)
         self.tbot = tbot
@@ -36,6 +38,7 @@ class TeleCommands:
         tbot.add_command('following', self.isfollowing)
         tbot.add_command('charger_status', self.charger_status)
         tbot.add_command('soc', self.soc)
+        tbot.add_command('mode', self.mode)
 
     def start(self, update: Update, _: CallbackContext):
         if update.message.text == '/start lego':
@@ -141,6 +144,10 @@ class TeleCommands:
             self.tbot.reply_text(update, f'Unknown')
         else:
             self.tbot.reply_text(update, f'{soc}%')
+
+    @password
+    def mode(self, update: Update, _: CallbackContext):
+        self.tbot.reply_text(update, f'Current mode is {self.state_select.mode}')
 
     def cleanup(self):
         self.tbot.cleanup()

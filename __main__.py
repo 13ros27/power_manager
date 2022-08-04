@@ -6,7 +6,6 @@ from hysteresis import OnOff
 from pathlib import Path
 from quasar import Quasar
 from recommend import Recommend
-from state import StateSelect, Mode
 
 NAMES = ['Solar', 'House', 'Car', 'Heat Pump', 'Grid']
 CURRENT_TYPES = [
@@ -29,16 +28,15 @@ if __name__ == '__main__':
         current_monitor = CurrentMonitor(len(NAMES))
         recommend = Recommend(CONFIG)
         on_off_hysteresis = OnOff(4)
-        state_select = StateSelect(Mode.PRESERVE, CONFIG, quasar)
 
         while True:
             soc = quasar.soc
             currents = current_monitor.read()
             print(currents)
             estimated = current_combine(currents, CURRENT_TYPES)
-            recommended = recommend.current(estimated, state_select.state)
+            recommended = recommend.current(estimated, commands.state_select.state)
             charge_rate = on_off_hysteresis.balance(recommended)
-            data_logger.tick(currents, recommended, state_select.state)
+            data_logger.tick(currents, recommended, commands.state_select.state)
             commands.tbot.update_info(currents, estimated, recommended, charge_rate)
             if commands.following:
                 quasar.set_charge_rate(charge_rate)
