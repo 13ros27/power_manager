@@ -106,7 +106,7 @@ class TelegramBot:
         return self._send(self.updater.bot.delete_message, chat_id, mes_id, **kwargs)
 
     def formatted_current(self, rounding: int = 1, kw: bool = False):
-        print(self.info)
+        print(self.info.info)
         info = self.info.get('currents', 'estimated', 'recommended', 'charge_rate', require=True)
         if info is None:
             message = 'N/A'
