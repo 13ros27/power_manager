@@ -20,6 +20,7 @@ class Mode(Enum):
 
 class StateSelect:
     def __init__(self, mode: Mode, config: Config, quasar: Quasar):
+        self.mode = None
         self.set_mode(mode)
         self.config = config
         self.quasar = quasar
