@@ -6,9 +6,7 @@ from hysteresis import OnOff
 from pathlib import Path
 from quasar import Quasar
 from recommend import Recommend
-from state import State
-import timing
-
+from state import StateSelect, Mode
 
 NAMES = ['Solar', 'House', 'Car', 'Heat Pump', 'Grid']
 CURRENT_TYPES = [
@@ -31,37 +29,16 @@ if __name__ == '__main__':
         current_monitor = CurrentMonitor(len(NAMES))
         recommend = Recommend(CONFIG)
         on_off_hysteresis = OnOff(4)
-        power_overflow = False
-        remained_overflowed = False
+        state_select = StateSelect(Mode.PRESERVE, CONFIG, quasar)
 
         while True:
             soc = quasar.soc
-            # if timing.past_this_time(CONFIG.night_start) and not timing.past_this_time(CONFIG.night_end):
-            #     if soc <= CONFIG.min_charge:
-            #         remained_overflowed = True
-            #     if quasar.soc < CONFIG.max_charge:
-            #         state = State.MAX_CHARGE
-            #     else:
-            #         state = State.PRESERVE
-            # else:
-            #     if not remained_overflowed:
-            #         power_overflow = False
-            #     remained_overflowed = False
-            #     if quasar.soc <= CONFIG.min_charge:
-            #         power_overflow = True
-            #         state = State.PRESERVE
-            #     else:
-            #         if power_overflow:
-            #             state = State.WINTER
-            #         else:
-            #             state = State.SUMMER
-            state = State.PRESERVE
             currents = current_monitor.read()
             print(currents)
             estimated = current_combine(currents, CURRENT_TYPES)
-            recommended = recommend.current(estimated, state)
+            recommended = recommend.current(estimated, state_select.state)
             charge_rate = on_off_hysteresis.balance(recommended)
-            data_logger.tick(currents, recommended, state)
+            data_logger.tick(currents, recommended, state_select.state)
             commands.tbot.update_info(currents, estimated, recommended, charge_rate)
             if commands.following:
                 quasar.set_charge_rate(charge_rate)
