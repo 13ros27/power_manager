@@ -3,6 +3,7 @@ from config import Config
 from handlers import ChangeHandler, LiveStatusHandler
 from nvi import NonVolatileInformation
 from pathlib import Path
+from state import Mode, StateSelect
 from telegram import Update
 from telegram.error import NetworkError
 from telegram.ext import CallbackQueryHandler, CommandHandler, Updater
@@ -32,9 +33,10 @@ class Info:
 class TelegramBot:
     """Control all the aspects of the telegram bot side of it."""
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, state_select: StateSelect):
         """Set up the necessary functions and operations."""
         self.config = config
+        self.state_select = state_select
         self.logger = config.logger
         self.nvinfo = NonVolatileInformation(config.path / Path('telegram_info.json'))
         self.updater = Updater(self.nvinfo.token)
@@ -144,10 +146,16 @@ class TelegramBot:
         data = query.data.strip().split(' ')
         if len(data) < 2:
             raise TypeError(f'Did not expect {data}')
+        elif len(data) == 2:
+            chat_id = int(data[0])
+            mes_id = int(data[1])
+            self.add_handler(LiveStatusHandler(self, chat_id, 300, mes_id))
         else:
             chat_id = int(data[0])
             mes_id = int(data[1])
-        self.add_handler(LiveStatusHandler(self, chat_id, 300, mes_id))
+            mode_value = int(data[2])
+            self.state_select.set_mode(Mode(mode_value))
+            self.edit_message_text(f'Current mode is {self.state_select.mode.name}', chat_id, mes_id)
 
     def cleanup(self):
         """Kills all handlers."""

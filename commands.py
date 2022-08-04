@@ -4,7 +4,7 @@ from datalogger import DataLogger
 from handlers import LiveStatusHandler, RecommendHandler
 from state import StateSelect, Mode
 from tele_bot import TelegramBot
-from telegram import Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, replymarkup
 from telegram.ext import CallbackContext
 from quasar import Quasar
 
@@ -22,7 +22,7 @@ class TeleCommands:
         self.quasar = quasar
         self.state_select = StateSelect(Mode.PRESERVE, config, quasar)
         self.following = False
-        tbot = TelegramBot(config)
+        tbot = TelegramBot(config, self.state_select)
         self.tbot = tbot
         self.recommending = {}
         tbot.add_command('start', self.start)
@@ -147,7 +147,17 @@ class TeleCommands:
 
     @password
     def mode(self, update: Update, _: CallbackContext):
-        self.tbot.reply_text(update, f'Current mode is {self.state_select.mode.name}')
+        chat_id = self.tbot.get_chat_id(update)
+        message = f'Current mode is {self.state_select.mode.name}'
+        mes_id = self.tbot.reply_text(update, message)
+        buttons = []
+        for mode in Mode:
+            button = InlineKeyboardButton(mode.name, callback_data=f'{chat_id} {mes_id} {mode.value}')
+            if len(buttons[-1]) == 1:
+                buttons[-1].append(button)
+            else:
+                buttons.append([button])
+        self.tbot.edit_message_text(message, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
 
     def cleanup(self):
         self.tbot.cleanup()
