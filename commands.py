@@ -4,7 +4,7 @@ from datalogger import DataLogger
 from handlers import LiveStatusHandler, RecommendHandler
 from state import StateSelect, Mode
 from tele_bot import TelegramBot
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, replymarkup
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 from quasar import Quasar
 
@@ -149,16 +149,16 @@ class TeleCommands:
     def mode(self, update: Update, _: CallbackContext):
         chat_id = self.tbot.get_chat_id(update)
         message = f'Current mode is {self.state_select.mode.name}'
-        mes_id = self.tbot.reply_text(update, message)
-        buttons = []
-        for mode in Mode:
-            button = InlineKeyboardButton(mode.name, callback_data=f'{chat_id} {mes_id} {mode.value}')
-            if buttons != [] and len(buttons[-1]) != 1:
-                buttons.append([button])
-            else:
-                buttons[-1].append(button)
-        if mes_id is not None:
-            self.tbot.edit_message_text(message, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
+        mes = self.tbot.reply_text(update, message)
+        if mes is not None:
+            buttons = []
+            for mode in Mode:
+                button = InlineKeyboardButton(mode.name, callback_data=f'{chat_id} {mes.message_id} {mode.value}')
+                if buttons == [] or len(buttons[-1]) != 1:
+                    buttons.append([button])
+                else:
+                    buttons[-1].append(button)
+            self.tbot.edit_message_text(message, chat_id, mes.message_id, reply_markup=InlineKeyboardMarkup(buttons))
         else:
             self.config.logger.warning('/mode found no mes_id')
 
