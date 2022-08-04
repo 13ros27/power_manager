@@ -153,11 +153,14 @@ class TeleCommands:
         buttons = []
         for mode in Mode:
             button = InlineKeyboardButton(mode.name, callback_data=f'{chat_id} {mes_id} {mode.value}')
-            if len(buttons[-1]) != 1:
+            if buttons != [] and len(buttons[-1]) != 1:
                 buttons.append([button])
             else:
                 buttons[-1].append(button)
-        self.tbot.edit_message_text(message, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
+        if mes_id is not None:
+            self.tbot.edit_message_text(message, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
+        else:
+            self.config.logger.warning('/mode found no mes_id')
 
     def cleanup(self):
         self.tbot.cleanup()
