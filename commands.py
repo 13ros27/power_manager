@@ -153,10 +153,10 @@ class TeleCommands:
         buttons = []
         for mode in Mode:
             button = InlineKeyboardButton(mode.name, callback_data=f'{chat_id} {mes_id} {mode.value}')
-            if buttons == [] or len(buttons[-1]) == 1:
-                buttons[-1].append(button)
-            else:
+            if len(buttons[-1]) != 1:
                 buttons.append([button])
+            else:
+                buttons[-1].append(button)
         self.tbot.edit_message_text(message, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
 
     def cleanup(self):
