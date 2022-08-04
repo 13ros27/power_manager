@@ -147,7 +147,7 @@ class TeleCommands:
 
     @password
     def mode(self, update: Update, _: CallbackContext):
-        self.tbot.reply_text(update, f'Current mode is {self.state_select.mode}')
+        self.tbot.reply_text(update, f'Current mode is {self.state_select.mode.name}')
 
     def cleanup(self):
         self.tbot.cleanup()
