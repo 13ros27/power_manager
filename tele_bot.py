@@ -107,7 +107,6 @@ class TelegramBot:
 
     def formatted_current(self, rounding: int = 1, kw: bool = False):
         info = self.info.get('currents', 'estimated', 'recommended', 'charge_rate', require=True)
-        print(info)
         if info is None:
             message = 'N/A'
         else:
