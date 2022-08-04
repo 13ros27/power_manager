@@ -5,3 +5,4 @@ class State(Enum):
 	SUMMER = 2
 	WINTER = 3
 	PRESERVE = 4
+	LOW_CHARGE = 5

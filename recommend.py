@@ -58,6 +58,13 @@ class Recommend:
             else:
                 return 0
 
+    def _preserve_low_charge(self, estimated: float) -> int:
+        preserve = self._preserve_current(estimated)
+        if preserve == 0:
+            return 3
+        else:
+            return preserve
+
     def current(self, estimated: float, state: State) -> int:
         if state == State.MAX_CHARGE:
             return 32
@@ -65,5 +72,7 @@ class Recommend:
             return self._summer_current(estimated)
         elif state == State.WINTER:
             return self._winter_current(estimated)
-        else:
+        elif state == State.PRESERVE:
             return self._preserve_current(estimated)
+        else:
+            return self._preserve_low_charge(estimated)
