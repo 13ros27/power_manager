@@ -80,7 +80,7 @@ class TelegramBot:
 
     def _send(self, command, *args, **kwargs):
         try:
-            self.logger.info(f'{command}({", ".join(map(str, args))}, {kwargs})')
+            # self.logger.info(f'{command}({", ".join(map(str, args))}, {kwargs})')
             return command(*args, **kwargs)
         except NetworkError:
             self.logger.warning('Network Error')
