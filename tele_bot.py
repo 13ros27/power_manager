@@ -14,9 +14,7 @@ class Info:
 
     def get(self, *items, require=False):
         stuff = [self.info.get(item) for item in items]
-        print(filter(None, stuff))
-        print(stuff)
-        if require and filter(None, stuff) != stuff:
+        if require and list(filter(None, stuff)) != stuff:
             return None
         else:
             return stuff
