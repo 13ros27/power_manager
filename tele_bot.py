@@ -106,6 +106,7 @@ class TelegramBot:
         return self._send(self.updater.bot.delete_message, chat_id, mes_id, **kwargs)
 
     def formatted_current(self, rounding: int = 1, kw: bool = False):
+        print(self.info)
         info = self.info.get('currents', 'estimated', 'recommended', 'charge_rate', require=True)
         if info is None:
             message = 'N/A'
@@ -131,6 +132,7 @@ class TelegramBot:
 
     def update_info(self, currents: list, estimated: float, recommended: int, charge_rate: int):
         """Update what it knows about the state."""
+        print("updated info")
         self.info.update({'currents': currents, 'estimated': estimated, 'recommended': recommended, 'charge_rate': charge_rate})
         for handler in self.change_handlers:
             if handler.should_update():
