@@ -29,7 +29,11 @@ class Quasar:
         self.write_register(0x51, 0)
 
     def read_register(self, address: int) -> int:
-        return self._client.read_holding_registers(address)[0]
+        reg = self._client.read_holding_registers(address)
+        if reg is None:
+            return 0
+        else:
+            return reg[0]
 
     def write_register(self, address: int, value: int):
         self._client.write_single_register(address, value)
