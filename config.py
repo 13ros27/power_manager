@@ -30,6 +30,6 @@ class Config:
             filename=folder / Path(f'{datetime.now():%Y%m%dT%H%M%S}.log'),
             filemode='w',
             format='%(levelname)s %(asctime)s - %(message)s',
-            level=logging.INFO
+            level=logging.WARNING
         )
         self.logger = logging.getLogger()
