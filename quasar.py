@@ -23,8 +23,8 @@ class Quasar:
         self._soc = 0
 
     def take_control(self):
-        self.stop_charging(True)
         self.write_register(0x51, 1)
+        self.stop_charging(True)
 
     def relinquish_control(self):
         self.stop_charging(True)
