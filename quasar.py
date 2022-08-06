@@ -23,9 +23,11 @@ class Quasar:
         self._soc = 0
 
     def take_control(self):
+        self.stop_charging(True)
         self.write_register(0x51, 1)
 
     def relinquish_control(self):
+        self.stop_charging(True)
         self.write_register(0x51, 0)
 
     def read_register(self, address: int) -> int:
@@ -43,8 +45,8 @@ class Quasar:
             self.write_register(0x101, 1)
             self._charging = True
 
-    def stop_charging(self):
-        if self._charging != False:
+    def stop_charging(self, unchecked: bool = False):
+        if unchecked or self._charging != False:
             self.soc
             self.write_register(0x101, 2)
             self._charging = False
