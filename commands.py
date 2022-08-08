@@ -39,6 +39,7 @@ class TeleCommands:
         tbot.add_command('charger_status', self.charger_status)
         tbot.add_command('soc', self.soc)
         tbot.add_command('mode', self.mode)
+        tbot.add_command('test', self.test)
 
     def start(self, update: Update, _: CallbackContext):
         if update.message.text == '/start lego':
@@ -161,6 +162,10 @@ class TeleCommands:
             self.tbot.edit_message_text(message, chat_id, mes.message_id, reply_markup=InlineKeyboardMarkup(buttons))
         else:
             self.config.logger.warning('/mode found no mes_id')
+
+    @password
+    def test(self, update: Update, _: CallbackContext):
+        self.tbot.reply_text(update, f'RPi thinks {self.quasar._charging}, Quasar thinks {self.quasar.read_register(0x101)}.')
 
     def cleanup(self):
         self.tbot.cleanup()
