@@ -44,6 +44,7 @@ class TelegramBot:
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
         self.change_handlers = []
         self.info = Info()
+        self.following = False
         self.updater.start_polling()
 
     def add_command(self, name: str, func):

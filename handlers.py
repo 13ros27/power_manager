@@ -18,7 +18,8 @@ class LiveStatusHandler(ChangeHandler):
         self.chat_id = chat_id
         self.live_until = timing.second_number() + secs_for
         self.last_formatted = tbot.formatted_current()
-        text = f'<b>LIVE</b>\n{self.last_formatted}'
+        following = 'F' if tbot.following else 'NF'
+        text = f'<b>LIVE ({following})</b>\n{self.last_formatted}'
         if mes_id is None:
             mes = tbot.send_text(text, chat_id, parse_mode=HTML)
             self.mes_id = mes.message_id
@@ -37,7 +38,8 @@ class LiveStatusHandler(ChangeHandler):
             markup = InlineKeyboardMarkup([[InlineKeyboardButton('Continue', callback_data=f'{self.chat_id} {self.mes_id}')]])
             self.run_out = True
         else:
-            message = f'<b>LIVE</b>\n{self.last_formatted}'
+            following = 'F' if self.tbot.following else 'NF'
+            message = f'<b>LIVE ({following})</b>\n{self.last_formatted}'
             markup = None
         self.tbot.edit_message_text(message, self.chat_id, self.mes_id, reply_markup=markup, parse_mode=HTML)
         return not self.run_out

@@ -37,7 +37,7 @@ if __name__ == '__main__':
             charge_rate = on_off_hysteresis.balance(recommended)
             data_logger.tick(currents, recommended, commands.state_select.state)
             commands.tbot.update_info(currents, estimated, recommended, charge_rate)
-            if commands.following:
+            if commands.tbot.following:
                 quasar.set_charge_rate(charge_rate)
     except:  # noqa
         CONFIG.logger.exception('Overall:')

@@ -21,7 +21,6 @@ class TeleCommands:
         self.datalogger = datalogger
         self.quasar = quasar
         self.state_select = StateSelect(Mode.PRESERVE, config, quasar)
-        self.following = False
         tbot = TelegramBot(config, self.state_select)
         self.tbot = tbot
         self.recommending = {}
@@ -35,7 +34,7 @@ class TeleCommands:
         tbot.add_command('statuskw', self.statuskw)
         tbot.add_command('recommend', self.recommend)
         tbot.add_command('follow', self.follow)
-        tbot.add_command('following', self.isfollowing)
+        tbot.add_command('following', self.following)
         tbot.add_command('charger_status', self.charger_status)
         tbot.add_command('soc', self.soc)
         tbot.add_command('mode', self.mode)
@@ -119,17 +118,17 @@ class TeleCommands:
 
     @password
     def follow(self, update: Update, _: CallbackContext):
-        if self.following:
+        if self.tbot.following:
             self.quasar.relinquish_control()
             self.tbot.reply_text(update, 'Toggled following off')
         else:
             self.quasar.take_control()
             self.tbot.reply_text(update, 'Toggled following on')
-        self.following = not self.following
+        self.tbot.following = not self.tbot.following
 
     @password
-    def isfollowing(self, update: Update, _: CallbackContext):
-        if self.following:
+    def following(self, update: Update, _: CallbackContext):
+        if self.tbot.following:
             self.tbot.reply_text(update, 'I am following')
         else:
             self.tbot.reply_text(update, 'I am not following')
