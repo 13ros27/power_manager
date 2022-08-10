@@ -6,7 +6,7 @@ from pathlib import Path
 from state import Mode, StateSelect
 from telegram import Update
 from telegram.error import NetworkError
-from telegram.ext import CallbackQueryHandler, CommandHandler, Updater
+from telegram.ext import CallbackQueryHandler, CommandHandler, Updater, CallbackContext
 
 class Info:
     def __init__(self):
@@ -42,10 +42,17 @@ class TelegramBot:
         self.updater = Updater(self.nvinfo.token)
         self.dispatcher = self.updater.dispatcher
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
+        self.dispatcher.add_error_handler(self.error_handler)
         self.change_handlers = []
         self.info = Info()
         self.following = False
         self.updater.start_polling()
+
+    def error_handler(self, _: object, context: CallbackContext):
+        if context.error == NetworkError:
+            self.logger.warning('NetworkError')
+        else:
+            self.logger.exception('Telegram Bot:')
 
     def add_command(self, name: str, func):
         self.dispatcher.add_handler(CommandHandler(name, func))
@@ -80,13 +87,8 @@ class TelegramBot:
             raise TypeError('update.effective_chat is None')
 
     def _send(self, command, *args, **kwargs):
-        try:
-            self.logger.info(f'{command}({", ".join(map(str, args))}, {kwargs})')
-            return command(*args, **kwargs)
-        except NetworkError:
-            self.logger.warning('Network Error')
-        except:  # noqa
-            self.logger.exception('Telegram Bot:')
+        self.logger.info(f'{command}({", ".join(map(str, args))}, {kwargs})')
+        return command(*args, **kwargs)
 
     def reply_text(self, update: Update, text: str, **kwargs):
         """Reply with a text message, with error handling."""
