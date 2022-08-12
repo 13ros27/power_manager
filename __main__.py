@@ -36,7 +36,7 @@ if __name__ == '__main__':
             estimated = current_combine(currents, CURRENT_TYPES)
             recommended = recommend.current(estimated, commands.tbot.modes.state)
             charge_rate = on_off_hysteresis.balance(recommended)
-            data_logger.tick(currents, recommended, commands.tbot.modes.state)
+            data_logger.tick(currents, recommended, commands.tbot.modes._mode)
             commands.tbot.update_info(currents, estimated, recommended, charge_rate)
             if commands.tbot.modes.state != Mode.OFF:
                 quasar.set_charge_rate(charge_rate)
