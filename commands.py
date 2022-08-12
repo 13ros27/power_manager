@@ -205,8 +205,9 @@ class TeleCommands:
 
     @password
     def disconnect(self, update: Update, _: CallbackContext):
-        self.quasar.disconnect()
-        self.tbot.reply_text(update, 'Disconnected for 30 seconds')
+        secs = self.tbot.second_item(update, default=30)
+        self.quasar.disconnect(secs)
+        self.tbot.reply_text(update, f'Disconnected for {secs} seconds')
 
     def cleanup(self):
         self.tbot.cleanup()

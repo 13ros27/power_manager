@@ -19,7 +19,8 @@ class QuasarStatus(Enum):
 def write(f):
     def wrapper(self, *args, **kwargs):
         if self._disconnected is not None:
-            if self._disconnected + 30 < time.time():
+            if self._disconnected < time.time():
+                print('Disconnect finished')
                 self._disconnected = None
                 if self._controlling:
                     self.take_control()
@@ -111,11 +112,11 @@ class Quasar:
     def charger_status(self) -> QuasarStatus:
         return QuasarStatus(self.read_register(0x219))
 
-    def disconnect(self):
+    def disconnect(self, seconds: int):
         control = self._controlling
         self.relinquish_control()
         self._controlling = control
-        self.disconnected = time.time()
+        self._disconnected = time.time() + seconds
 
     def cleanup(self):
         self.relinquish_control()
