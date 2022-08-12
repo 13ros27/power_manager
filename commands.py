@@ -40,6 +40,9 @@ class TeleCommands:
         tbot.add_command('auto', self.auto)
         tbot.add_command('charge_only', self.charge_only)
         tbot.add_command('charge_discharge', self.charge_discharge)
+        tbot.add_command('ccl', self.charge_cost_limit)
+        tbot.add_command('sdv', self.stored_discharge_value)
+        tbot.add_command('mdr', self.min_discharge_rate)
 
     def start(self, update: Update, _: CallbackContext):
         if update.message.text == '/start lego':
@@ -161,6 +164,24 @@ class TeleCommands:
         if self.tbot.modes._mode == Mode.CHARGE_ONLY:
             self.tbot.modes.set_mode(self.tbot.charge_mode)
         self.tbot.reply_text(update, 'Set charge mode to CHARGE_DISCHARGE')
+
+    @password
+    def charge_cost_limit(self, update: Update, _: CallbackContext):
+        ccl = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a charge cost limit')
+        self.tbot.modes.user_settings.charge_cost_limit = int(ccl)
+        self.tbot.reply_text(update, f'Set the charge cost limit to {int(ccl)}')
+
+    @password
+    def stored_discharge_value(self, update: Update, _: CallbackContext):
+        sdv = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a stored discharge value')
+        self.tbot.modes.user_settings.stored_discharge_value = int(sdv)
+        self.tbot.reply_text(update, f'Set the stored discharge value to {int(sdv)}')
+
+    @password
+    def min_discharge_rate(self, update: Update, _: CallbackContext):
+        mdr = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a min discharge rate')
+        self.tbot.modes.user_settings.min_discharge_rate = int(mdr)
+        self.tbot.reply_text(update, f'Set the min discharge rate to {int(mdr)}')
 
     def cleanup(self):
         self.tbot.cleanup()
