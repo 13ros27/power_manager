@@ -1,5 +1,6 @@
 from enum import Enum
 from pyModbusTCP.client import ModbusClient
+import time
 
 class QuasarStatus(Enum):
     READY = 0
@@ -15,18 +16,34 @@ class QuasarStatus(Enum):
     INQUEUE_POWER_BOOST = 10
     DISCHARGING = 11
 
+def write(f):
+    def wrapper(self, *args, **kwargs):
+        if self._disconnected is not None:
+            if self._disconnected + 30 < time.time():
+                self._disconnected = None
+                if self._controlling:
+                    self.take_control()
+            else:
+                return None
+        f(self, *args, **kwargs)
+    return wrapper
+
 class Quasar:
     def __init__(self, host: str, port: int = 502):
         self._client = ModbusClient(host=host, port=port, auto_open=True, auto_close=True)
         self._charging = None
         self.current = None
         self._soc = 0
+        self._disconnected = None
+        self._controlling = False
 
     def take_control(self):
+        self._controlling = True
         self.write_register(0x51, 1)
         self.stop_charging(True)
 
     def relinquish_control(self):
+        self._controlling = False
         self.stop_charging(True)
         self.write_register(0x51, 0)
 
@@ -37,9 +54,11 @@ class Quasar:
         else:
             return reg[0]
 
+    @write
     def write_register(self, address: int, value: int):
         self._client.write_single_register(address, value)
 
+    @write
     def start_charging(self):
         if self._charging != True:
             self.write_register(0x101, 1)
@@ -51,12 +70,14 @@ class Quasar:
             self.write_register(0x101, 2)
             self._charging = False
 
+    @write
     def set_current_setpoint(self, amps: int):
         if amps >= 0:
             self.write_register(0x102, amps)
         else:
             self.write_register(0x102, 65536 + amps)
 
+    @write
     def set_charge_rate(self, amps: int):
         if self.current == amps:
             return
@@ -90,6 +111,11 @@ class Quasar:
     def charger_status(self) -> QuasarStatus:
         return QuasarStatus(self.read_register(0x219))
 
+    def disconnect(self):
+        control = self._controlling
+        self.relinquish_control()
+        self._controlling = control
+        self.disconnected = time.time()
+
     def cleanup(self):
-        self.stop_charging()
         self.relinquish_control()
