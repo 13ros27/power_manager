@@ -183,9 +183,18 @@ class TeleCommands:
 
     @password
     def stored_discharge_value(self, update: Update, _: CallbackContext):
-        sdv = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a stored discharge value')
-        self.tbot.modes.user_settings.stored_discharge_value = float(sdv) / 100
-        self.tbot.reply_text(update, f'Set the stored discharge value to £{float(sdv) / 100}')
+        mes = f'The current stored discharge value is {round(self.tbot.modes.user_settings.stored_discharge_value, 1)}p'
+        mes_id = self.tbot.reply_text(update, mes).message_id
+        chat_id = self.tbot.get_chat_id(update)
+        inbuilt_vals = {'Free': 0.0, 'Off Peak': self.config.discharge_rate, 'Peak': self.config.low_day}
+        buttons = []
+        for (name, val) in inbuilt_vals.items():
+            button = InlineKeyboardButton(name, callback_data=f'{chat_id} {mes_id} 1 {val}')
+            if buttons == [] or len(buttons[-1]) != 1:
+                buttons.append([button])
+            else:
+                buttons[-1].append(button)
+        self.tbot.edit_message_text(mes, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
 
     @password
     def min_discharge_rate(self, update: Update, _: CallbackContext):

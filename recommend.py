@@ -37,7 +37,7 @@ class Recommend:
             if cur_price < state.charge_cost_limit:
                 return 32
             else:
-                return self.round_estimation(estimated, min(state.charge_cost_limit / cur_price, 1), state.min_discharge_rate)
+                return self.round_estimation(estimated, min(state.charge_cost_limit / cur_price, 1), 3)
         else:
             if cur_price < state.stored_discharge_value:
                 return 0
