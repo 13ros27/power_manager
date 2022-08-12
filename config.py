@@ -22,12 +22,12 @@ class Config:
 
     def update_night_rate(self, night_rate: float):
         self.night_rate = night_rate
+        self.discharge_rate = night_rate / self.efficiency
         self.low_night = night_rate - 0.1
         self.high_night = night_rate + 0.1
 
     def update_day_rate(self, day_rate: float):
         self.day_rate = day_rate
-        self.discharge_rate = day_rate * self.efficiency
         self.low_day = day_rate - 0.1
         self.high_day = day_rate + 0.1
 
