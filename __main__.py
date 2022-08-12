@@ -6,6 +6,7 @@ from hysteresis import OnOff
 from pathlib import Path
 from quasar import Quasar
 from recommend import Recommend
+from state import Mode
 
 NAMES = ['Solar', 'House', 'Car', 'Heat Pump', 'Grid']
 CURRENT_TYPES = [
@@ -18,7 +19,7 @@ CURRENT_TYPES = [
 QUASAR_ADDR = '192.168.1.74'
 
 if __name__ == '__main__':
-    CONFIG = Config(Path("/home/pi/power_manager"), NAMES, CURRENT_TYPES, 30.7, 7.5, 13.0, (0, 30), (4, 30), 40, 90)
+    CONFIG = Config(Path("/home/pi/power_manager"), NAMES, CURRENT_TYPES, 30.7, 7.5, 0.8, (0, 30), (4, 30))
     commands = None
     quasar = None
     try:
@@ -33,11 +34,11 @@ if __name__ == '__main__':
             currents = current_monitor.read()
             print(currents)
             estimated = current_combine(currents, CURRENT_TYPES)
-            recommended = recommend.current(estimated, commands.state_select.state)
+            recommended = recommend.current(estimated, commands.tbot.modes.state)
             charge_rate = on_off_hysteresis.balance(recommended)
-            data_logger.tick(currents, recommended, commands.state_select.state)
+            data_logger.tick(currents, recommended, commands.tbot.modes.state)
             commands.tbot.update_info(currents, estimated, recommended, charge_rate)
-            if commands.tbot.following:
+            if commands.tbot.modes.state != Mode.OFF:
                 quasar.set_charge_rate(charge_rate)
     except:  # noqa
         CONFIG.logger.exception('Overall:')

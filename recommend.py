@@ -1,78 +1,39 @@
 from config import Config
 from math import ceil, floor
 from state import State
+import timing
+
+def energy_price(config: Config):
+    if timing.past_this_time(config.night_start) and not timing.past_this_time(config.night_end):
+        return config.night_rate
+    else:
+        return config.day_rate
 
 class Recommend:
     def __init__(self, config: Config):
         self.config = config
 
-    def _summer_current(self, estimated: float) -> int:
-        if abs(estimated) < 3:
-            if estimated >= self.config.discharge_rate_frac * 3:
-                return -3
-            elif estimated <= self.config.charge_rate_frac * 3 - 3:
-                return 3
+    def round_estimation(self, estimated: float, frac: float, minimum: int = 3) -> int:
+        positive = abs(estimated)
+        value = 0
+        if positive > minimum:
+            part = estimated % 1
+            if part < frac:
+                value = floor(estimated)
             else:
-                return 0
+                value = ceil(estimated)
+        elif positive >= minimum - frac * minimum:
+            value = minimum
         else:
-            part = abs(estimated) % 1
-            if estimated < 0:
-                if part < 1 - self.config.charge_rate_frac:
-                    return -ceil(estimated)
-                else:
-                    return -floor(estimated)
-            else:
-                if part < self.config.discharge_rate_frac:
-                    return -floor(estimated)
-                else:
-                    return -ceil(estimated)
-
-    def _winter_current(self, estimated: float) -> int:
-        if abs(estimated) < 3:
-            if estimated <= self.config.charge_rate_frac * 3 - 3:
-                return 3
-            else:
-                return 0
-        else:
-            if estimated < 0:
-                part = abs(estimated) % 1
-                if part < 1 - self.config.charge_rate_frac:
-                    return -ceil(estimated)
-                else:
-                    return -floor(estimated)
-            else:
-                return -floor(estimated)
-
-    def _preserve_current(self, estimated: float) -> int:
+            value = 0
         if estimated >= 0:
-            return 0
+            return -value
         else:
-            if estimated < -3:
-                part = abs(estimated) % 1
-                if part < 1 - self.config.charge_rate_frac:
-                    return -ceil(estimated)
-                else:
-                    return -floor(estimated)
-            elif estimated <= self.config.charge_rate_frac * 3 - 3:
-                return 3
-            else:
-                return 0
-
-    def _preserve_low_charge(self, estimated: float) -> int:
-        preserve = self._preserve_current(estimated)
-        if preserve == 0:
-            return 3
-        else:
-            return preserve
+            return value
 
     def current(self, estimated: float, state: State) -> int:
-        if state == State.MAX_CHARGE:
-            return 32
-        elif state == State.SUMMER:
-            return self._summer_current(estimated)
-        elif state == State.WINTER:
-            return self._winter_current(estimated)
-        elif state == State.PRESERVE:
-            return self._preserve_current(estimated)
+        cur_price = energy_price(self.config)
+        if estimated <= 0:
+            return self.round_estimation(estimated, min(state.charge_cost_limit / cur_price, 1), state.min_discharge_rate)
         else:
-            return self._preserve_low_charge(estimated)
+            return self.round_estimation(estimated, 1 - min(state.stored_discharge_value / cur_price, 1), state.min_discharge_rate)

@@ -1,5 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import PARSEMODE_HTML as HTML
+from state import Mode
 import timing
 
 class ChangeHandler:
@@ -18,8 +19,8 @@ class LiveStatusHandler(ChangeHandler):
         self.chat_id = chat_id
         self.live_until = timing.second_number() + secs_for
         self.last_formatted = tbot.formatted_current()
-        following = 'F' if tbot.following else 'NF'
-        text = f'<b>LIVE ({following})</b>\n{self.last_formatted}'
+        mode = self.mode_shorthand(tbot.modes._mode)
+        text = f'<b>LIVE ({mode})</b>\n{self.last_formatted}'
         if mes_id is None:
             mes = tbot.send_text(text, chat_id, parse_mode=HTML)
             self.mes_id = mes.message_id
@@ -27,6 +28,18 @@ class LiveStatusHandler(ChangeHandler):
             tbot.edit_message_text(text, chat_id, mes_id, parse_mode=HTML)
             self.mes_id = mes_id
         self.run_out = False
+
+    def mode_shorthand(self, mode: Mode) -> str:
+        if mode == Mode.OFF:
+            return 'O'
+        elif mode == Mode.CHARGE_ONLY:
+            return 'CO'
+        elif mode == Mode.CHARGE_DISCHARGE:
+            return 'CD'
+        elif mode == Mode.AUTO:
+            return 'A'
+        else:
+            return '?'
 
     def should_update(self) -> bool:
         return self.tbot.formatted_current() != self.last_formatted
@@ -38,8 +51,8 @@ class LiveStatusHandler(ChangeHandler):
             markup = InlineKeyboardMarkup([[InlineKeyboardButton('Continue', callback_data=f'{self.chat_id} {self.mes_id}')]])
             self.run_out = True
         else:
-            following = 'F' if self.tbot.following else 'NF'
-            message = f'<b>LIVE ({following})</b>\n{self.last_formatted}'
+            mode = self.mode_shorthand(self.tbot.modes._mode)
+            message = f'<b>LIVE ({mode})</b>\n{self.last_formatted}'
             markup = None
         self.tbot.edit_message_text(message, self.chat_id, self.mes_id, reply_markup=markup, parse_mode=HTML)
         return not self.run_out

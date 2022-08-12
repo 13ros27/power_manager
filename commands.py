@@ -2,7 +2,7 @@ from pathlib import Path
 from config import Config
 from datalogger import DataLogger
 from handlers import LiveStatusHandler, RecommendHandler
-from state import StateSelect, Mode
+from state import Mode, Modes
 from tele_bot import TelegramBot
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
@@ -20,8 +20,7 @@ class TeleCommands:
         self.config = config
         self.datalogger = datalogger
         self.quasar = quasar
-        self.state_select = StateSelect(Mode.PRESERVE, config, quasar)
-        tbot = TelegramBot(config, self.state_select)
+        tbot = TelegramBot(config, Modes(config, Mode.OFF, quasar))
         self.tbot = tbot
         self.recommending = {}
         tbot.add_command('start', self.start)
@@ -33,12 +32,14 @@ class TeleCommands:
         tbot.add_command('file', self.file)
         tbot.add_command('statuskw', self.statuskw)
         tbot.add_command('recommend', self.recommend)
-        tbot.add_command('follow', self.follow)
-        tbot.add_command('following', self.following)
         tbot.add_command('charger_status', self.charger_status)
         tbot.add_command('soc', self.soc)
-        tbot.add_command('mode', self.mode)
         tbot.add_command('test', self.test)
+        tbot.add_command('off', self.off)
+        tbot.add_command('manual', self.manual)
+        tbot.add_command('auto', self.auto)
+        tbot.add_command('charge_only', self.charge_only)
+        tbot.add_command('charge_discharge', self.charge_discharge)
 
     def start(self, update: Update, _: CallbackContext):
         if update.message.text == '/start lego':
@@ -117,23 +118,6 @@ class TeleCommands:
                 self.recommending[chat_id] = handler
 
     @password
-    def follow(self, update: Update, _: CallbackContext):
-        if self.tbot.following:
-            self.quasar.relinquish_control()
-            self.tbot.reply_text(update, 'Toggled following off')
-        else:
-            self.quasar.take_control()
-            self.tbot.reply_text(update, 'Toggled following on')
-        self.tbot.following = not self.tbot.following
-
-    @password
-    def following(self, update: Update, _: CallbackContext):
-        if self.tbot.following:
-            self.tbot.reply_text(update, 'I am following')
-        else:
-            self.tbot.reply_text(update, 'I am not following')
-
-    @password
     def charger_status(self, update: Update, _: CallbackContext):
         self.tbot.reply_text(update, self.quasar.charger_status.name)
 
@@ -146,25 +130,37 @@ class TeleCommands:
             self.tbot.reply_text(update, f'{soc}%')
 
     @password
-    def mode(self, update: Update, _: CallbackContext):
-        chat_id = self.tbot.get_chat_id(update)
-        message = f'Current mode is {self.state_select.mode.name}'
-        mes = self.tbot.reply_text(update, message)
-        if mes is not None:
-            buttons = []
-            for mode in Mode:
-                button = InlineKeyboardButton(mode.name, callback_data=f'{chat_id} {mes.message_id} {mode.value}')
-                if buttons == [] or len(buttons[-1]) != 1:
-                    buttons.append([button])
-                else:
-                    buttons[-1].append(button)
-            self.tbot.edit_message_text(message, chat_id, mes.message_id, reply_markup=InlineKeyboardMarkup(buttons))
-        else:
-            self.config.logger.warning('/mode found no mes_id')
-
-    @password
     def test(self, update: Update, _: CallbackContext):
         self.tbot.reply_text(update, f'RPi thinks {self.quasar._charging}, Quasar thinks {self.quasar.read_register(0x101)}.')
+
+    @password
+    def off(self, update: Update, _: CallbackContext):
+        self.tbot.modes.set_mode(Mode.OFF)
+        self.tbot.reply_text(update, 'Set user mode to OFF')
+
+    @password
+    def manual(self, update: Update, _: CallbackContext):
+        self.tbot.modes.set_mode(self.tbot.charge_mode)
+        self.tbot.reply_text(update, f'Set user mode to {self.tbot.charge_mode.name}')
+
+    @password
+    def auto(self, update: Update, _: CallbackContext):
+        self.tbot.modes.set_mode(Mode.AUTO)
+        self.tbot.reply_text(update, 'Set user mode to AUTO')
+
+    @password
+    def charge_only(self, update: Update, _: CallbackContext):
+        self.tbot.charge_mode = Mode.CHARGE_ONLY
+        if self.tbot.modes._mode == Mode.CHARGE_DISCHARGE:
+            self.tbot.modes.set_mode(self.tbot.charge_mode)
+        self.tbot.reply_text(update, 'Set charge mode to CHARGE_ONLY')
+
+    @password
+    def charge_discharge(self, update: Update, _: CallbackContext):
+        self.tbot.charge_mode = Mode.CHARGE_DISCHARGE
+        if self.tbot.modes._mode == Mode.CHARGE_ONLY:
+            self.tbot.modes.set_mode(self.tbot.charge_mode)
+        self.tbot.reply_text(update, 'Set charge mode to CHARGE_DISCHARGE')
 
     def cleanup(self):
         self.tbot.cleanup()

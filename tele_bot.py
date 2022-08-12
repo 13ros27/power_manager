@@ -3,7 +3,7 @@ from config import Config
 from handlers import ChangeHandler, LiveStatusHandler
 from nvi import NonVolatileInformation
 from pathlib import Path
-from state import Mode, StateSelect
+from state import Mode, Modes
 from telegram import Update
 from telegram.error import NetworkError
 from telegram.ext import CallbackQueryHandler, CommandHandler, Updater, CallbackContext
@@ -33,10 +33,11 @@ class Info:
 class TelegramBot:
     """Control all the aspects of the telegram bot side of it."""
 
-    def __init__(self, config: Config, state_select: StateSelect):
+    def __init__(self, config: Config, modes: Modes):
         """Set up the necessary functions and operations."""
         self.config = config
-        self.state_select = state_select
+        self.modes = modes
+        self.charge_mode = Mode.CHARGE_ONLY
         self.logger = config.logger
         self.nvinfo = NonVolatileInformation(config.path / Path('telegram_info.json'))
         self.updater = Updater(self.nvinfo.token)
@@ -45,7 +46,6 @@ class TelegramBot:
         self.dispatcher.add_error_handler(self.error_handler)
         self.change_handlers = []
         self.info = Info()
-        self.following = False
         self.updater.start_polling()
 
     def error_handler(self, _: object, context: CallbackContext):
@@ -154,11 +154,16 @@ class TelegramBot:
             mes_id = int(data[1])
             self.add_handler(LiveStatusHandler(self, chat_id, 300, mes_id))
         else:
-            chat_id = int(data[0])
-            mes_id = int(data[1])
-            mode_value = int(data[2])
-            self.state_select.set_mode(Mode(mode_value))
-            self.edit_message_text(f'Current mode is {self.state_select.mode.name}', chat_id, mes_id)
+            raise TypeError(f'Did not expect {data}')
+            # chat_id = int(data[0])
+            # mes_id = int(data[1])
+            # menu_type = int(data[2])
+            # mode_value = int(data[3])
+            # if menu_type == 0:
+            #     self.modes.set_mode(Mode(mode_value))
+            #     self.edit_message_text(f'Current mode is {self.modes._mode.name}', chat_id, mes_id)
+            # else:
+            #     raise ValueError(f'Did not expect menu_type \'{menu_type}\'');
 
     def cleanup(self):
         """Kills all handlers."""

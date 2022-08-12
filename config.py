@@ -7,19 +7,29 @@ from pathlib import Path
 class Config:
     """All the config variables."""
 
-    def __init__(self, path: Path, names: list, current_types: list, night_rate: float, charge_rate: float,
-                 discharge_rate: float, night_start: tuple, night_end: tuple, min_charge: int, max_charge: int):
+    def __init__(self, path: Path, names: list, current_types: list, night_rate: float, day_rate: float,
+                 efficiency: float, night_start: tuple, night_end: tuple):
         """Create all the variables."""
         self.path = path
         self.names = names
         self.current_types = current_types
         self.night_start = night_start
         self.night_end = night_end
-        self.charge_rate_frac = charge_rate / night_rate
-        self.discharge_rate_frac = discharge_rate / night_rate
-        self.min_charge = min_charge
-        self.max_charge = max_charge
+        self.efficiency = efficiency
+        self.update_night_rate(night_rate)
+        self.update_day_rate(day_rate)
         self.setup_logging()
+
+    def update_night_rate(self, night_rate: float):
+        self.night_rate = night_rate
+        self.low_night = night_rate - 0.1
+        self.high_night = night_rate + 0.1
+
+    def update_day_rate(self, day_rate: float):
+        self.day_rate = day_rate
+        self.discharge_rate = day_rate / self.efficiency
+        self.low_day = day_rate - 0.1
+        self.high_day = day_rate + 0.1
 
     def setup_logging(self):
         """Set up all the logging stuff."""

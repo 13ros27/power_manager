@@ -1,4 +1,4 @@
-class OnOff:
+class OnOff: # TODO: Make this drop to 3 (or rise to -3) before it then drops to 0
 	def __init__(self, count: int = 4):
 		self.max_count = count
 		self.last = None
