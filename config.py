@@ -27,7 +27,7 @@ class Config:
 
     def update_day_rate(self, day_rate: float):
         self.day_rate = day_rate
-        self.discharge_rate = day_rate / self.efficiency
+        self.discharge_rate = day_rate * self.efficiency
         self.low_day = day_rate - 0.1
         self.high_day = day_rate + 0.1
 
