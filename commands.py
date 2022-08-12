@@ -43,6 +43,7 @@ class TeleCommands:
         tbot.add_command('ccl', self.charge_cost_limit)
         tbot.add_command('sdv', self.stored_discharge_value)
         tbot.add_command('mdr', self.min_discharge_rate)
+        tbot.add_command('disconnect', self.min_discharge_rate)
 
     def start(self, update: Update, _: CallbackContext):
         if update.message.text == '/start lego':
@@ -201,6 +202,11 @@ class TeleCommands:
         mdr = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a min discharge rate')
         self.tbot.modes.user_settings.min_discharge_rate = int(mdr)
         self.tbot.reply_text(update, f'Set the min discharge rate to {int(mdr)}A')
+
+    @password
+    def disconnect(self, update: Update, _: CallbackContext):
+        self.quasar.disconnect()
+        self.tbot.reply_text(update, 'Disconnected for 30 seconds')
 
     def cleanup(self):
         self.tbot.cleanup()
