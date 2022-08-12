@@ -40,6 +40,7 @@ if __name__ == '__main__':
             commands.tbot.update_info(currents, estimated, recommended, charge_rate)
             if commands.tbot.modes.state != Mode.OFF:
                 # quasar.set_charge_rate(charge_rate)
+                pass
     except:  # noqa
         CONFIG.logger.exception('Overall:')
         raise
