@@ -167,7 +167,7 @@ class TeleCommands:
 
     @password
     def charge_cost_limit(self, update: Update, _: CallbackContext):
-        mes = f'The current charge cost limit is {round(self.tbot.modes.user_settings.charge_cost_limit, 1)}p'
+        mes = f'The charge cost limit is {round(self.tbot.modes.user_settings.charge_cost_limit, 1)}p'
         mes_id = self.tbot.reply_text(update, mes).message_id
         chat_id = self.tbot.get_chat_id(update)
         inbuilt_vals = {'Free': 0.0, 'Below Off Peak': self.config.low_night, 'Off Peak': self.config.high_night,
@@ -183,7 +183,7 @@ class TeleCommands:
 
     @password
     def stored_discharge_value(self, update: Update, _: CallbackContext):
-        mes = f'The current stored discharge value is {round(self.tbot.modes.user_settings.stored_discharge_value, 1)}p'
+        mes = f'The stored discharge value is {round(self.tbot.modes.user_settings.stored_discharge_value, 1)}p'
         mes_id = self.tbot.reply_text(update, mes).message_id
         chat_id = self.tbot.get_chat_id(update)
         inbuilt_vals = {'Free': 0.0, 'Off Peak': self.config.discharge_rate, 'Peak': self.config.low_day}
