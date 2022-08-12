@@ -39,7 +39,7 @@ if __name__ == '__main__':
             data_logger.tick(currents, recommended, commands.tbot.modes._mode)
             commands.tbot.update_info(currents, estimated, recommended, charge_rate)
             if commands.tbot.modes.state != Mode.OFF:
-                quasar.set_charge_rate(charge_rate)
+                # quasar.set_charge_rate(charge_rate)
     except:  # noqa
         CONFIG.logger.exception('Overall:')
         raise
