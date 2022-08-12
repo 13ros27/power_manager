@@ -67,7 +67,7 @@ from quasar import Quasar
 
 class UserSettings:
     def __init__(self, config: Config):
-        self.charge_cost_limit = 0
+        self.charge_cost_limit = 0.0
         self.stored_discharge_value = config.low_day
         self.min_discharge_rate = 3
 

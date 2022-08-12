@@ -168,20 +168,20 @@ class TeleCommands:
     @password
     def charge_cost_limit(self, update: Update, _: CallbackContext):
         ccl = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a charge cost limit')
-        self.tbot.modes.user_settings.charge_cost_limit = int(ccl)
-        self.tbot.reply_text(update, f'Set the charge cost limit to {int(ccl)}')
+        self.tbot.modes.user_settings.charge_cost_limit = float(ccl) / 100
+        self.tbot.reply_text(update, f'Set the charge cost limit to {float(ccl) / 100}p')
 
     @password
     def stored_discharge_value(self, update: Update, _: CallbackContext):
         sdv = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a stored discharge value')
-        self.tbot.modes.user_settings.stored_discharge_value = int(sdv)
-        self.tbot.reply_text(update, f'Set the stored discharge value to {int(sdv)}')
+        self.tbot.modes.user_settings.stored_discharge_value = float(sdv) / 100
+        self.tbot.reply_text(update, f'Set the stored discharge value to {float(sdv) / 100}p')
 
     @password
     def min_discharge_rate(self, update: Update, _: CallbackContext):
         mdr = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a min discharge rate')
         self.tbot.modes.user_settings.min_discharge_rate = int(mdr)
-        self.tbot.reply_text(update, f'Set the min discharge rate to {int(mdr)}')
+        self.tbot.reply_text(update, f'Set the min discharge rate to {int(mdr)}A')
 
     def cleanup(self):
         self.tbot.cleanup()
