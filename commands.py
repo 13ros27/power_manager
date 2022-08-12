@@ -167,7 +167,7 @@ class TeleCommands:
 
     @password
     def charge_cost_limit(self, update: Update, _: CallbackContext):
-        mes = f'The current charge cost limit is £{self.tbot.modes.user_settings.charge_cost_limit}'
+        mes = f'The current charge cost limit is {round(self.tbot.modes.user_settings.charge_cost_limit*100, 0)}p'
         mes_id = self.tbot.reply_text(update, mes).message_id
         chat_id = self.tbot.get_chat_id(update)
         inbuilt_vals = {'Free': 0.0, 'Below Off Peak': self.config.low_night, 'Off Peak': self.config.high_night,
