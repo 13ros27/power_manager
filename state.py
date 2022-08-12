@@ -123,7 +123,7 @@ class Modes:
         self.quasar = quasar
         auto = Auto(config)
         self.modes = {
-            Mode.OFF: None,
+            Mode.OFF: State(self.user_settings, lambda us: us.charge_cost_limit, lambda us: us.stored_discharge_value, lambda us: us.min_discharge_rate), # Mode.OFF shows up as CHARGE_DISCHARGE for recommendation
             Mode.CHARGE_ONLY: State(self.user_settings, lambda us: us.charge_cost_limit, config.high_day, lambda us: us.min_discharge_rate),
             Mode.CHARGE_DISCHARGE: State(self.user_settings, lambda us: us.charge_cost_limit, lambda us: us.stored_discharge_value, lambda us: us.min_discharge_rate),
             Mode.AUTO: State(self.user_settings, auto.charge_cost_limit, auto.stored_discharge_value, 3)
