@@ -43,7 +43,7 @@ class TeleCommands:
         tbot.add_command('ccl', self.charge_cost_limit)
         tbot.add_command('sdv', self.stored_discharge_value)
         tbot.add_command('mdr', self.min_discharge_rate)
-        tbot.add_command('disconnect', self.min_discharge_rate)
+        tbot.add_command('disconnect', self.disconnect)
 
     def start(self, update: Update, _: CallbackContext):
         if update.message.text == '/start lego':
