@@ -155,7 +155,7 @@ class TelegramBot:
             chat_id = int(data[0])
             mes_id = int(data[1])
             menu_type = int(data[2])
-            mode_value = float(data[3])
+            mode_value = round(float(data[3]), 1)
             if menu_type == 0:
                 self.modes.user_settings.charge_cost_limit = mode_value
                 self.edit_message_text(f'The current charge cost limit has been changed to {mode_value}p', chat_id, mes_id)
