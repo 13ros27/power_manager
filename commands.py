@@ -167,7 +167,7 @@ class TeleCommands:
 
     @password
     def charge_cost_limit(self, update: Update, _: CallbackContext):
-        mes = f'The current charge cost limit is {int(round(self.tbot.modes.user_settings.charge_cost_limit*100, 0))}p'
+        mes = f'The current charge cost limit is {round(self.tbot.modes.user_settings.charge_cost_limit*100, 1)}p'
         mes_id = self.tbot.reply_text(update, mes).message_id
         chat_id = self.tbot.get_chat_id(update)
         inbuilt_vals = {'Free': 0.0, 'Below Off Peak': self.config.low_night, 'Off Peak': self.config.high_night,
@@ -180,9 +180,6 @@ class TeleCommands:
             else:
                 buttons[-1].append(button)
         self.tbot.edit_message_text(mes, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
-        # ccl = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a charge cost limit')
-        # self.tbot.modes.user_settings.charge_cost_limit = float(ccl) / 100
-        # self.tbot.reply_text(update, f'Set the charge cost limit to £{float(ccl) / 100}')
 
     @password
     def stored_discharge_value(self, update: Update, _: CallbackContext):

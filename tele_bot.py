@@ -147,23 +147,22 @@ class TelegramBot:
         query = update.callback_query
         query.answer()
         data = query.data.strip().split(' ')
-        if len(data) < 2:
-            raise TypeError(f'Did not expect {data}')
-        elif len(data) == 2:
+        if len(data) == 2:
             chat_id = int(data[0])
             mes_id = int(data[1])
             self.add_handler(LiveStatusHandler(self, chat_id, 300, mes_id))
+        elif len(data) == 4:
+            chat_id = int(data[0])
+            mes_id = int(data[1])
+            menu_type = int(data[2])
+            mode_value = float(data[3])
+            if menu_type == 0:
+                self.modes.user_settings.charge_cost_limit = mode_value
+                self.edit_message_text(f'The current charge cost limit has been changed to {mode_value}p', chat_id, mes_id)
+            else:
+                raise ValueError(f'Did not expect menu_type \'{menu_type}\'');
         else:
             raise TypeError(f'Did not expect {data}')
-            # chat_id = int(data[0])
-            # mes_id = int(data[1])
-            # menu_type = int(data[2])
-            # mode_value = int(data[3])
-            # if menu_type == 0:
-            #     self.modes.set_mode(Mode(mode_value))
-            #     self.edit_message_text(f'Current mode is {self.modes._mode.name}', chat_id, mes_id)
-            # else:
-            #     raise ValueError(f'Did not expect menu_type \'{menu_type}\'');
 
     def cleanup(self):
         """Kills all handlers."""
