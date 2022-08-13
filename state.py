@@ -9,8 +9,8 @@ class UserSettings:
         self.charge_cost_limit = 0.0
         self.stored_discharge_value = config.low_day
         self.min_discharge_rate = 3
-        self.max_paid_soc = -1
-        self.min_discharge_soc = -1
+        self.max_paid_soc = config.max_charge
+        self.min_discharge_soc = config.min_charge
 
     def ccl(self):
         return self.charge_cost_limit
@@ -105,7 +105,8 @@ class Mode(Enum):
     OFF = 0
     CHARGE_ONLY = 1
     CHARGE_DISCHARGE = 2
-    AUTO = 3
+    MAX_CHARGE = 3
+    AUTO = 4
 
 class Modes:
     def __init__(self, config: Config, mode: Mode, quasar: Quasar):
@@ -115,8 +116,9 @@ class Modes:
         auto = Auto(config, quasar)
         self.modes = {
             Mode.OFF: State(user_settings.ccl, user_settings.sdv, user_settings.mdr, user_settings.max_sb, user_settings.min_sb), # Mode.OFF shows up as CHARGE_DISCHARGE for recommendation
-            Mode.CHARGE_ONLY: State(user_settings.ccl, config.high_day, user_settings.mdr, user_settings.max_sb, user_settings.min_sb),
+            Mode.CHARGE_ONLY: State(user_settings.ccl, config.high_day, 3, user_settings.max_sb, []),
             Mode.CHARGE_DISCHARGE: State(user_settings.ccl, user_settings.sdv, user_settings.mdr, user_settings.max_sb, user_settings.min_sb),
+            Mode.MAX_CHARGE: State(user_settings.ccl, config.high_day, 3, [], []),
             Mode.AUTO: State(auto.charge_cost_limit, auto.stored_discharge_value, 3, auto.max_soc_bounds, auto.min_soc_bounds)
         }
         self._mode = mode

@@ -116,6 +116,7 @@ class Quasar:
 
     def disconnect(self, seconds: int):
         control = self._controlling
+        self.set_charge_rate(3)
         self.relinquish_control()
         self._controlling = control
         self._disconnected = time.time() + seconds

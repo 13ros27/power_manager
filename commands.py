@@ -36,10 +36,10 @@ class TeleCommands:
         tbot.add_command('soc', self.soc)
         tbot.add_command('test', self.test)
         tbot.add_command('off', self.off)
-        tbot.add_command('manual', self.manual)
         tbot.add_command('auto', self.auto)
         tbot.add_command('charge_only', self.charge_only)
         tbot.add_command('charge_discharge', self.charge_discharge)
+        tbot.add_command('max_charge', self.max_charge)
         tbot.add_command('ccl', self.charge_cost_limit)
         tbot.add_command('sdv', self.stored_discharge_value)
         tbot.add_command('mdr', self.min_discharge_rate)
@@ -146,28 +146,24 @@ class TeleCommands:
         self.tbot.reply_text(update, 'Set user mode to OFF')
 
     @password
-    def manual(self, update: Update, _: CallbackContext):
-        self.tbot.modes.set_mode(self.tbot.charge_mode)
-        self.tbot.reply_text(update, f'Set user mode to {self.tbot.charge_mode.name}')
-
-    @password
     def auto(self, update: Update, _: CallbackContext):
         self.tbot.modes.set_mode(Mode.AUTO)
         self.tbot.reply_text(update, 'Set user mode to AUTO')
 
     @password
     def charge_only(self, update: Update, _: CallbackContext):
-        self.tbot.charge_mode = Mode.CHARGE_ONLY
-        if self.tbot.modes._mode == Mode.CHARGE_DISCHARGE:
-            self.tbot.modes.set_mode(self.tbot.charge_mode)
-        self.tbot.reply_text(update, 'Set charge mode to CHARGE_ONLY')
+        self.tbot.modes.set_mode(Mode.CHARGE_ONLY)
+        self.tbot.reply_text(update, 'Set user mode to CHARGE_ONLY')
 
     @password
     def charge_discharge(self, update: Update, _: CallbackContext):
-        self.tbot.charge_mode = Mode.CHARGE_DISCHARGE
-        if self.tbot.modes._mode == Mode.CHARGE_ONLY:
-            self.tbot.modes.set_mode(self.tbot.charge_mode)
-        self.tbot.reply_text(update, 'Set charge mode to CHARGE_DISCHARGE')
+        self.tbot.modes.set_mode(Mode.CHARGE_DISCHARGE)
+        self.tbot.reply_text(update, 'Set user mode to CHARGE_DISCHARGE')
+
+    @password
+    def max_charge(self, update: Update, _: CallbackContext):
+        self.tbot.modes.set_mode(Mode.MAX_CHARGE)
+        self.tbot.reply_text(update, 'Set user mode to MAX_CHARGE')
 
     @password
     def charge_cost_limit(self, update: Update, _: CallbackContext):

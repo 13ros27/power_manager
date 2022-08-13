@@ -3,7 +3,7 @@ from config import Config
 from handlers import ChangeHandler, LiveStatusHandler
 from nvi import NonVolatileInformation
 from pathlib import Path
-from state import Mode, Modes
+from state import Modes
 from telegram import Update
 from telegram.error import NetworkError
 from telegram.ext import CallbackQueryHandler, CommandHandler, Updater, CallbackContext
@@ -39,7 +39,6 @@ class TelegramBot:
         self.config = config
         self.modes = modes
         self.quasar = quasar
-        self.charge_mode = Mode.CHARGE_ONLY
         self.logger = config.logger
         self.nvinfo = NonVolatileInformation(config.path / Path('telegram_info.json'))
         self.updater = Updater(self.nvinfo.token)
