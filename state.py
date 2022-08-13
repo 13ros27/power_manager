@@ -70,34 +70,81 @@ class UserSettings:
         self.charge_cost_limit = 0.0
         self.stored_discharge_value = config.low_day
         self.min_discharge_rate = 3
+        self.max_paid_soc = None
+        self.min_discharge_soc = None
+
+    def ccl(self):
+        return self.charge_cost_limit
+
+    def sdv(self):
+        return self.stored_discharge_value
+
+    def mdr(self):
+        return self.min_discharge_rate
+
+    def max_sb(self):
+        if self.max_paid_soc is None:
+            return []
+        else:
+            return [self.max_paid_soc]
+
+    def min_sb(self):
+        if self.min_discharge_soc is None:
+            return []
+        else:
+            return [self.min_discharge_soc]
 
 class State:
-    def __init__(self, user_settings: UserSettings, charge_cost_limit, stored_discharge_value, min_discharge_rate):
-        self.user_settings = user_settings
+    def __init__(self, charge_cost_limit, stored_discharge_value, min_discharge_rate, max_soc_boundaries, min_soc_boundaries):
         self._charge_cost_limit = charge_cost_limit
         self._stored_discharge_value = stored_discharge_value
         self._min_discharge_rate = min_discharge_rate
+        self._max_soc_boundaries = max_soc_boundaries
+        self._min_soc_boundaries = min_soc_boundaries
 
     @property
     def charge_cost_limit(self) -> float:
         if isinstance(self._charge_cost_limit, (int, float)):
             return self._charge_cost_limit
         else:
-            return self._charge_cost_limit(self.user_settings)
+            return self._charge_cost_limit()
 
     @property
     def stored_discharge_value(self) -> float:
         if isinstance(self._stored_discharge_value, (int, float)):
             return self._stored_discharge_value
         else:
-            return self._stored_discharge_value(self.user_settings)
+            return self._stored_discharge_value()
 
     @property
     def min_discharge_rate(self) -> int:
         if isinstance(self._min_discharge_rate, int):
             return self._min_discharge_rate
         else:
-            return self._min_discharge_rate(self.user_settings)
+            return self._min_discharge_rate()
+
+    @property
+    def next_max_soc(self):
+        if isinstance(self._max_soc_boundaries, list):
+            boundaries = self._max_soc_boundaries
+        else:
+            boundaries = self._max_soc_boundaries()
+        if len(boundaries) > 0:
+            return boundaries[0]
+        else:
+            return None
+
+    @property
+    def next_min_soc(self):
+        if isinstance(self._min_soc_boundaries, list):
+            boundaries = self._min_soc_boundaries
+        else:
+            boundaries = self._min_soc_boundaries()
+        if len(boundaries) > 0:
+            return boundaries[0]
+        else:
+            return None
+
 
 class Auto:
     def __init__(self, config: Config):
@@ -119,14 +166,15 @@ class Mode(Enum):
 
 class Modes:
     def __init__(self, config: Config, mode: Mode, quasar: Quasar):
-        self.user_settings = UserSettings(config)
+        user_settings = UserSettings(config)
+        self.user_settings = user_settings
         self.quasar = quasar
         auto = Auto(config)
         self.modes = {
-            Mode.OFF: State(self.user_settings, lambda us: us.charge_cost_limit, lambda us: us.stored_discharge_value, lambda us: us.min_discharge_rate), # Mode.OFF shows up as CHARGE_DISCHARGE for recommendation
-            Mode.CHARGE_ONLY: State(self.user_settings, lambda us: us.charge_cost_limit, config.high_day, lambda us: us.min_discharge_rate),
-            Mode.CHARGE_DISCHARGE: State(self.user_settings, lambda us: us.charge_cost_limit, lambda us: us.stored_discharge_value, lambda us: us.min_discharge_rate),
-            Mode.AUTO: State(self.user_settings, auto.charge_cost_limit, auto.stored_discharge_value, 3)
+            Mode.OFF: State(user_settings.ccl, user_settings.sdv, user_settings.mdr, user_settings.max_sb, user_settings.min_sb), # Mode.OFF shows up as CHARGE_DISCHARGE for recommendation
+            Mode.CHARGE_ONLY: State(user_settings.ccl, config.high_day, user_settings.mdr, user_settings.max_sb, user_settings.min_sb),
+            Mode.CHARGE_DISCHARGE: State(user_settings.ccl, user_settings.sdv, user_settings.mdr, user_settings.max_sb, user_settings.min_sb),
+            Mode.AUTO: State(auto.charge_cost_limit, auto.stored_discharge_value, 3, [], [])
         }
         self._mode = mode
 
