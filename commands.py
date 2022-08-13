@@ -17,6 +17,9 @@ def password(f):
 
 class TeleCommands:
     def __init__(self, config: Config, datalogger: DataLogger, quasar: Quasar):
+        self.charge_vals = [('Free', 0.0), ('Below Off Peak', self.config.low_night), ('Below Off Peak', self.config.high_night),
+                            ('Below Peak', self.config.low_day), ('Above Peak', self.config.high_day)]
+        self.discharge_vals = [('Free', 0.0), ('Off Peak', self.config.discharge_rate), ('Below Peak', self.config.low_day)]
         self.config = config
         self.datalogger = datalogger
         self.quasar = quasar
@@ -202,10 +205,8 @@ class TeleCommands:
         mes = f'The charge cost limit is {round(self.tbot.modes.user_settings.charge_cost_limit, 1)}p'
         mes_id = self.tbot.reply_text(update, mes).message_id
         chat_id = self.tbot.get_chat_id(update)
-        inbuilt_vals = {'Free': 0.0, 'Below Off Peak': self.config.low_night, 'Off Peak': self.config.high_night,
-                        'Below Peak': self.config.low_day, 'Peak': self.config.high_day}
         buttons = []
-        for (name, val) in inbuilt_vals.items():
+        for (name, val) in self.charge_vals:
             button = InlineKeyboardButton(name, callback_data=f'{chat_id} {mes_id} 0 {val}')
             if buttons == [] or len(buttons[-1]) != 1:
                 buttons.append([button])
@@ -218,9 +219,8 @@ class TeleCommands:
         mes = f'The stored discharge value is {round(self.tbot.modes.user_settings.stored_discharge_value, 1)}p'
         mes_id = self.tbot.reply_text(update, mes).message_id
         chat_id = self.tbot.get_chat_id(update)
-        inbuilt_vals = {'Free': 0.0, 'Off Peak': self.config.discharge_rate, 'Below Peak': self.config.low_day}
         buttons = []
-        for (name, val) in inbuilt_vals.items():
+        for (name, val) in self.discharge_vals:
             button = InlineKeyboardButton(name, callback_data=f'{chat_id} {mes_id} 1 {val}')
             if buttons == [] or len(buttons[-1]) != 1:
                 buttons.append([button])
@@ -258,7 +258,6 @@ class TeleCommands:
         self.tbot.reply_text(update, f'''/user_mode: {self.tbot.modes._mode.name}
 /charge_cost_limit: {us.charge_cost_limit}p
 /stored_discharge_value: {us.stored_discharge_value}p
-/min_discharge_rate: {us.min_discharge_rate}A
 /max_paid_soc: {None if us.max_paid_soc == -1 else str(us.max_paid_soc) + '%'}
 /min_discharge_soc: {None if us.min_discharge_soc == -1 else str(us.min_discharge_soc) + '%'}''')
 
@@ -273,6 +272,7 @@ class TeleCommands:
 /charger_status - Get the current charger status
 /soc - Get the state of charge of the car
 /test - (temp) Testing the morning behaviour
+/min_discharge_rate - Set the minimum discharge rate
 /more - Self-referential = fun''')
 
     def cleanup(self):
