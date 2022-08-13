@@ -37,7 +37,7 @@ if __name__ == '__main__':
             estimated = current_combine(currents, CURRENT_TYPES)
             recommended = recommend.current(estimated, commands.tbot.modes.state, quasar)
             charge_rate = on_off_hysteresis.balance(recommended)
-            car_connect_detection.check(charge_rate, currents[2]);
+            car_connect_detection.check(quasar, charge_rate, currents[2])
             data_logger.tick(currents, recommended, commands.tbot.modes._mode)
             commands.tbot.update_info(currents, estimated, recommended, charge_rate)
             if commands.tbot.modes.state != Mode.OFF:
