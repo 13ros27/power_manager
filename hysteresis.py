@@ -1,4 +1,4 @@
-class OnOff: # TODO: Make this drop to 3 (or rise to -3) before it then drops to 0
+class OnOff:
     def __init__(self, count: int = 4):
         self.max_count = count
         self.last = None
@@ -25,11 +25,13 @@ class OnOff: # TODO: Make this drop to 3 (or rise to -3) before it then drops to
                     self.positive = 0
             elif self.last > 0:
                 if recommended == 0:
+                    self.last = 3
                     self.zeros += 1
                 else:
                     self.negative += 1
             else:
                 if recommended == 0:
+                    self.last = -3
                     self.zeros += 1
                 else:
                     self.positive += 1
