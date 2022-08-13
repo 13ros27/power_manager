@@ -17,11 +17,11 @@ class Recommend:
         positive = abs(estimated)
         value = 0
         if positive > minimum:
-            part = estimated % 1
+            part = positive % 1
             if part < frac:
-                value = floor(estimated)
+                value = floor(positive)
             else:
-                value = ceil(estimated)
+                value = ceil(positive)
         elif positive >= minimum - frac * minimum:
             value = minimum
         else:
