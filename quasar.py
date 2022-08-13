@@ -96,7 +96,6 @@ class Quasar:
     @property
     def soc(self) -> int:
         if self._last_read_soc < time.time():
-            print('Triggered')
             self._last_read_soc = time.time() + 120
             reading = self._read_state_of_charge()
             if reading != 0:
