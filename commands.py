@@ -255,9 +255,19 @@ class TeleCommands:
     @password
     def settings(self, update: Update, _: CallbackContext):
         us = self.tbot.modes.user_settings
+        charge_text = f'{us.charge_cost_limit}p'
+        for (name, val) in self.charge_vals:
+            if val == us.charge_cost_limit:
+                charge_text = f'({name}) {charge_text}'
+                break
+        discharge_text = f'{us.stored_discharge_value}p'
+        for (name, val) in self.discharge_vals:
+            if val == us.stored_discharge_value:
+                discharge_text = f'({name}) {discharge_text}'
+                break
         self.tbot.reply_text(update, f'''/user_mode: {self.tbot.modes._mode.name}
-/charge_cost_limit: {us.charge_cost_limit}p
-/stored_discharge_value: {us.stored_discharge_value}p
+/charge_cost_limit: {charge_text}
+/stored_discharge_value: {discharge_text}
 /max_paid_soc: {None if us.max_paid_soc == -1 else str(us.max_paid_soc) + '%'}
 /min_discharge_soc: {None if us.min_discharge_soc == -1 else str(us.min_discharge_soc) + '%'}''')
 
