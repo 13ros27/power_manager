@@ -37,6 +37,7 @@ class TeleCommands:
         tbot.add_command('test', self.test)
         tbot.add_command('off', self.off)
         tbot.add_command('auto', self.auto)
+        tbot.add_command('user_mode', self.user_mode)
         tbot.add_command('manual', self.manual)
         tbot.add_command('charge_only', self.charge_only)
         tbot.add_command('charge_discharge', self.charge_discharge)
@@ -168,6 +169,20 @@ class TeleCommands:
         self.tbot.edit_message_text(mes, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
 
     @password
+    def user_mode(self, update: Update, _: CallbackContext):
+        mes = f'The user mode is currently {self.tbot.modes._mode.name}'
+        mes_id = self.tbot.reply_text(update, mes).message_id
+        chat_id = self.tbot.get_chat_id(update)
+        buttons = []
+        for mode in Mode:
+            button = InlineKeyboardButton(mode.name, callback_data=f'{chat_id} {mes_id} 2 {mode.value}')
+            if buttons == [] or len(buttons[-1]) != 1:
+                buttons.append([button])
+            else:
+                buttons[-1].append(button)
+        self.tbot.edit_message_text(mes, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
+
+    @password
     def charge_only(self, update: Update, _: CallbackContext):
         self.tbot.modes.set_mode(Mode.CHARGE_ONLY)
         self.tbot.reply_text(update, 'Set user mode to CHARGE_ONLY')
@@ -203,7 +218,7 @@ class TeleCommands:
         mes = f'The stored discharge value is {round(self.tbot.modes.user_settings.stored_discharge_value, 1)}p'
         mes_id = self.tbot.reply_text(update, mes).message_id
         chat_id = self.tbot.get_chat_id(update)
-        inbuilt_vals = {'Free': 0.0, 'Off Peak': self.config.discharge_rate, 'Peak': self.config.low_day}
+        inbuilt_vals = {'Free': 0.0, 'Off Peak': self.config.discharge_rate, 'Below Peak': self.config.low_day}
         buttons = []
         for (name, val) in inbuilt_vals.items():
             button = InlineKeyboardButton(name, callback_data=f'{chat_id} {mes_id} 1 {val}')
@@ -240,7 +255,7 @@ class TeleCommands:
     @password
     def settings(self, update: Update, _: CallbackContext):
         us = self.tbot.modes.user_settings
-        self.tbot.reply_text(update, f'''User Mode: {self.tbot.modes._mode.name}
+        self.tbot.reply_text(update, f'''/user_mode: {self.tbot.modes._mode.name}
 /charge_cost_limit: {us.charge_cost_limit}p
 /stored_discharge_value: {us.stored_discharge_value}p
 /min_discharge_rate: {us.min_discharge_rate}A
