@@ -7,6 +7,7 @@ from state import Mode, Modes
 from telegram import Update
 from telegram.error import NetworkError
 from telegram.ext import CallbackQueryHandler, CommandHandler, Updater, CallbackContext
+from quasar import quasar
 
 class Info:
     def __init__(self):
@@ -33,10 +34,11 @@ class Info:
 class TelegramBot:
     """Control all the aspects of the telegram bot side of it."""
 
-    def __init__(self, config: Config, modes: Modes):
+    def __init__(self, config: Config, modes: Modes, quasar: Quasar):
         """Set up the necessary functions and operations."""
         self.config = config
         self.modes = modes
+        self.quasar = quasar
         self.charge_mode = Mode.CHARGE_ONLY
         self.logger = config.logger
         self.nvinfo = NonVolatileInformation(config.path / Path('telegram_info.json'))
@@ -131,6 +133,7 @@ class TelegramBot:
                 message.append(f'{round(estimated, rounding)}A: Estimated')
                 message.append(f'{recommended}A: Recommended')
                 message.append(f'{charge_rate}A: Charge Rate')
+                message.append(f'{self.quasar.soc}%: State of Charge')
             message = '\n'.join(message)
         return message
 

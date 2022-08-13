@@ -20,7 +20,7 @@ class TeleCommands:
         self.config = config
         self.datalogger = datalogger
         self.quasar = quasar
-        tbot = TelegramBot(config, Modes(config, Mode.OFF, quasar))
+        tbot = TelegramBot(config, Modes(config, Mode.OFF, quasar), quasar)
         self.tbot = tbot
         self.recommending = {}
         tbot.add_command('start', self.start)

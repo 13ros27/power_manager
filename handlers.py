@@ -20,7 +20,7 @@ class LiveStatusHandler(ChangeHandler):
         self.live_until = timing.second_number() + secs_for
         self.last_stuff = (tbot.formatted_current(), tbot.modes._mode)
         mode = self.mode_shorthand(tbot.modes._mode)
-        text = f'<b>LIVE ({mode})</b>\n{self.last_stuff[0]}'
+        text = f'<b>LIVE ({mode})</b>\n{self.last_stuff[0]}\n'
         if mes_id is None:
             mes = tbot.send_text(text, chat_id, parse_mode=HTML)
             self.mes_id = mes.message_id
