@@ -20,7 +20,6 @@ def write(f):
     def wrapper(self, *args, **kwargs):
         if self._disconnected is not None:
             if self._disconnected < time.time():
-                print('Disconnect finished')
                 self._disconnected = None
                 if self._controlling:
                     self.take_control()
@@ -97,6 +96,7 @@ class Quasar:
     @property
     def soc(self) -> int:
         if self._last_read_soc < time.time():
+            print('Triggered')
             self._last_read_soc = time.time() + 120
             reading = self._read_state_of_charge()
             if reading != 0:

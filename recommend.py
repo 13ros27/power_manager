@@ -1,5 +1,6 @@
 from config import Config
 from math import ceil, floor
+from quasar import Quasar
 from state import State
 import timing
 
@@ -31,15 +32,25 @@ class Recommend:
         else:
             return value
 
-    def current(self, estimated: float, state: State) -> int:
+    def current(self, estimated: float, state: State, quasar: Quasar) -> int:
         cur_price = energy_price(self.config)
+        charge_cost_limit = state.charge_cost_limit
+        stored_discharge_value = state.stored_discharge_value
         if estimated <= 0:
-            if cur_price < state.charge_cost_limit:
+            if quasar.soc != 0:
+                for boundary in state.max_soc_bounds:
+                    if quasar.soc >= boundary[0]:
+                        charge_cost_limit = boundary[1]
+            if cur_price < charge_cost_limit:
                 return 32
             else:
-                return self.round_estimation(estimated, min(state.charge_cost_limit / cur_price, 1), 3)
+                return self.round_estimation(estimated, min(charge_cost_limit / cur_price, 1), 3)
         else:
-            if cur_price < state.stored_discharge_value:
+            if quasar.soc != 0:
+                for boundary in state.min_soc_bounds:
+                    if quasar.soc <= boundary[0]:
+                        stored_discharge_value = boundary[1]
+            if cur_price < stored_discharge_value:
                 return 0
             else:
-                return self.round_estimation(estimated, 1 - min(state.stored_discharge_value / cur_price, 1), state.min_discharge_rate)
+                return self.round_estimation(estimated, 1 - min(stored_discharge_value / cur_price, 1), state.min_discharge_rate)

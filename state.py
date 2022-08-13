@@ -67,11 +67,12 @@ from quasar import Quasar
 
 class UserSettings:
     def __init__(self, config: Config):
+        self.config = config
         self.charge_cost_limit = 0.0
         self.stored_discharge_value = config.low_day
         self.min_discharge_rate = 3
-        self.max_paid_soc = None
-        self.min_discharge_soc = None
+        self.max_paid_soc = -1
+        self.min_discharge_soc = -1
 
     def ccl(self):
         return self.charge_cost_limit
@@ -83,16 +84,16 @@ class UserSettings:
         return self.min_discharge_rate
 
     def max_sb(self):
-        if self.max_paid_soc is None:
+        if self.max_paid_soc == -1:
             return []
         else:
-            return [self.max_paid_soc]
+            return [(self.max_paid_soc, 0.0)]
 
     def min_sb(self):
-        if self.min_discharge_soc is None:
+        if self.min_discharge_soc == -1:
             return []
         else:
-            return [self.min_discharge_soc]
+            return [(self.min_discharge_soc, self.config.high_day)]
 
 class State:
     def __init__(self, charge_cost_limit, stored_discharge_value, min_discharge_rate, max_soc_boundaries, min_soc_boundaries):
@@ -124,26 +125,20 @@ class State:
             return self._min_discharge_rate()
 
     @property
-    def next_max_soc(self):
+    def max_soc_bounds(self):
         if isinstance(self._max_soc_boundaries, list):
             boundaries = self._max_soc_boundaries
         else:
             boundaries = self._max_soc_boundaries()
-        if len(boundaries) > 0:
-            return boundaries[0]
-        else:
-            return None
+        return boundaries
 
     @property
-    def next_min_soc(self):
+    def min_soc_bounds(self):
         if isinstance(self._min_soc_boundaries, list):
             boundaries = self._min_soc_boundaries
         else:
             boundaries = self._min_soc_boundaries()
-        if len(boundaries) > 0:
-            return boundaries[0]
-        else:
-            return None
+        return boundaries
 
 
 class Auto:

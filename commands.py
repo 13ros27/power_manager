@@ -209,5 +209,17 @@ class TeleCommands:
         self.quasar.disconnect(int(secs))
         self.tbot.reply_text(update, f'Disconnected for {secs} seconds')
 
+    @password
+    def max_paid_soc(self, update: Update, _: CallbackContext):
+        max_soc = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a max paid SoC')
+        self.tbot.modes.user_settings.max_paid_soc = int(max_soc)
+        self.tbot.reply_text(update, f'Max paid SoC is set to {max_soc}%, current SoC is {self.quasar.soc}%')
+
+    @password
+    def min_discharge_soc(self, update: Update, _: CallbackContext):
+        min_soc = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a min discharge SoC')
+        self.tbot.modes.user_settings.min_discharge_soc = int(min_soc)
+        self.tbot.reply_text(update, f'Min discharge SoC is set to {min_soc}%, current SoC is {self.quasar.soc}%')
+
     def cleanup(self):
         self.tbot.cleanup()
