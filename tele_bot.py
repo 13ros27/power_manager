@@ -7,7 +7,7 @@ from state import Mode, Modes
 from telegram import Update
 from telegram.error import NetworkError
 from telegram.ext import CallbackQueryHandler, CommandHandler, Updater, CallbackContext
-from quasar import quasar
+from quasar import Quasar
 
 class Info:
     def __init__(self):
@@ -133,7 +133,11 @@ class TelegramBot:
                 message.append(f'{round(estimated, rounding)}A: Estimated')
                 message.append(f'{recommended}A: Recommended')
                 message.append(f'{charge_rate}A: Charge Rate')
-                message.append(f'{self.quasar.soc}%: State of Charge')
+                soc = self.quasar.soc
+                if soc == 0:
+                    message.append('?%: State of Charge')
+                else:
+                    message.append(f'{self.quasar.soc}%: State of Charge')
             message = '\n'.join(message)
         return message
 
