@@ -37,6 +37,7 @@ class Quasar:
         self._soc = 0
         self._disconnected = None
         self._controlling = False
+        self._last_read_soc = 0.0
 
     def take_control(self):
         self._controlling = True
@@ -95,9 +96,11 @@ class Quasar:
 
     @property
     def soc(self) -> int:
-        reading = self._read_state_of_charge()
-        if reading != 0:
-            self._soc = reading
+        if self._last_read_soc < time.time():
+            self._last_read_soc = time.time() + 120
+            reading = self._read_state_of_charge()
+            if reading != 0:
+                self._soc = reading
         return self._soc
 
     @property
