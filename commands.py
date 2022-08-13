@@ -44,6 +44,9 @@ class TeleCommands:
         tbot.add_command('sdv', self.stored_discharge_value)
         tbot.add_command('mdr', self.min_discharge_rate)
         tbot.add_command('disconnect', self.disconnect)
+        tbot.add_command('max_paid_soc', self.max_paid_soc)
+        tbot.add_command('min_discharge_soc', self.min_discharge_soc)
+        tbot.add_command('settings', self.settings)
 
     def start(self, update: Update, _: CallbackContext):
         if update.message.text == '/start lego':
@@ -220,6 +223,16 @@ class TeleCommands:
         min_soc = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a min discharge SoC')
         self.tbot.modes.user_settings.min_discharge_soc = int(min_soc)
         self.tbot.reply_text(update, f'Min discharge SoC is set to {min_soc}%, current SoC is {self.quasar.soc}%')
+
+    @password
+    def settings(self, update: Update, _: CallbackContext):
+        us = self.tbot.modes.user_settings
+        self.tbot.reply_text(update, f'''User Mode: {self.tbot.modes._mode.name}
+Charge Cost Limit: {us.charge_cost_limit}
+Stored Discharge Value: {us.stored_discharge_value}
+Min Discharge Rate: {us.min_discharge_rate}
+Max Paid SoC: {us.max_paid_soc}
+Min Discharge SoC: {us.min_discharge_soc}''')
 
     def cleanup(self):
         self.tbot.cleanup()
