@@ -23,7 +23,7 @@ class Recommend:
                 value = floor(positive)
             else:
                 value = ceil(positive)
-        elif positive >= minimum - frac * minimum:
+        elif positive >= frac * minimum:
             value = minimum
         else:
             value = 0
