@@ -19,7 +19,7 @@ CURRENT_TYPES = [
 QUASAR_ADDR = '192.168.1.74'
 
 if __name__ == '__main__':
-    CONFIG = Config(Path("/home/pi/power_manager"), NAMES, CURRENT_TYPES, 30.7, 7.5, 0.8, (0, 30), (4, 30))
+    CONFIG = Config(Path("/home/pi/power_manager"), NAMES, CURRENT_TYPES, 30.7, 7.5, 0.8, (0, 30), (4, 30), 40, 80)
     commands = None
     quasar = None
     try:

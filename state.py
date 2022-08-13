@@ -1,69 +1,7 @@
 from enum import Enum
 from config import Config
 from quasar import Quasar
-
-# class State(Enum):
-#     MAX_CHARGE = 1
-#     SUMMER = 2
-#     WINTER = 3
-#     PRESERVE = 4
-#     LOW_CHARGE = 5
-
-# class Mode(Enum):
-#     MAX_CHARGE = 1
-#     SUMMER = 2
-#     WINTER = 3
-#     PRESERVE = 4
-#     LOW_CHARGE = 5
-#     NORMAL = 10
-
-# class StateSelect:
-#     def __init__(self, mode: Mode, config: Config, quasar: Quasar):
-#         self.mode = Mode.PRESERVE
-#         self.set_mode(mode)
-#         self.config = config
-#         self.quasar = quasar
-
-#     def set_mode(self, mode: Mode):
-#         if self.mode != Mode.NORMAL:
-#             self.remained_overflowed = False
-#             self.power_overflow = False
-#         self.mode = mode
-
-#     def _get_state_normal(self):
-#         if timing.past_this_time(self.config.night_start) and not timing.past_this_time(self.config.night_end):
-#             soc = self.quasar.soc
-#             if soc <= self.config.min_charge:
-#                 self.remained_overflowed = True
-#             if soc < self.config.max_charge:
-#                 return State.MAX_CHARGE
-#             else:
-#                 return State.PRESERVE
-#         else:
-#             if not self.remained_overflowed:
-#                 self.power_overflow = False
-#             self.remained_overflowed = False
-#             if self.quasar.soc <= self.config.min_charge:
-#                 self.power_overflow = True
-#                 return State.PRESERVE
-#             else:
-#                 if self.power_overflow:
-#                     return State.WINTER
-#                 else:
-#                     return State.SUMMER
-
-#     def _get_state(self, mode: Mode):
-#         try:
-#             return State(mode.value)
-#         except ValueError:
-#             if mode == Mode.NORMAL:
-#                 return self._get_state_normal()
-#             else:
-#                 raise ValueError(f"Unexpected mode {mode}")
-
-#     @property
-#     def state(self) -> State:
-#         return self._get_state(self.mode)
+import timing
 
 class UserSettings:
     def __init__(self, config: Config):
@@ -125,33 +63,43 @@ class State:
             return self._min_discharge_rate()
 
     @property
-    def max_soc_bounds(self):
+    def max_soc_bounds(self) -> list:
         if isinstance(self._max_soc_boundaries, list):
-            boundaries = self._max_soc_boundaries
+            return self._max_soc_boundaries
         else:
-            boundaries = self._max_soc_boundaries()
-        return boundaries
+            return self._max_soc_boundaries()
 
     @property
-    def min_soc_bounds(self):
+    def min_soc_bounds(self) -> list:
         if isinstance(self._min_soc_boundaries, list):
-            boundaries = self._min_soc_boundaries
+            return self._min_soc_boundaries
         else:
-            boundaries = self._min_soc_boundaries()
-        return boundaries
+            return self._min_soc_boundaries()
 
 
 class Auto:
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, quasar: Quasar):
         self.config = config
+        self.quasar = quasar
+        self.winter_day = None
 
-    @property
     def charge_cost_limit(self) -> float:
-        return 0.0
+        return self.config.high_night
 
-    @property
     def stored_discharge_value(self) -> float:
-        return self.config.high_day
+        day_num = timing.comparison_day_number()
+        if self.quasar.soc <= self.config.min_charge:
+            self.winter_day = day_num
+        if self.winter_day != day_num: # SUMMER
+            return self.config.discharge_rate
+        else: # WINTER
+            return self.config.low_day
+
+    def max_soc_bounds(self) -> list:
+        return [(self.config.max_charge, self.config.low_night)]
+
+    def min_soc_bounds(self) -> list:
+        return [(self.config.min_charge, self.config.high_day)]
 
 class Mode(Enum):
     OFF = 0
@@ -164,12 +112,12 @@ class Modes:
         user_settings = UserSettings(config)
         self.user_settings = user_settings
         self.quasar = quasar
-        auto = Auto(config)
+        auto = Auto(config, quasar)
         self.modes = {
             Mode.OFF: State(user_settings.ccl, user_settings.sdv, user_settings.mdr, user_settings.max_sb, user_settings.min_sb), # Mode.OFF shows up as CHARGE_DISCHARGE for recommendation
             Mode.CHARGE_ONLY: State(user_settings.ccl, config.high_day, user_settings.mdr, user_settings.max_sb, user_settings.min_sb),
             Mode.CHARGE_DISCHARGE: State(user_settings.ccl, user_settings.sdv, user_settings.mdr, user_settings.max_sb, user_settings.min_sb),
-            Mode.AUTO: State(auto.charge_cost_limit, auto.stored_discharge_value, 3, [], [])
+            Mode.AUTO: State(auto.charge_cost_limit, auto.stored_discharge_value, 3, auto.max_soc_bounds, auto.min_soc_bounds)
         }
         self._mode = mode
 
