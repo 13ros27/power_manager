@@ -17,9 +17,9 @@ def password(f):
 
 class TeleCommands:
     def __init__(self, config: Config, datalogger: DataLogger, quasar: Quasar):
-        self.charge_vals = [('Free', 0.0), ('Below Off Peak', self.config.low_night), ('Below Off Peak', self.config.high_night),
-                            ('Below Peak', self.config.low_day), ('Above Peak', self.config.high_day)]
-        self.discharge_vals = [('Free', 0.0), ('Off Peak', self.config.discharge_rate), ('Below Peak', self.config.low_day)]
+        self.charge_vals = [('Free', 0.0), ('Below Off Peak', config.low_night), ('Below Off Peak', config.high_night),
+                            ('Below Peak', config.low_day), ('Above Peak', config.high_day)]
+        self.discharge_vals = [('Free', 0.0), ('Off Peak', config.discharge_rate), ('Below Peak', config.low_day)]
         self.config = config
         self.datalogger = datalogger
         self.quasar = quasar
