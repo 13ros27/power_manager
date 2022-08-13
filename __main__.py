@@ -34,7 +34,7 @@ if __name__ == '__main__':
             currents = current_monitor.read()
             print(currents)
             estimated = current_combine(currents, CURRENT_TYPES)
-            recommended = recommend.current(estimated, commands.tbot.modes.state)
+            recommended = recommend.current(estimated, commands.tbot.modes.state, quasar)
             charge_rate = on_off_hysteresis.balance(recommended)
             data_logger.tick(currents, recommended, commands.tbot.modes._mode)
             commands.tbot.update_info(currents, estimated, recommended, charge_rate)
