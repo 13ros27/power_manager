@@ -2,7 +2,7 @@ from commands import TeleCommands
 from config import Config
 from current import CurrentMonitor, CurrentType, current_combine
 from datalogger import DataLogger
-from hysteresis import CarConnect, OnOff
+from hysteresis import OnOff
 from pathlib import Path
 from quasar import Quasar
 from recommend import Recommend
@@ -25,11 +25,12 @@ if __name__ == '__main__':
     try:
         data_logger = DataLogger(CONFIG, 15, Path('data'))
         quasar = Quasar(QUASAR_ADDR)
+        quasar.write_register(0x52, 0)
         commands = TeleCommands(CONFIG, data_logger, quasar)
         current_monitor = CurrentMonitor(len(NAMES))
         recommend = Recommend(CONFIG)
         on_off_hysteresis = OnOff(4)
-        car_connect_detection = CarConnect(10)
+        # car_connect_detection = CarConnect(10)
 
         while True:
             currents = current_monitor.read()
@@ -37,7 +38,7 @@ if __name__ == '__main__':
             estimated = current_combine(currents, CURRENT_TYPES)
             recommended = recommend.current(estimated, commands.tbot.modes.state, quasar)
             charge_rate = on_off_hysteresis.balance(recommended)
-            car_connect_detection.check(quasar, charge_rate, currents[2])
+            # car_connect_detection.check(quasar, charge_rate, currents[2])
             data_logger.tick(currents, recommended, commands.tbot.modes._mode)
             commands.tbot.update_info(currents, estimated, recommended, charge_rate)
             if commands.tbot.modes.state != Mode.OFF:
