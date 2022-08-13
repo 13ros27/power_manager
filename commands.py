@@ -228,11 +228,11 @@ class TeleCommands:
     def settings(self, update: Update, _: CallbackContext):
         us = self.tbot.modes.user_settings
         self.tbot.reply_text(update, f'''User Mode: {self.tbot.modes._mode.name}
-Charge Cost Limit: {us.charge_cost_limit}
-Stored Discharge Value: {us.stored_discharge_value}
-Min Discharge Rate: {us.min_discharge_rate}
-Max Paid SoC: {us.max_paid_soc}
-Min Discharge SoC: {us.min_discharge_soc}''')
+Charge Cost Limit: {us.charge_cost_limit}p
+Stored Discharge Value: {us.stored_discharge_value}p
+Min Discharge Rate: {us.min_discharge_rate}A
+Max Paid SoC: {None if us.max_paid_soc == -1 else str(us.max_paid_soc) + '%'}
+Min Discharge SoC: {None if us.min_discharge_soc == -1 else str(us.min_discharge_soc) + '%'}''')
 
     def cleanup(self):
         self.tbot.cleanup()
