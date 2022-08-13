@@ -18,9 +18,9 @@ class LiveStatusHandler(ChangeHandler):
         self.tbot = tbot
         self.chat_id = chat_id
         self.live_until = timing.second_number() + secs_for
-        self.last_formatted = tbot.formatted_current()
+        self.last_stuff = (tbot.formatted_current(), tbot.modes._mode)
         mode = self.mode_shorthand(tbot.modes._mode)
-        text = f'<b>LIVE ({mode})</b>\n{self.last_formatted}'
+        text = f'<b>LIVE ({mode})</b>\n{self.last_stuff[0]}'
         if mes_id is None:
             mes = tbot.send_text(text, chat_id, parse_mode=HTML)
             self.mes_id = mes.message_id
@@ -42,17 +42,17 @@ class LiveStatusHandler(ChangeHandler):
             return '?'
 
     def should_update(self) -> bool:
-        return self.tbot.formatted_current() != self.last_formatted
+        return (self.tbot.formatted_current(), self.tbot.modes._mode) != self.last_stuff
 
     def update(self) -> bool:
-        self.last_formatted = self.tbot.formatted_current()
+        self.last_stuff = (self.tbot.formatted_current(), self.tbot.modes._mode)
         if timing.second_number() > self.live_until:
-            message = self.last_formatted
+            message = self.last_stuff[0]
             markup = InlineKeyboardMarkup([[InlineKeyboardButton('Continue', callback_data=f'{self.chat_id} {self.mes_id}')]])
             self.run_out = True
         else:
-            mode = self.mode_shorthand(self.tbot.modes._mode)
-            message = f'<b>LIVE ({mode})</b>\n{self.last_formatted}'
+            mode = self.mode_shorthand(self.last_stuff[1])
+            message = f'<b>LIVE ({mode})</b>\n{self.last_stuff[0]}'
             markup = None
         self.tbot.edit_message_text(message, self.chat_id, self.mes_id, reply_markup=markup, parse_mode=HTML)
         return not self.run_out
