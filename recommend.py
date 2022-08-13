@@ -37,7 +37,7 @@ class Recommend:
         charge_cost_limit = state.charge_cost_limit
         stored_discharge_value = state.stored_discharge_value
         if estimated <= 0:
-            if quasar.soc != 0:
+            if state.max_soc_bounds != [] and quasar.soc != 0:
                 for boundary in state.max_soc_bounds:
                     if quasar.soc >= boundary[0]:
                         charge_cost_limit = boundary[1]
@@ -46,7 +46,7 @@ class Recommend:
             else:
                 return self.round_estimation(estimated, min(charge_cost_limit / cur_price, 1), 3)
         else:
-            if quasar.soc != 0:
+            if state.min_soc_bounds != [] and quasar.soc != 0:
                 for boundary in state.min_soc_bounds:
                     if quasar.soc <= boundary[0]:
                         stored_discharge_value = boundary[1]
