@@ -154,7 +154,7 @@ class TeleCommands:
 
     @password
     def manual(self, update: Update, _: CallbackContext):
-        mes = f'The user mode is currently {self.tbot.modes._mode}'
+        mes = f'The user mode is currently {self.tbot.modes._mode.name}'
         mes_id = self.tbot.reply_text(update, mes).message_id
         chat_id = self.tbot.get_chat_id(update)
         modes = [Mode.CHARGE_ONLY, Mode.CHARGE_DISCHARGE, Mode.MAX_CHARGE]
