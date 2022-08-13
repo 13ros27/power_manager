@@ -40,9 +40,9 @@ class TeleCommands:
         tbot.add_command('charge_only', self.charge_only)
         tbot.add_command('charge_discharge', self.charge_discharge)
         tbot.add_command('max_charge', self.max_charge)
-        tbot.add_command('ccl', self.charge_cost_limit)
-        tbot.add_command('sdv', self.stored_discharge_value)
-        tbot.add_command('mdr', self.min_discharge_rate)
+        tbot.add_command('charge_cost_limit', self.charge_cost_limit)
+        tbot.add_command('stored_discharge_value', self.stored_discharge_value)
+        tbot.add_command('min_discharge_rate', self.min_discharge_rate)
         tbot.add_command('disconnect', self.disconnect)
         tbot.add_command('max_paid_soc', self.max_paid_soc)
         tbot.add_command('min_discharge_soc', self.min_discharge_soc)
@@ -224,11 +224,11 @@ class TeleCommands:
     def settings(self, update: Update, _: CallbackContext):
         us = self.tbot.modes.user_settings
         self.tbot.reply_text(update, f'''User Mode: {self.tbot.modes._mode.name}
-Charge Cost Limit: {us.charge_cost_limit}p
-Stored Discharge Value: {us.stored_discharge_value}p
-Min Discharge Rate: {us.min_discharge_rate}A
-Max Paid SoC: {None if us.max_paid_soc == -1 else str(us.max_paid_soc) + '%'}
-Min Discharge SoC: {None if us.min_discharge_soc == -1 else str(us.min_discharge_soc) + '%'}''')
+/charge_cost_limit: {us.charge_cost_limit}p
+/stored_discharge_value: {us.stored_discharge_value}p
+/min_discharge_rate: {us.min_discharge_rate}A
+/max_paid_soc: {None if us.max_paid_soc == -1 else str(us.max_paid_soc) + '%'}
+/min_discharge_soc: {None if us.min_discharge_soc == -1 else str(us.min_discharge_soc) + '%'}''')
 
     def cleanup(self):
         self.tbot.cleanup()
