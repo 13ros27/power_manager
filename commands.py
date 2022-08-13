@@ -48,6 +48,7 @@ class TeleCommands:
         tbot.add_command('max_paid_soc', self.max_paid_soc)
         tbot.add_command('min_discharge_soc', self.min_discharge_soc)
         tbot.add_command('settings', self.settings)
+        tbot.add_command('more', self.more)
 
     def start(self, update: Update, _: CallbackContext):
         if update.message.text == '/start lego':
@@ -245,6 +246,19 @@ class TeleCommands:
 /min_discharge_rate: {us.min_discharge_rate}A
 /max_paid_soc: {None if us.max_paid_soc == -1 else str(us.max_paid_soc) + '%'}
 /min_discharge_soc: {None if us.min_discharge_soc == -1 else str(us.min_discharge_soc) + '%'}''')
+
+    @password
+    def more(self, update: Update, _: CallbackContext):
+        self.tbot.reply_text(update, '''/statuskw - Status in kW
+/log - Add something to the datalog
+/latestfile - Download latest datalog file
+/listfiles - List all datalog files
+/file <filename> - Download a given datalog file
+/recommend - Ping with any recommendation changes
+/charger_status - Get the current charger status
+/soc - Get the state of charge of the car
+/test - (temp) Testing the morning behaviour
+/more - Self-referential = fun''')
 
     def cleanup(self):
         self.tbot.cleanup()
