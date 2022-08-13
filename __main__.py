@@ -25,12 +25,10 @@ if __name__ == '__main__':
     try:
         data_logger = DataLogger(CONFIG, 15, Path('data'))
         quasar = Quasar(QUASAR_ADDR)
-        quasar.write_register(0x52, 0)
         commands = TeleCommands(CONFIG, data_logger, quasar)
         current_monitor = CurrentMonitor(len(NAMES))
         recommend = Recommend(CONFIG)
         on_off_hysteresis = OnOff(4)
-        # car_connect_detection = CarConnect(10)
 
         while True:
             currents = current_monitor.read()
