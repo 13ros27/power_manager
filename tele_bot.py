@@ -3,7 +3,7 @@ from config import Config
 from handlers import ChangeHandler, LiveStatusHandler
 from nvi import NonVolatileInformation
 from pathlib import Path
-from state import Modes
+from state import Mode, Modes
 from telegram import Update
 from telegram.error import NetworkError
 from telegram.ext import CallbackQueryHandler, CommandHandler, Updater, CallbackContext
@@ -168,6 +168,9 @@ class TelegramBot:
             elif menu_type == 1:
                 self.modes.user_settings.stored_discharge_value = mode_value
                 self.edit_message_text(f'The stored discharge value has been changed to {mode_value}p', chat_id, mes_id)
+            elif menu_type == 2:
+                self.modes.set_mode(Mode(int(mode_value)))
+                self.edit_message_text(f'The user mode has been changed to {Mode(int(mode_value)).name}', chat_id, mes_id)
             else:
                 raise ValueError(f'Did not expect menu_type \'{menu_type}\'');
         else:
