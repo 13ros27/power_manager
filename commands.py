@@ -37,6 +37,7 @@ class TeleCommands:
         tbot.add_command('test', self.test)
         tbot.add_command('off', self.off)
         tbot.add_command('auto', self.auto)
+        tbot.add_command('manual', self.manual)
         tbot.add_command('charge_only', self.charge_only)
         tbot.add_command('charge_discharge', self.charge_discharge)
         tbot.add_command('max_charge', self.max_charge)
@@ -149,6 +150,21 @@ class TeleCommands:
     def auto(self, update: Update, _: CallbackContext):
         self.tbot.modes.set_mode(Mode.AUTO)
         self.tbot.reply_text(update, 'Set user mode to AUTO')
+
+    @password
+    def manual(self, update: Update, _: CallbackContext):
+        mes = f'The user mode is currently {self.tbot.modes._mode}'
+        mes_id = self.tbot.reply_text(update, mes).message_id
+        chat_id = self.tbot.get_chat_id(update)
+        modes = [Mode.CHARGE_ONLY, Mode.CHARGE_DISCHARGE, Mode.MAX_CHARGE]
+        buttons = []
+        for mode in modes:
+            button = InlineKeyboardButton(mode.name, callback_data=f'{chat_id} {mes_id} 2 {mode.value}')
+            if buttons == [] or len(buttons[-1]) != 1:
+                buttons.append([button])
+            else:
+                buttons[-1].append(button)
+        self.tbot.edit_message_text(mes, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
 
     @password
     def charge_only(self, update: Update, _: CallbackContext):
