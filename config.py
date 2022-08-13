@@ -22,14 +22,14 @@ class Config:
 
     def update_night_rate(self, night_rate: float):
         self.night_rate = night_rate
-        self.discharge_rate = night_rate / self.efficiency
-        self.low_night = night_rate - 0.1
-        self.high_night = night_rate + 0.1
+        self.discharge_rate = round(night_rate / self.efficiency, 1)
+        self.low_night = round(night_rate - 0.1, 1)
+        self.high_night = round(night_rate + 0.1, 1)
 
     def update_day_rate(self, day_rate: float):
         self.day_rate = day_rate
-        self.low_day = day_rate - 0.1
-        self.high_day = day_rate + 0.1
+        self.low_day = round(day_rate - 0.1, 1)
+        self.high_day = round(day_rate + 0.1, 1)
 
     def setup_logging(self):
         """Set up all the logging stuff."""
