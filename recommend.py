@@ -44,7 +44,7 @@ class Recommend:
             if cur_price < charge_cost_limit:
                 return 32
             else:
-                return self.round_estimation(estimated, min(charge_cost_limit / cur_price, 1), 3)
+                return self.round_estimation(estimated, 1 - min(charge_cost_limit / cur_price, 1), 3)
         else:
             if state.min_soc_bounds != [] and quasar.soc != 0:
                 for boundary in state.min_soc_bounds:
