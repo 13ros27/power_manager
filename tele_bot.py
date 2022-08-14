@@ -42,6 +42,7 @@ def update_settings(f):
             print(tbot)
         chat_id = tbot.get_chat_id(update)
         if tbot.last_settings.get(chat_id) is not None:
+            print(tbot)
             mes_id = tbot.reply_text(update, tbot.settings_text()).message_id
             tbot.delete_message(chat_id, tbot.last_settings[chat_id])
             tbot.last_settings[chat_id] = mes_id
