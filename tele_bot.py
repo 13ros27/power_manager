@@ -33,7 +33,7 @@ class Info:
 
 def update_settings(f):
     def wrapper(self, update: Update, *args, **kwargs):
-        f(self, *args, **kwargs)
+        f(self, update, *args, **kwargs)
         if isinstance(self, TelegramBot):
             tbot = self
         else:
