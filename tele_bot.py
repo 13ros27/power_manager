@@ -40,7 +40,6 @@ def update_settings(f):
             tbot = self.tbot
         chat_id = tbot.get_chat_id(update)
         if tbot.last_settings.get(chat_id) is not None:
-            print(update)
             mes_id = tbot.reply_text(update, tbot.settings_text()).message_id
             tbot.delete_message(chat_id, tbot.last_settings[chat_id])
             tbot.last_settings[chat_id] = mes_id
@@ -62,7 +61,7 @@ class TelegramBot:
         self.updater = Updater(self.nvinfo.token)
         self.dispatcher = self.updater.dispatcher
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
-        self.dispatcher.add_error_handler(self.error_handler)
+        # self.dispatcher.add_error_handler(self.error_handler)
         self.change_handlers = []
         self.info = Info()
         self.last_settings = {}
