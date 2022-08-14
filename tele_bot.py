@@ -50,10 +50,7 @@ class TelegramBot:
         self.updater.start_polling()
 
     def error_handler(self, _: object, context: CallbackContext):
-        if context.error == NetworkError:
-            self.logger.warning('NetworkError')
-        else:
-            self.logger.exception('Telegram Bot:')
+        self.logger.error(f'Error handling: {context.error}')
 
     def add_command(self, name: str, func):
         self.dispatcher.add_handler(CommandHandler(name, func))
@@ -88,8 +85,13 @@ class TelegramBot:
             raise TypeError('update.effective_chat is None')
 
     def _send(self, command, *args, **kwargs):
-        self.logger.info(f'{command}({", ".join(map(str, args))}, {kwargs})')
-        return command(*args, **kwargs)
+        try:
+            self.logger.info(f'{command}({", ".join(map(str, args))}, {kwargs})')
+            return command(*args, **kwargs)
+        except NetworkError:
+            self.logger.warning('Network Error')
+        except:  # noqa
+            self.logger.exception('Telegram Bot:')
 
     def reply_text(self, update: Update, text: str, **kwargs):
         """Reply with a text message, with error handling."""

@@ -265,11 +265,11 @@ class TeleCommands:
             if val == us.stored_discharge_value:
                 discharge_text = f'({name}) {discharge_text}'
                 break
-        self.tbot.reply_text(update, f'''/user_mode: {self.tbot.modes._mode.name}
-/charge_cost_limit: {charge_text}
-/stored_discharge_value: {discharge_text}
-/max_paid_soc: {None if us.max_paid_soc == -1 else str(us.max_paid_soc) + '%'}
-/min_discharge_soc: {None if us.min_discharge_soc == -1 else str(us.min_discharge_soc) + '%'}''')
+        self.tbot.reply_text(update, f'''/user_mode {self.tbot.modes._mode.name}
+/charge_cost_limit {charge_text}
+/stored_discharge_value {discharge_text}
+/max_paid_soc {None if us.max_paid_soc == -1 else str(us.max_paid_soc) + '%'}
+/min_discharge_soc {None if us.min_discharge_soc == -1 else str(us.min_discharge_soc) + '%'}''')
 
     @password
     def more(self, update: Update, _: CallbackContext):
