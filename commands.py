@@ -46,7 +46,7 @@ class TeleCommands:
         tbot.add_command('charge_discharge', self.charge_discharge)
         tbot.add_command('max_charge', self.max_charge)
         tbot.add_command('charge_cost_limit', self.charge_cost_limit)
-        tbot.add_command('stored_discharge_value', self.stored_discharge_value)
+        tbot.add_command('discharge_value', self.discharge_value)
         tbot.add_command('min_discharge_rate', self.min_discharge_rate)
         tbot.add_command('disconnect', self.disconnect)
         tbot.add_command('max_paid_soc', self.max_paid_soc)
@@ -215,8 +215,8 @@ class TeleCommands:
         self.tbot.edit_message_text(mes, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
 
     @password
-    def stored_discharge_value(self, update: Update, _: CallbackContext):
-        mes = f'The stored discharge value is {round(self.tbot.modes.user_settings.stored_discharge_value, 1)}p'
+    def discharge_value(self, update: Update, _: CallbackContext):
+        mes = f'The discharge value is {round(self.tbot.modes.user_settings.discharge_value, 1)}p'
         mes_id = self.tbot.reply_text(update, mes).message_id
         chat_id = self.tbot.get_chat_id(update)
         buttons = []
@@ -260,14 +260,14 @@ class TeleCommands:
             if val == us.charge_cost_limit:
                 charge_text = f'({name}) {charge_text}'
                 break
-        discharge_text = f'{us.stored_discharge_value}p'
+        discharge_text = f'{us.discharge_value}p'
         for (name, val) in self.discharge_vals:
-            if val == us.stored_discharge_value:
+            if val == us.discharge_value:
                 discharge_text = f'({name}) {discharge_text}'
                 break
         self.tbot.reply_text(update, f'''/user_mode {self.tbot.modes._mode.name}
 /charge_cost_limit {charge_text}
-/stored_discharge_value {discharge_text}
+/discharge_value {discharge_text}
 /max_paid_soc {None if us.max_paid_soc == -1 else str(us.max_paid_soc) + '%'}
 /min_discharge_soc {None if us.min_discharge_soc == -1 else str(us.min_discharge_soc) + '%'}''')
 

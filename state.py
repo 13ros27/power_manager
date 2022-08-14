@@ -7,7 +7,7 @@ class UserSettings:
     def __init__(self, config: Config):
         self.config = config
         self.charge_cost_limit = 0.0
-        self.stored_discharge_value = config.low_day
+        self.discharge_value = config.low_day
         self.min_discharge_rate = 3
         self.max_paid_soc = config.max_charge
         self.min_discharge_soc = config.min_charge
@@ -16,7 +16,7 @@ class UserSettings:
         return self.charge_cost_limit
 
     def sdv(self):
-        return self.stored_discharge_value
+        return self.discharge_value
 
     def mdr(self):
         return self.min_discharge_rate
@@ -34,9 +34,9 @@ class UserSettings:
             return [(self.min_discharge_soc, self.config.high_day)]
 
 class State:
-    def __init__(self, charge_cost_limit, stored_discharge_value, min_discharge_rate, max_soc_boundaries, min_soc_boundaries):
+    def __init__(self, charge_cost_limit, discharge_value, min_discharge_rate, max_soc_boundaries, min_soc_boundaries):
         self._charge_cost_limit = charge_cost_limit
-        self._stored_discharge_value = stored_discharge_value
+        self._discharge_value = discharge_value
         self._min_discharge_rate = min_discharge_rate
         self._max_soc_boundaries = max_soc_boundaries
         self._min_soc_boundaries = min_soc_boundaries
@@ -49,11 +49,11 @@ class State:
             return self._charge_cost_limit()
 
     @property
-    def stored_discharge_value(self) -> float:
-        if isinstance(self._stored_discharge_value, (int, float)):
-            return self._stored_discharge_value
+    def discharge_value(self) -> float:
+        if isinstance(self._discharge_value, (int, float)):
+            return self._discharge_value
         else:
-            return self._stored_discharge_value()
+            return self._discharge_value()
 
     @property
     def min_discharge_rate(self) -> int:
@@ -86,7 +86,7 @@ class Auto:
     def charge_cost_limit(self) -> float:
         return self.config.high_night
 
-    def stored_discharge_value(self) -> float:
+    def discharge_value(self) -> float:
         day_num = timing.comparison_day_number()
         if self.quasar.soc <= self.config.min_charge:
             self.winter_day = day_num
@@ -119,7 +119,7 @@ class Modes:
             Mode.CHARGE_ONLY: State(user_settings.ccl, config.high_day, 3, user_settings.max_sb, []),
             Mode.CHARGE_DISCHARGE: State(user_settings.ccl, user_settings.sdv, user_settings.mdr, user_settings.max_sb, user_settings.min_sb),
             Mode.MAX_CHARGE: State(user_settings.ccl, config.high_day, 3, [], []),
-            Mode.AUTO: State(auto.charge_cost_limit, auto.stored_discharge_value, 3, auto.max_soc_bounds, auto.min_soc_bounds)
+            Mode.AUTO: State(auto.charge_cost_limit, auto.discharge_value, 3, auto.max_soc_bounds, auto.min_soc_bounds)
         }
         self._mode = mode
 
