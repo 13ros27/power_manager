@@ -31,11 +31,28 @@ class Info:
     def __getitem__(self, item):
         return self.info.get(item)
 
+def update_settings(f):
+    def wrapper(self, update: Update, *args, **kwargs):
+        f(self, *args, **kwargs)
+        if isinstance(self, TelegramBot):
+            tbot = self
+        else:
+            tbot = self.tbot
+        chat_id = tbot.get_chat_id(update)
+        if tbot.last_settings.get(chat_id) is not None:
+            mes_id = tbot.reply_text(update, tbot.settings_text()).message_id
+            tbot.delete_message(chat_id, tbot.last_settings[chat_id])
+            tbot.last_settings[chat_id] = mes_id
+    return wrapper
+
 class TelegramBot:
     """Control all the aspects of the telegram bot side of it."""
 
     def __init__(self, config: Config, modes: Modes, quasar: Quasar):
         """Set up the necessary functions and operations."""
+        self.charge_vals = [('Free', 0.0), ('Below Off Peak', config.low_night), ('Below Off Peak', config.high_night),
+                            ('Below Peak', config.low_day), ('Above Peak', config.high_day)]
+        self.discharge_vals = [('Free', 0.0), ('Off Peak', config.discharge_rate), ('Below Peak', config.low_day)]
         self.config = config
         self.modes = modes
         self.quasar = quasar
@@ -47,6 +64,7 @@ class TelegramBot:
         self.dispatcher.add_error_handler(self.error_handler)
         self.change_handlers = []
         self.info = Info()
+        self.last_settings = {}
         self.updater.start_polling()
 
     def error_handler(self, _: object, context: CallbackContext):
@@ -150,7 +168,7 @@ class TelegramBot:
                 if handler.update() is False:
                     self.remove_handler(handler)
 
-    def button(self, update, _):
+    def button(self, update: Update, _):
         """Run the continue button from LiveStatus.update."""
         query = update.callback_query
         query.answer()
@@ -160,23 +178,44 @@ class TelegramBot:
             mes_id = int(data[1])
             self.add_handler(LiveStatusHandler(self, chat_id, 300, mes_id))
         elif len(data) == 4:
-            chat_id = int(data[0])
-            mes_id = int(data[1])
-            menu_type = int(data[2])
-            mode_value = round(float(data[3]), 1)
-            if menu_type == 0:
-                self.modes.user_settings.charge_cost_limit = mode_value
-                self.edit_message_text(f'The charge cost limit has been changed to {mode_value}p', chat_id, mes_id)
-            elif menu_type == 1:
-                self.modes.user_settings.discharge_value = mode_value
-                self.edit_message_text(f'The discharge value has been changed to {mode_value}p', chat_id, mes_id)
-            elif menu_type == 2:
-                self.modes.set_mode(Mode(int(mode_value)))
-                self.edit_message_text(f'The user mode has been changed to {Mode(int(mode_value)).name}', chat_id, mes_id)
-            else:
-                raise ValueError(f'Did not expect menu_type \'{menu_type}\'')
+            self.button_menus(update, data)
         else:
             raise TypeError(f'Did not expect {data}')
+
+    @update_settings
+    def button_menus(self, _: Update, data: list):
+        chat_id = int(data[0])
+        mes_id = int(data[1])
+        menu_type = int(data[2])
+        mode_value = round(float(data[3]), 1)
+        if menu_type == 0:
+            self.modes.user_settings.charge_cost_limit = mode_value
+            self.edit_message_text(f'The charge cost limit has been changed to {mode_value}p', chat_id, mes_id)
+        elif menu_type == 1:
+            self.modes.user_settings.discharge_value = mode_value
+            self.edit_message_text(f'The discharge value has been changed to {mode_value}p', chat_id, mes_id)
+        elif menu_type == 2:
+            self.modes.set_mode(Mode(int(mode_value)))
+            self.edit_message_text(f'The user mode has been changed to {Mode(int(mode_value)).name}', chat_id, mes_id)
+        else:
+            raise ValueError(f'Did not expect menu_type \'{menu_type}\'')
+
+    def cost_text(self, cost: float, known: list):
+        text = f'{cost}p'
+        for (name, val) in known:
+            if val == cost:
+                name_text = ''.join([w[0] for w in name.replace('Below', '<').replace('Above', '>').split(' ')])
+                text = f'({name_text}) {text}'
+                break
+        return text
+
+    def settings_text(self) -> str:
+        us = self.modes.user_settings
+        return f'''/user_mode {self.modes._mode.name}
+/charge_cost_limit {self.cost_text(us.charge_cost_limit, self.charge_vals)}
+/discharge_value {self.cost_text(us.discharge_value, self.discharge_vals)}
+/max_paid_soc {None if us.max_paid_soc == -1 else str(us.max_paid_soc) + '%'}
+/min_discharge_soc {None if us.min_discharge_soc == -1 else str(us.min_discharge_soc) + '%'}'''
 
     def cleanup(self):
         """Kills all handlers."""

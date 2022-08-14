@@ -3,7 +3,7 @@ from config import Config
 from datalogger import DataLogger
 from handlers import LiveStatusHandler, RecommendHandler
 from state import Mode, Modes
-from tele_bot import TelegramBot
+from tele_bot import TelegramBot, update_settings
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 from quasar import Quasar
@@ -17,9 +17,6 @@ def password(f):
 
 class TeleCommands:
     def __init__(self, config: Config, datalogger: DataLogger, quasar: Quasar):
-        self.charge_vals = [('Free', 0.0), ('Below Off Peak', config.low_night), ('Below Off Peak', config.high_night),
-                            ('Below Peak', config.low_day), ('Above Peak', config.high_day)]
-        self.discharge_vals = [('Free', 0.0), ('Off Peak', config.discharge_rate), ('Below Peak', config.low_day)]
         self.config = config
         self.datalogger = datalogger
         self.quasar = quasar
@@ -206,7 +203,7 @@ class TeleCommands:
         mes_id = self.tbot.reply_text(update, mes).message_id
         chat_id = self.tbot.get_chat_id(update)
         buttons = []
-        for (name, val) in self.charge_vals:
+        for (name, val) in self.tbot.charge_vals:
             button = InlineKeyboardButton(name, callback_data=f'{chat_id} {mes_id} 0 {val}')
             if buttons == [] or len(buttons[-1]) != 1:
                 buttons.append([button])
@@ -220,7 +217,7 @@ class TeleCommands:
         mes_id = self.tbot.reply_text(update, mes).message_id
         chat_id = self.tbot.get_chat_id(update)
         buttons = []
-        for (name, val) in self.discharge_vals:
+        for (name, val) in self.tbot.discharge_vals:
             button = InlineKeyboardButton(name, callback_data=f'{chat_id} {mes_id} 1 {val}')
             if buttons == [] or len(buttons[-1]) != 1:
                 buttons.append([button])
@@ -241,34 +238,23 @@ class TeleCommands:
         self.tbot.reply_text(update, f'Disconnected for {secs} seconds')
 
     @password
+    @update_settings
     def max_paid_soc(self, update: Update, _: CallbackContext):
         max_soc = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a max paid SoC')
         self.tbot.modes.user_settings.max_paid_soc = int(max_soc)
         self.tbot.reply_text(update, f'Max paid SoC is set to {max_soc}%, current SoC is {self.quasar.soc}%')
 
     @password
+    @update_settings
     def min_discharge_soc(self, update: Update, _: CallbackContext):
         min_soc = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a min discharge SoC')
         self.tbot.modes.user_settings.min_discharge_soc = int(min_soc)
         self.tbot.reply_text(update, f'Min discharge SoC is set to {min_soc}%, current SoC is {self.quasar.soc}%')
 
-    def cost_text(self, cost: float, known: list):
-        text = f'{cost}p'
-        for (name, val) in known:
-            if val == cost:
-                name_text = ''.join([w[0] for w in name.replace('Below', '<').replace('Above', '>').split(' ')])
-                text = f'({name_text}) {text}'
-                break
-        return text
-
     @password
     def settings(self, update: Update, _: CallbackContext):
-        us = self.tbot.modes.user_settings
-        self.tbot.reply_text(update, f'''/user_mode {self.tbot.modes._mode.name}
-/charge_cost_limit {self.cost_text(us.charge_cost_limit, self.charge_vals)}
-/discharge_value {self.cost_text(us.discharge_value, self.discharge_vals)}
-/max_paid_soc {None if us.max_paid_soc == -1 else str(us.max_paid_soc) + '%'}
-/min_discharge_soc {None if us.min_discharge_soc == -1 else str(us.min_discharge_soc) + '%'}''')
+        mes_id = self.tbot.reply_text(update, self.tbot.settings_text()).message_id
+        self.tbot.last_settings[self.tbot.get_chat_id(update)] = mes_id
 
     @password
     def more(self, update: Update, _: CallbackContext):
