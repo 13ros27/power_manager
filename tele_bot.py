@@ -36,8 +36,10 @@ def update_settings(f):
         f(self, update, *args, **kwargs)
         if isinstance(self, TelegramBot):
             tbot = self
+            print(tbot)
         else:
             tbot = self.tbot
+            print(tbot)
         chat_id = tbot.get_chat_id(update)
         if tbot.last_settings.get(chat_id) is not None:
             mes_id = tbot.reply_text(update, tbot.settings_text()).message_id
