@@ -50,7 +50,7 @@ class TelegramBot:
 
     def __init__(self, config: Config, modes: Modes, quasar: Quasar):
         """Set up the necessary functions and operations."""
-        self.charge_vals = [('Free', 0.0), ('Below Off Peak', config.low_night), ('Below Off Peak', config.high_night),
+        self.charge_vals = [('Free', 0.0), ('Below Off Peak', config.low_night), ('Above Off Peak', config.high_night),
                             ('Below Peak', config.low_day), ('Above Peak', config.high_day)]
         self.discharge_vals = [('Free', 0.0), ('Off Peak', config.discharge_rate), ('Below Peak', config.low_day)]
         self.config = config
