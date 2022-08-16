@@ -3,7 +3,7 @@ from config import Config
 from datalogger import DataLogger
 from handlers import LiveStatusHandler, RecommendHandler
 from state import Mode, Modes
-from tele_bot import TelegramBot, update_settings
+from tele_bot import TelegramBot
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 from quasar import Quasar
@@ -238,18 +238,34 @@ class TeleCommands:
         self.tbot.reply_text(update, f'Disconnected for {secs} seconds')
 
     @password
-    @update_settings
     def max_paid_soc(self, update: Update, _: CallbackContext):
-        max_soc = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a max paid SoC')
-        self.tbot.modes.user_settings.max_paid_soc = int(max_soc)
-        self.tbot.reply_text(update, f'Max paid SoC is set to {max_soc}%, current SoC is {self.quasar.soc}%')
+        mes = f'The max paid SoC is {int(self.tbot.modes.user_settings.max_paid_soc)}%, the current SoC is {self.quasar.soc}'
+        mes_id = self.tbot.reply_text(update, mes).message_id
+        chat_id = self.tbot.get_chat_id(update)
+        possibles = [80, 85, 90, 95]
+        buttons = []
+        for val in possibles:
+            button = InlineKeyboardButton(f'{val}%', callback_data=f'{chat_id} {mes_id} 3 {val}')
+            if buttons == [] or len(buttons[-1]) != 1:
+                buttons.append([button])
+            else:
+                buttons[-1].append(button)
+        self.tbot.edit_message_text(mes, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
 
     @password
-    @update_settings
     def min_discharge_soc(self, update: Update, _: CallbackContext):
-        min_soc = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a min discharge SoC')
-        self.tbot.modes.user_settings.min_discharge_soc = int(min_soc)
-        self.tbot.reply_text(update, f'Min discharge SoC is set to {min_soc}%, current SoC is {self.quasar.soc}%')
+        mes = f'The min discharge SoC is {int(self.tbot.modes.user_settings.min_discharge_soc)}%, the current SoC is {self.quasar.soc}'
+        mes_id = self.tbot.reply_text(update, mes).message_id
+        chat_id = self.tbot.get_chat_id(update)
+        possibles = [20, 30, 40, 50]
+        buttons = []
+        for val in possibles:
+            button = InlineKeyboardButton(f'{val}%', callback_data=f'{chat_id} {mes_id} 4 {val}')
+            if buttons == [] or len(buttons[-1]) != 1:
+                buttons.append([button])
+            else:
+                buttons[-1].append(button)
+        self.tbot.edit_message_text(mes, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
 
     @password
     def settings(self, update: Update, _: CallbackContext):

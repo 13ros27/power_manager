@@ -197,6 +197,12 @@ class TelegramBot:
         elif menu_type == 2:
             self.modes.set_mode(Mode(int(mode_value)))
             self.edit_message_text(f'The user mode has been changed to {Mode(int(mode_value)).name}', chat_id, mes_id)
+        elif menu_type == 3:
+            self.modes.user_settings.max_paid_soc = int(mode_value)
+            self.edit_message_text(f'The max paid SoC has been changed to {int(mode_value)}%, the current SoC is {self.quasar.soc}%', chat_id, mes_id)
+        elif menu_type == 4:
+            self.modes.user_settings.min_discharge_soc = int(mode_value)
+            self.edit_message_text(f'The min discharge SoC has been changed to {int(mode_value)}%, the current SoC is {self.quasar.soc}%', chat_id, mes_id)
         else:
             raise ValueError(f'Did not expect menu_type \'{menu_type}\'')
 
@@ -211,7 +217,8 @@ class TelegramBot:
 
     def settings_text(self) -> str:
         us = self.modes.user_settings
-        return f'''/user_mode {self.modes._mode.name}
+        return f'''\
+/user_mode {self.modes._mode.name}
 /charge_cost_limit {self.cost_text(us.charge_cost_limit, self.charge_vals)}
 /discharge_value {self.cost_text(us.discharge_value, self.discharge_vals)}
 /max_paid_soc {None if us.max_paid_soc == -1 else str(us.max_paid_soc) + '%'}
