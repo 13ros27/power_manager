@@ -239,7 +239,7 @@ class TeleCommands:
 
     @password
     def max_paid_soc(self, update: Update, _: CallbackContext):
-        mes = f'The max paid SoC is {int(self.tbot.modes.user_settings.max_paid_soc)}%, the current SoC is {self.quasar.soc}'
+        mes = f'The max paid SoC is {int(self.tbot.modes.user_settings.max_paid_soc)}%, the current SoC is {self.quasar.soc}%'
         mes_id = self.tbot.reply_text(update, mes).message_id
         chat_id = self.tbot.get_chat_id(update)
         possibles = [80, 85, 90, 95]
@@ -254,7 +254,7 @@ class TeleCommands:
 
     @password
     def min_discharge_soc(self, update: Update, _: CallbackContext):
-        mes = f'The min discharge SoC is {int(self.tbot.modes.user_settings.min_discharge_soc)}%, the current SoC is {self.quasar.soc}'
+        mes = f'The min discharge SoC is {int(self.tbot.modes.user_settings.min_discharge_soc)}%, the current SoC is {self.quasar.soc}%'
         mes_id = self.tbot.reply_text(update, mes).message_id
         chat_id = self.tbot.get_chat_id(update)
         possibles = [20, 30, 40, 50]
