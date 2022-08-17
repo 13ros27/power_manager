@@ -1,6 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import PARSEMODE_HTML as HTML
-from state import Mode
+from state import mode_shorthand
 import timing
 
 class ChangeHandler:
@@ -19,7 +19,7 @@ class LiveStatusHandler(ChangeHandler):
         self.chat_id = chat_id
         self.live_until = timing.second_number() + secs_for
         self.last_stuff = (tbot.formatted_current(), tbot.modes._mode)
-        mode = self.mode_shorthand(tbot.modes._mode)
+        mode = mode_shorthand(tbot.modes._mode)
         text = f'<b>LIVE ({mode})</b>\n{self.last_stuff[0]}\n'
         if mes_id is None:
             mes = tbot.send_text(text, chat_id, parse_mode=HTML)
@@ -28,9 +28,6 @@ class LiveStatusHandler(ChangeHandler):
             tbot.edit_message_text(text, chat_id, mes_id, parse_mode=HTML)
             self.mes_id = mes_id
         self.run_out = False
-
-    def mode_shorthand(self, mode: Mode) -> str:
-        return ''.join([w[0] for w in mode.name.split('_')])
 
     def should_update(self) -> bool:
         return (self.tbot.formatted_current(), self.tbot.modes._mode) != self.last_stuff
@@ -42,7 +39,7 @@ class LiveStatusHandler(ChangeHandler):
             markup = InlineKeyboardMarkup([[InlineKeyboardButton('Continue', callback_data=f'{self.chat_id} {self.mes_id}')]])
             self.run_out = True
         else:
-            mode = self.mode_shorthand(self.last_stuff[1])
+            mode = mode_shorthand(self.last_stuff[1])
             message = f'<b>LIVE ({mode})</b>\n{self.last_stuff[0]}'
             markup = None
         self.tbot.edit_message_text(message, self.chat_id, self.mes_id, reply_markup=markup, parse_mode=HTML)

@@ -111,6 +111,9 @@ class Mode(Enum):
     MAX_CHARGE = 3
     AUTO = 4
 
+def mode_shorthand(mode: Mode) -> str:
+    return ''.join([w[0] for w in mode.name.split('_')])
+
 class Modes:
     def __init__(self, config: Config, mode: Mode, quasar: Quasar):
         user_settings = UserSettings(config)

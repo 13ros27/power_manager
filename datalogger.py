@@ -2,7 +2,7 @@
 from config import Config
 from datetime import datetime
 from pathlib import Path
-from state import Mode
+from state import Mode, mode_shorthand
 import timing
 
 
@@ -62,7 +62,7 @@ class DataLogger:
         with open(self.fp, 'a') as fp:
             mes = str(datetime.now().replace(microsecond=0).isoformat())
             mes += ''.join([f',{c}' for c in currents])
-            mes += f',{recommended},{mode.name}'
+            mes += f',{recommended},{mode_shorthand(mode)}'
             fp.write(f'\n{mes}')
 
     def add_metadata(self, metadata: str):
