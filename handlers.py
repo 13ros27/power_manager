@@ -30,16 +30,7 @@ class LiveStatusHandler(ChangeHandler):
         self.run_out = False
 
     def mode_shorthand(self, mode: Mode) -> str:
-        if mode == Mode.OFF:
-            return 'O'
-        elif mode == Mode.CHARGE_ONLY:
-            return 'CO'
-        elif mode == Mode.CHARGE_DISCHARGE:
-            return 'CD'
-        elif mode == Mode.AUTO:
-            return 'A'
-        else:
-            return '?'
+        return ''.join([w[0] for w in mode.name.split('_')])
 
     def should_update(self) -> bool:
         return (self.tbot.formatted_current(), self.tbot.modes._mode) != self.last_stuff
