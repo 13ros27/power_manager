@@ -9,7 +9,7 @@ class UserSettings:
         self.charge_cost_limit = 0.0
         self.discharge_value = config.low_day
         self.min_discharge_rate = 3
-        self.max_paid_soc = config.max_charge
+        self.max_paid_soc = config.summer_max_charge
         self.min_discharge_soc = config.min_charge
 
     def ccl(self):
@@ -96,7 +96,10 @@ class Auto:
             return self.config.low_day
 
     def max_soc_bounds(self) -> list:
-        return [(self.config.max_charge, self.config.low_night)]
+        if self.winter_day != timing.comparison_day_number(): # SUMMER
+            return [(self.config.summer_max_charge, self.config.low_night)]
+        else: # WINTER
+            return [(self.config.winter_max_charge, self.config.low_night)] # TODO: Change this to 90%
 
     def min_soc_bounds(self) -> list:
         return [(self.config.min_charge, self.config.high_day)]

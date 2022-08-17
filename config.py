@@ -8,7 +8,7 @@ class Config:
     """All the config variables."""
 
     def __init__(self, path: Path, names: list, current_types: list, day_rate: float, night_rate: float,
-                 efficiency: float, night_start: tuple, night_end: tuple, min_charge: int, max_charge: int):
+                 efficiency: float, night_start: tuple, night_end: tuple, min_charge: int, summer_max_charge: int, winter_max_charge: int):
         """Create all the variables."""
         self.path = path
         self.names = names
@@ -17,7 +17,8 @@ class Config:
         self.night_end = night_end
         self.efficiency = efficiency
         self.min_charge = min_charge
-        self.max_charge = max_charge
+        self.summer_max_charge = summer_max_charge
+        self.winter_max_charge = winter_max_charge
         self.update_day_rate(day_rate)
         self.update_night_rate(night_rate)
         self.setup_logging()
