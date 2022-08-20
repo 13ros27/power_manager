@@ -11,6 +11,7 @@ class UserSettings:
         self.min_discharge_rate = 3
         self.max_paid_soc = config.summer_max_charge
         self.min_discharge_soc = config.min_charge
+        self.low_discharge_value = config.low_day
 
     def ccl(self):
         return self.charge_cost_limit
@@ -33,13 +34,17 @@ class UserSettings:
         else:
             return [(self.min_discharge_soc, self.config.high_day)]
 
+    def ldv(self):
+        return self.low_discharge_value
+
 class State:
-    def __init__(self, charge_cost_limit, discharge_value, min_discharge_rate, max_soc_boundaries, min_soc_boundaries):
+    def __init__(self, charge_cost_limit, discharge_value, min_discharge_rate, max_soc_boundaries, min_soc_boundaries, low_discharge_value):
         self._charge_cost_limit = charge_cost_limit
         self._discharge_value = discharge_value
         self._min_discharge_rate = min_discharge_rate
         self._max_soc_boundaries = max_soc_boundaries
         self._min_soc_boundaries = min_soc_boundaries
+        self._low_discharge_value = low_discharge_value
 
     @property
     def charge_cost_limit(self) -> float:
@@ -75,6 +80,13 @@ class State:
             return self._min_soc_boundaries
         else:
             return self._min_soc_boundaries()
+
+    @property
+    def low_discharge_value(self) -> float:
+        if isinstance(self._low_discharge_value, (int, float)):
+            return self._low_discharge_value
+        else:
+            return self._low_discharge_value()
 
 
 class Auto:
@@ -121,11 +133,11 @@ class Modes:
         self.quasar = quasar
         auto = Auto(config, quasar)
         self.modes = {
-            Mode.OFF: State(user_settings.ccl, user_settings.sdv, user_settings.mdr, user_settings.max_sb, user_settings.min_sb), # Mode.OFF shows up as CHARGE_DISCHARGE for recommendation
-            Mode.CHARGE_ONLY: State(user_settings.ccl, config.high_day, 3, user_settings.max_sb, []),
-            Mode.CHARGE_DISCHARGE: State(user_settings.ccl, user_settings.sdv, user_settings.mdr, user_settings.max_sb, user_settings.min_sb),
-            Mode.MAX_CHARGE: State(user_settings.ccl, config.high_day, 3, [], []),
-            Mode.AUTO: State(auto.charge_cost_limit, auto.discharge_value, 3, auto.max_soc_bounds, auto.min_soc_bounds)
+            Mode.OFF: State(user_settings.ccl, user_settings.sdv, user_settings.mdr, user_settings.max_sb, user_settings.min_sb, user_settings.ldv), # Mode.OFF shows up as CHARGE_DISCHARGE for recommendation
+            Mode.CHARGE_ONLY: State(user_settings.ccl, config.high_day, 3, user_settings.max_sb, [], config.high_day),
+            Mode.CHARGE_DISCHARGE: State(user_settings.ccl, user_settings.sdv, user_settings.mdr, user_settings.max_sb, user_settings.min_sb, user_settings.ldv),
+            Mode.MAX_CHARGE: State(user_settings.ccl, config.high_day, 3, [], [], config.high_day),
+            Mode.AUTO: State(auto.charge_cost_limit, auto.discharge_value, 3, auto.max_soc_bounds, auto.min_soc_bounds, auto.discharge_value)
         }
         self._mode = mode
 

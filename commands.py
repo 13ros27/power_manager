@@ -218,7 +218,8 @@ class TeleCommands:
         chat_id = self.tbot.get_chat_id(update)
         buttons = []
         for (name, val) in self.tbot.discharge_vals:
-            button = InlineKeyboardButton(name, callback_data=f'{chat_id} {mes_id} 1 {val}')
+            proc_val = '_'.join([str(n) for n in val])
+            button = InlineKeyboardButton(name, callback_data=f'{chat_id} {mes_id} 1 {proc_val}')
             if buttons == [] or len(buttons[-1]) != 1:
                 buttons.append([button])
             else:

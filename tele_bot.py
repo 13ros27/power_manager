@@ -52,7 +52,7 @@ class TelegramBot:
         """Set up the necessary functions and operations."""
         self.charge_vals = [('Free', 0.0), ('Below Off Peak', config.low_night), ('Above Off Peak', config.high_night),
                             ('Below Peak', config.low_day), ('Above Peak', config.high_day)]
-        self.discharge_vals = [('Free', 0.0), ('Off Peak', config.discharge_rate), ('Below Peak', config.low_day)]
+        self.discharge_vals = [('Free', (0.0, 0.0)), ('Off Peak', (config.discharge_rate, config.discharge_rate)), ('Below Peak', (config.low_day, config.low_day)), ('Low Export', (config.discharge_rate, config.low_day))]
         self.config = config
         self.modes = modes
         self.quasar = quasar
@@ -187,26 +187,37 @@ class TelegramBot:
         chat_id = int(data[0])
         mes_id = int(data[1])
         menu_type = int(data[2])
-        mode_value = round(float(data[3]), 1)
         if menu_type == 0:
+            mode_value = round(float(data[3]), 1)
             self.modes.user_settings.charge_cost_limit = mode_value
             self.edit_message_text(f'The charge cost limit has been changed to {mode_value}p', chat_id, mes_id)
         elif menu_type == 1:
-            self.modes.user_settings.discharge_value = mode_value
-            self.edit_message_text(f'The discharge value has been changed to {mode_value}p', chat_id, mes_id)
+            vals = data[3].split('_')
+            dis_val = round(float(vals[0]), 1)
+            ldis_val = round(float(vals[1]), 1)
+            if dis_val != ldis_val:
+                change = f'{dis_val}p & {ldis_val}p'
+            else:
+                change = f'{dis_val}'
+            self.modes.user_settings.discharge_value = dis_val
+            self.modes.user_settings.low_discharge_value = ldis_val
+            self.edit_message_text(f'The discharge value has been changed to {change}', chat_id, mes_id)
         elif menu_type == 2:
-            self.modes.set_mode(Mode(int(mode_value)))
-            self.edit_message_text(f'The user mode has been changed to {Mode(int(mode_value)).name}', chat_id, mes_id)
+            mode_value = int(data[3])
+            self.modes.set_mode(Mode(mode_value))
+            self.edit_message_text(f'The user mode has been changed to {Mode(mode_value).name}', chat_id, mes_id)
         elif menu_type == 3:
-            self.modes.user_settings.max_paid_soc = int(mode_value)
-            self.edit_message_text(f'The max paid SoC has been changed to {int(mode_value)}%, the current SoC is {self.quasar.soc}%', chat_id, mes_id)
+            mode_value = int(data[3])
+            self.modes.user_settings.max_paid_soc = mode_value
+            self.edit_message_text(f'The max paid SoC has been changed to {mode_value}%, the current SoC is {self.quasar.soc}%', chat_id, mes_id)
         elif menu_type == 4:
-            self.modes.user_settings.min_discharge_soc = int(mode_value)
-            self.edit_message_text(f'The min discharge SoC has been changed to {int(mode_value)}%, the current SoC is {self.quasar.soc}%', chat_id, mes_id)
+            mode_value = int(data[3])
+            self.modes.user_settings.min_discharge_soc = mode_value
+            self.edit_message_text(f'The min discharge SoC has been changed to {mode_value}%, the current SoC is {self.quasar.soc}%', chat_id, mes_id)
         else:
             raise ValueError(f'Did not expect menu_type \'{menu_type}\'')
 
-    def cost_text(self, cost: float, known: list):
+    def cost_text(self, cost, known: list):
         text = f'{cost}p'
         for (name, val) in known:
             if val == cost:
@@ -220,7 +231,7 @@ class TelegramBot:
         return f'''\
 /user_mode {self.modes._mode.name}
 /charge_cost_limit {self.cost_text(us.charge_cost_limit, self.charge_vals)}
-/discharge_value {self.cost_text(us.discharge_value, self.discharge_vals)}
+/discharge_value {self.cost_text((us.discharge_value, us.low_discharge_value), self.discharge_vals)}
 /max_paid_soc {None if us.max_paid_soc == -1 else str(us.max_paid_soc) + '%'}
 /min_discharge_soc {None if us.min_discharge_soc == -1 else str(us.min_discharge_soc) + '%'}'''
 
