@@ -52,7 +52,8 @@ class TelegramBot:
         """Set up the necessary functions and operations."""
         self.charge_vals = [('Free', 0.0), ('Below Off Peak', config.low_night), ('Above Off Peak', config.high_night),
                             ('Below Peak', config.low_day), ('Above Peak', config.high_day)]
-        self.discharge_vals = [('Free', (0.0, 0.0)), ('Off Peak', (config.discharge_rate, config.discharge_rate)), ('Below Peak', (config.low_day, config.low_day)), ('Low Export', (config.discharge_rate, config.low_day))]
+        self.discharge_vals = [('Free', (0.0, 0.0)), ('Off Peak', (config.discharge_rate, config.discharge_rate)),
+                               ('Low Export', (config.discharge_rate, config.low_day)), ('Below Peak', (config.low_day, config.low_day))]
         self.config = config
         self.modes = modes
         self.quasar = quasar
