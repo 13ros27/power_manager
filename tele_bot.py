@@ -218,7 +218,13 @@ class TelegramBot:
             raise ValueError(f'Did not expect menu_type \'{menu_type}\'')
 
     def cost_text(self, cost, known: list):
-        text = f'{cost}p'
+        if isinstance(cost, tuple):
+            if cost[0] == cost[1]:
+                text = f'{cost[0]}p'
+            else:
+                text = f'{cost[0]}p & {cost[1]}p'
+        else:
+            text = f'{cost}p'
         for (name, val) in known:
             if val == cost:
                 name_text = ''.join([w[0] for w in name.replace('Below', '<').replace('Above', '>').split(' ')])
