@@ -35,10 +35,6 @@ class Recommend:
     def current(self, estimated: float, state: State, quasar: Quasar) -> int:
         cur_price = energy_price(self.config)
         charge_cost_limit = state.charge_cost_limit
-        if estimated < 3:
-            discharge_value = state.low_discharge_value
-        else:
-            discharge_value = state.discharge_value
         if state.max_soc_bounds != [] and quasar.soc != 0:
             for boundary in state.max_soc_bounds:
                 if quasar.soc >= boundary[0]:
@@ -48,6 +44,10 @@ class Recommend:
         if estimated <= 0:
             return self.round_estimation(estimated, 1 - min(charge_cost_limit / cur_price, 1), 3)
         else:
+            if estimated < 3:
+                discharge_value = state.low_discharge_value
+            else:
+                discharge_value = state.discharge_value
             if state.min_soc_bounds != [] and quasar.soc != 0:
                 for boundary in state.min_soc_bounds:
                     if quasar.soc <= boundary[0]:
