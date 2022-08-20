@@ -213,7 +213,12 @@ class TeleCommands:
 
     @password
     def discharge_value(self, update: Update, _: CallbackContext):
-        mes = f'The discharge value is {round(self.tbot.modes.user_settings.discharge_value, 1)}p'
+        us = self.tbot.modes.user_settings
+        if us.discharge_value != us.low_discharge_value:
+            dis_text = f'{round(us.discharge_value, 1)}p [{round(us.low_discharge_value, 1)}p]'
+        else:
+            dis_text = f'{round(us.discharge_value, 1)}p'
+        mes = f'The discharge value is {dis_text}p'
         mes_id = self.tbot.reply_text(update, mes).message_id
         chat_id = self.tbot.get_chat_id(update)
         buttons = []

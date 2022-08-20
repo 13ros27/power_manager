@@ -197,7 +197,7 @@ class TelegramBot:
             dis_val = round(float(vals[0]), 1)
             ldis_val = round(float(vals[1]), 1)
             if dis_val != ldis_val:
-                change = f'{dis_val}p & {ldis_val}p'
+                change = f'{dis_val}p [{ldis_val}p]'
             else:
                 change = f'{dis_val}'
             self.modes.user_settings.discharge_value = dis_val
@@ -223,7 +223,7 @@ class TelegramBot:
             if cost[0] == cost[1]:
                 text = f'{cost[0]}p'
             else:
-                text = f'{cost[0]}p & {cost[1]}p'
+                text = f'{cost[0]}p [{cost[1]}p]'
         else:
             text = f'{cost}p'
         for (name, val) in known:
