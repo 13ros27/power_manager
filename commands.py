@@ -49,6 +49,8 @@ class TeleCommands:
         tbot.add_command('max_paid_soc', self.max_paid_soc)
         tbot.add_command('min_discharge_soc', self.min_discharge_soc)
         tbot.add_command('settings', self.settings)
+        tbot.add_command('mps_val', self.mps_val)
+        tbot.add_command('mds_val', self.mds_val)
         tbot.add_command('more', self.more)
 
     def start(self, update: Update, _: CallbackContext):
@@ -279,6 +281,18 @@ class TeleCommands:
         self.tbot.last_settings[self.tbot.get_chat_id(update)] = mes_id
 
     @password
+    def mps_val(self, update: Update, _: CallbackContext):
+        mps = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a max paid SoC')
+        self.tbot.modes.user_settings.max_paid_soc = int(mps)
+        self.tbot.reply_text(update, f'Set the max paid SoC to {int(mps)}%')
+
+    @password
+    def mds_val(self, update: Update, _: CallbackContext):
+        mds = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a min discharge SoC')
+        self.tbot.modes.user_settings.max_paid_soc = int(mds)
+        self.tbot.reply_text(update, f'Set the min discharge SoC to {int(mds)}%')
+
+    @password
     def more(self, update: Update, _: CallbackContext):
         self.tbot.reply_text(update, '''/statuskw - Status in kW
 /log - Add something to the datalog
@@ -290,6 +304,8 @@ class TeleCommands:
 /soc - Get the state of charge of the car
 /test - (temp) Testing the morning behaviour
 /min_discharge_rate - Set the minimum discharge rate
+/mps_val <value> - Set the max paid SoC
+/mds_val <value> - Set the min discharge SoC
 /more - Self-referential = fun''')
 
     def cleanup(self):
