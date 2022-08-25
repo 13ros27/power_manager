@@ -248,10 +248,10 @@ class TeleCommands:
         mes = f'The max paid SoC is {int(self.tbot.modes.user_settings.max_paid_soc)}%, the current SoC is {self.quasar.soc}%'
         mes_id = self.tbot.reply_text(update, mes)
         chat_id = self.tbot.get_chat_id(update)
-        possibles = [80, 85, 90, 95]
+        possibles = [80, 85, 90, 95, -1]
         buttons = []
         for val in possibles:
-            button = InlineKeyboardButton(f'{val}%', callback_data=f'{chat_id} {mes_id} 3 {val}')
+            button = InlineKeyboardButton(f'{val}%' if val != -1 else 'Custom', callback_data=f'{chat_id} {mes_id} 3 {val}')
             if buttons == [] or len(buttons[-1]) != 1:
                 buttons.append([button])
             else:
