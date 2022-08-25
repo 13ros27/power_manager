@@ -218,7 +218,7 @@ class TeleCommands:
             dis_text = f'{round(us.discharge_value, 1)}p [{round(us.low_discharge_value, 1)}p]'
         else:
             dis_text = f'{round(us.discharge_value, 1)}p'
-        mes = f'The discharge value is {dis_text}p'
+        mes = f'The discharge value is {dis_text}'
         mes_id = self.tbot.reply_text(update, mes)
         chat_id = self.tbot.get_chat_id(update)
         buttons = []

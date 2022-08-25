@@ -39,7 +39,7 @@ class TelegramBot:
         self.charge_vals = [('Free', 0.0), ('Below Off Peak', config.low_night), ('Above Off Peak', config.high_night),
                             ('Below Peak', config.low_day), ('Above Peak', config.high_day), ('Custom', -1.0)]
         self.discharge_vals = [('Free', (0.0, 0.0)), ('Off Peak', (config.discharge_rate, config.discharge_rate)),
-                               ('Low Export', (config.discharge_rate, 20.0)), ('Below Peak', (config.low_day, config.low_day)), ('Custom', -1.0)]
+                               ('Low Export', (config.discharge_rate, 20.0)), ('Below Peak', (config.low_day, config.low_day)), ('Custom', (-1.0, -1.0))]
         self.config = config
         self.modes = modes
         self.quasar = quasar
