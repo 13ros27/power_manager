@@ -31,23 +31,6 @@ class Info:
     def __getitem__(self, item):
         return self.info.get(item)
 
-def update_settings(f):
-    def wrapper(self, update: Update, *args, **kwargs):
-        f(self, update, *args, **kwargs)
-        if isinstance(self, TelegramBot):
-            tbot = self
-        else:
-            tbot = self.tbot
-        chat_id = tbot.get_chat_id(update)
-        if tbot.last_settings.get(chat_id) is not None:
-            mes = tbot.send_text(tbot.settings_text(), chat_id)
-            if mes is None:
-                raise TypeError('Expected message id')
-            mes_id = mes.message_id
-            tbot.delete_message(chat_id, tbot.last_settings[chat_id])
-            tbot.last_settings[chat_id] = mes_id
-    return wrapper
-
 class TelegramBot:
     """Control all the aspects of the telegram bot side of it."""
 
@@ -198,8 +181,18 @@ class TelegramBot:
         else:
             raise TypeError(f'Did not expect {data}')
 
-    @update_settings
-    def button_menus(self, _: Update, data: list):
+    def update_settings(self, update: Update):
+        chat_id = self.get_chat_id(update)
+        if self.last_settings.get(chat_id) is not None:
+            mes = self.send_text(self.settings_text(), chat_id)
+            if mes is None:
+                raise TypeError('Expected message id')
+            mes_id = mes.message_id
+            self.delete_message(chat_id, self.last_settings[chat_id])
+            self.last_settings[chat_id] = mes_id
+
+    def button_menus(self, update: Update, data: list):
+        updated = True
         chat_id = int(data[0])
         mes_id = int(data[1])
         menu_type = int(data[2])
@@ -229,21 +222,26 @@ class TelegramBot:
         elif menu_type == 4:
             mode_value = int(data[3])
             if mode_value == -1:
+                updated = False
                 self.particular_message_handler = self._change_min_discharge_soc
                 self.edit_message_text('Please enter a min discharge SoC:', chat_id, mes_id)
             else:
-                self.edit_message_text(self._change_min_discharge_soc(mode_value), chat_id, mes_id)
+                text, success = self._change_min_discharge_soc(mode_value)
+                updated = success
+                self.edit_message_text(text, chat_id, mes_id)
         else:
             raise ValueError(f'Did not expect menu_type \'{menu_type}\'')
+        if updated:
+            self.update_settings(update)
 
-    def _change_min_discharge_soc(self, value) -> str:
+    def _change_min_discharge_soc(self, value) -> tuple:
         try:
             new_value = int(value)
             self.modes.user_settings.min_discharge_soc = new_value
-            return f'The min discharge SoC has been changed to {new_value}%, the current SoC is {self.quasar.soc}'
+            return (f'The min discharge SoC has been changed to {new_value}%, the current SoC is {self.quasar.soc}%', True)
         except ValueError:
             self.particular_message_handler = self._change_min_discharge_soc
-            return 'Please enter an integer:'
+            return ('Please enter an integer:', False)
 
     def cost_text(self, cost, known: list):
         if isinstance(cost, tuple):
@@ -275,7 +273,10 @@ class TelegramBot:
         else:
             m_handler = self.particular_message_handler
             self.particular_message_handler = None
-            self.reply_text(update, m_handler(update.message.text))
+            text, success = m_handler(update.message.text)
+            self.reply_text(update, text)
+            if success:
+                self.update_settings(update)
 
     def cleanup(self):
         """Kills all handlers."""
