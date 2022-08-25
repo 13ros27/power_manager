@@ -216,23 +216,36 @@ class TelegramBot:
             self.modes.set_mode(Mode(mode_value))
             self.edit_message_text(f'The user mode has been changed to {Mode(mode_value).name}', chat_id, mes_id)
         elif menu_type == 3:
-            mode_value = int(data[3])
-            self.modes.user_settings.max_paid_soc = mode_value
-            self.edit_message_text(f'The max paid SoC has been changed to {mode_value}%, the current SoC is {self.quasar.soc}%', chat_id, mes_id)
+            if int(data[3]) == -1:
+                updated = False
+                self.particular_message_handler = self._change_max_paid_soc
+                self.edit_message_text('Please enter a max paid SoC:', chat_id, mes_id)
+            else:
+                text, success = self._change_max_paid_soc(data[3])
+                updated = success
+                self.edit_message_text(text, chat_id, mes_id)
         elif menu_type == 4:
-            mode_value = int(data[3])
-            if mode_value == -1:
+            if int(data[3]) == -1:
                 updated = False
                 self.particular_message_handler = self._change_min_discharge_soc
                 self.edit_message_text('Please enter a min discharge SoC:', chat_id, mes_id)
             else:
-                text, success = self._change_min_discharge_soc(mode_value)
+                text, success = self._change_min_discharge_soc(data[3])
                 updated = success
                 self.edit_message_text(text, chat_id, mes_id)
         else:
             raise ValueError(f'Did not expect menu_type \'{menu_type}\'')
         if updated:
             self.update_settings(update)
+
+    def _change_max_paid_soc(self, value) -> tuple:
+        try:
+            new_value = int(value)
+            self.modes.user_settings.max_paid_soc = new_value
+            return (f'The max paid SoC has been changed to {new_value}%, the current SoC is {self.quasar.soc}%', True)
+        except ValueError:
+            self.particular_message_handler = self._change_max_paid_soc
+            return ('Please enter an integer:', False)
 
     def _change_min_discharge_soc(self, value) -> tuple:
         try:
