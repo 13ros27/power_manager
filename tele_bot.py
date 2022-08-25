@@ -37,9 +37,9 @@ class TelegramBot:
     def __init__(self, config: Config, modes: Modes, quasar: Quasar):
         """Set up the necessary functions and operations."""
         self.charge_vals = [('Free', 0.0), ('Below Off Peak', config.low_night), ('Above Off Peak', config.high_night),
-                            ('Below Peak', config.low_day), ('Above Peak', config.high_day)]
+                            ('Below Peak', config.low_day), ('Above Peak', config.high_day), ('Custom', -1.0)]
         self.discharge_vals = [('Free', (0.0, 0.0)), ('Off Peak', (config.discharge_rate, config.discharge_rate)),
-                               ('Low Export', (config.discharge_rate, 20.0)), ('Below Peak', (config.low_day, config.low_day))]
+                               ('Low Export', (config.discharge_rate, 20.0)), ('Below Peak', (config.low_day, config.low_day)), ('Custom', -1.0)]
         self.config = config
         self.modes = modes
         self.quasar = quasar
@@ -198,19 +198,30 @@ class TelegramBot:
         menu_type = int(data[2])
         if menu_type == 0:
             mode_value = round(float(data[3]), 1)
-            self.modes.user_settings.charge_cost_limit = mode_value
-            self.edit_message_text(f'The charge cost limit has been changed to {mode_value}p', chat_id, mes_id)
+            if mode_value == -1.0:
+                updated = False
+                self.particular_message_handler = self._change_charge_cost_limit
+                self.edit_message_text('Please enter a charge cost limit:', chat_id, mes_id)
+            else:
+                text, success = self._change_charge_cost_limit(mode_value)
+                updated = success
+                self.edit_message_text(text, chat_id, mes_id)
         elif menu_type == 1:
             vals = data[3].split('_')
             dis_val = round(float(vals[0]), 1)
             ldis_val = round(float(vals[1]), 1)
-            if dis_val != ldis_val:
-                change = f'{dis_val}p [{ldis_val}p]'
+            if dis_val == -1.0:
+                updated = False
+                self.particular_message_handler = self._change_discharge_value
+                self.edit_message_text('Please enter a discharge value:', chat_id, mes_id)
             else:
-                change = f'{dis_val}'
-            self.modes.user_settings.discharge_value = dis_val
-            self.modes.user_settings.low_discharge_value = ldis_val
-            self.edit_message_text(f'The discharge value has been changed to {change}', chat_id, mes_id)
+                if dis_val != ldis_val:
+                    change = f'{dis_val}p [{ldis_val}p]'
+                else:
+                    change = f'{dis_val}'
+                self.modes.user_settings.discharge_value = dis_val
+                self.modes.user_settings.low_discharge_value = ldis_val
+                self.edit_message_text(f'The discharge value has been changed to {change}', chat_id, mes_id)
         elif menu_type == 2:
             mode_value = int(data[3])
             self.modes.set_mode(Mode(mode_value))
@@ -237,6 +248,25 @@ class TelegramBot:
             raise ValueError(f'Did not expect menu_type \'{menu_type}\'')
         if updated:
             self.update_settings(update)
+
+    def _change_charge_cost_limit(self, value) -> tuple:
+        try:
+            new_value = float(value)
+            self.modes.user_settings.charge_cost_limit = new_value
+            return (f'The charge cost limit has been changed to {new_value}p', True)
+        except ValueError:
+            self.particular_message_handler = self._change_charge_cost_limit
+            return ('Please enter a float:', False)
+
+    def _change_discharge_value(self, value) -> tuple:
+        try:
+            new_value = float(value)
+            self.modes.user_settings.discharge_value = new_value
+            self.modes.user_settings.low_discharge_value = new_value
+            return (f'The discharge value has been changed to {new_value}p', True)
+        except ValueError:
+            self.particular_message_handler = self._change_discharge_value
+            return ('Please enter a float:', False)
 
     def _change_max_paid_soc(self, value) -> tuple:
         try:
