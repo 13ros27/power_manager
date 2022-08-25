@@ -158,7 +158,7 @@ class TeleCommands:
     @password
     def manual(self, update: Update, _: CallbackContext):
         mes = f'The user mode is currently {self.tbot.modes._mode.name}'
-        mes_id = self.tbot.reply_text(update, mes).message_id
+        mes_id = self.tbot.reply_text(update, mes)
         chat_id = self.tbot.get_chat_id(update)
         modes = [Mode.CHARGE_ONLY, Mode.CHARGE_DISCHARGE, Mode.MAX_CHARGE]
         buttons = []
@@ -173,7 +173,7 @@ class TeleCommands:
     @password
     def user_mode(self, update: Update, _: CallbackContext):
         mes = f'The user mode is currently {self.tbot.modes._mode.name}'
-        mes_id = self.tbot.reply_text(update, mes).message_id
+        mes_id = self.tbot.reply_text(update, mes)
         chat_id = self.tbot.get_chat_id(update)
         buttons = []
         for mode in Mode:
@@ -202,7 +202,7 @@ class TeleCommands:
     @password
     def charge_cost_limit(self, update: Update, _: CallbackContext):
         mes = f'The charge cost limit is {round(self.tbot.modes.user_settings.charge_cost_limit, 1)}p'
-        mes_id = self.tbot.reply_text(update, mes).message_id
+        mes_id = self.tbot.reply_text(update, mes)
         chat_id = self.tbot.get_chat_id(update)
         buttons = []
         for (name, val) in self.tbot.charge_vals:
@@ -221,7 +221,7 @@ class TeleCommands:
         else:
             dis_text = f'{round(us.discharge_value, 1)}p'
         mes = f'The discharge value is {dis_text}p'
-        mes_id = self.tbot.reply_text(update, mes).message_id
+        mes_id = self.tbot.reply_text(update, mes)
         chat_id = self.tbot.get_chat_id(update)
         buttons = []
         for (name, val) in self.tbot.discharge_vals:
@@ -248,7 +248,7 @@ class TeleCommands:
     @password
     def max_paid_soc(self, update: Update, _: CallbackContext):
         mes = f'The max paid SoC is {int(self.tbot.modes.user_settings.max_paid_soc)}%, the current SoC is {self.quasar.soc}%'
-        mes_id = self.tbot.reply_text(update, mes).message_id
+        mes_id = self.tbot.reply_text(update, mes)
         chat_id = self.tbot.get_chat_id(update)
         possibles = [80, 85, 90, 95]
         buttons = []
@@ -263,12 +263,12 @@ class TeleCommands:
     @password
     def min_discharge_soc(self, update: Update, _: CallbackContext):
         mes = f'The min discharge SoC is {int(self.tbot.modes.user_settings.min_discharge_soc)}%, the current SoC is {self.quasar.soc}%'
-        mes_id = self.tbot.reply_text(update, mes).message_id
+        mes_id = self.tbot.reply_text(update, mes)
         chat_id = self.tbot.get_chat_id(update)
-        possibles = [20, 30, 40, 50]
+        possibles = [30, 40, 50, -1]
         buttons = []
         for val in possibles:
-            button = InlineKeyboardButton(f'{val}%', callback_data=f'{chat_id} {mes_id} 4 {val}')
+            button = InlineKeyboardButton(f'{val}%' if val != -1 else 'Custom', callback_data=f'{chat_id} {mes_id} 4 {val}')
             if buttons == [] or len(buttons[-1]) != 1:
                 buttons.append([button])
             else:
@@ -277,7 +277,7 @@ class TeleCommands:
 
     @password
     def settings(self, update: Update, _: CallbackContext):
-        mes_id = self.tbot.reply_text(update, self.tbot.settings_text()).message_id
+        mes_id = self.tbot.reply_text(update, self.tbot.settings_text())
         self.tbot.last_settings[self.tbot.get_chat_id(update)] = mes_id
 
     @password

@@ -6,7 +6,7 @@ from pathlib import Path
 from state import Mode, Modes
 from telegram import Update
 from telegram.error import NetworkError
-from telegram.ext import CallbackQueryHandler, CommandHandler, Updater, CallbackContext
+from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler, Updater, CallbackContext, Filters
 from quasar import Quasar
 
 class Info:
@@ -40,7 +40,10 @@ def update_settings(f):
             tbot = self.tbot
         chat_id = tbot.get_chat_id(update)
         if tbot.last_settings.get(chat_id) is not None:
-            mes_id = tbot.send_text(tbot.settings_text(), chat_id).message_id
+            mes = tbot.send_text(tbot.settings_text(), chat_id)
+            if mes is None:
+                raise TypeError('Expected message id')
+            mes_id = mes.message_id
             tbot.delete_message(chat_id, tbot.last_settings[chat_id])
             tbot.last_settings[chat_id] = mes_id
     return wrapper
@@ -63,10 +66,12 @@ class TelegramBot:
         self.dispatcher = self.updater.dispatcher
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
         self.dispatcher.add_error_handler(self.error_handler)
+        self.dispatcher.add_handler(MessageHandler(Filters.text, self.message_handler))
         self.change_handlers = []
         self.info = Info()
         self.last_settings = {}
         self.updater.start_polling()
+        self.particular_message_handler = None
 
     def error_handler(self, _: object, context: CallbackContext):
         self.logger.error(f'Error handling: {context.error}')
@@ -103,18 +108,29 @@ class TelegramBot:
         else:
             raise TypeError('update.effective_chat is None')
 
-    def _send(self, command, *args, **kwargs):
+    def _send(self, command, *args, mes_id = False, **kwargs):
         try:
             self.logger.info(f'{command}({", ".join(map(str, args))}, {kwargs})')
-            return command(*args, **kwargs)
+            ret = command(*args, **kwargs)
+            if mes_id:
+                if ret is not None:
+                    return ret.message_id
+                else:
+                    raise TypeError('Expected message id')
+            else:
+                return ret
         except NetworkError:
             self.logger.warning('Network Error')
         except:  # noqa
             self.logger.exception('Telegram Bot:')
 
-    def reply_text(self, update: Update, text: str, **kwargs):
+    def reply_text(self, update: Update, text: str, **kwargs) -> int:
         """Reply with a text message, with error handling."""
-        return self._send(update.message.reply_text, text, **kwargs)
+        ret = self._send(update.message.reply_text, text, **kwargs, mes_id = True)
+        if isinstance(ret, int):
+            return ret
+        else:
+            raise TypeError('Unreachable')
 
     def reply_document(self, update: Update, filepath: Path, **kwargs):
         """Reply with a document from a particular filepath."""
@@ -170,7 +186,6 @@ class TelegramBot:
                     self.remove_handler(handler)
 
     def button(self, update: Update, _):
-        """Run the continue button from LiveStatus.update."""
         query = update.callback_query
         query.answer()
         data = query.data.strip().split(' ')
@@ -213,10 +228,22 @@ class TelegramBot:
             self.edit_message_text(f'The max paid SoC has been changed to {mode_value}%, the current SoC is {self.quasar.soc}%', chat_id, mes_id)
         elif menu_type == 4:
             mode_value = int(data[3])
-            self.modes.user_settings.min_discharge_soc = mode_value
-            self.edit_message_text(f'The min discharge SoC has been changed to {mode_value}%, the current SoC is {self.quasar.soc}%', chat_id, mes_id)
+            if mode_value == -1:
+                self.particular_message_handler = self._change_min_discharge_soc
+                self.edit_message_text('Please enter a min discharge SoC:', chat_id, mes_id)
+            else:
+                self.edit_message_text(self._change_min_discharge_soc(mode_value), chat_id, mes_id)
         else:
             raise ValueError(f'Did not expect menu_type \'{menu_type}\'')
+
+    def _change_min_discharge_soc(self, value) -> str:
+        try:
+            new_value = int(value)
+            self.modes.user_settings.min_discharge_soc = new_value
+            return f'The min discharge SoC has been changed to {new_value}%, the current SoC is {self.quasar.soc}'
+        except ValueError:
+            self.particular_message_handler = self._change_min_discharge_soc
+            return 'Please enter an integer:'
 
     def cost_text(self, cost, known: list):
         if isinstance(cost, tuple):
@@ -241,6 +268,14 @@ class TelegramBot:
 /discharge_value {self.cost_text((us.discharge_value, us.low_discharge_value), self.discharge_vals)}
 /max_paid_soc {None if us.max_paid_soc == -1 else str(us.max_paid_soc) + '%'}
 /min_discharge_soc {None if us.min_discharge_soc == -1 else str(us.min_discharge_soc) + '%'}'''
+
+    def message_handler(self, update: Update, _: CallbackContext):
+        if self.particular_message_handler is None:
+            return
+        else:
+            m_handler = self.particular_message_handler
+            self.particular_message_handler = None
+            self.reply_text(update, m_handler(update.message.text))
 
     def cleanup(self):
         """Kills all handlers."""
