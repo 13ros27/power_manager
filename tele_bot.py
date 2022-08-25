@@ -66,7 +66,7 @@ class TelegramBot:
         self.dispatcher = self.updater.dispatcher
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
         self.dispatcher.add_error_handler(self.error_handler)
-        self.dispatcher.add_handler(MessageHandler(Filters.text, self.message_handler))
+        self.dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), self.message_handler))
         self.change_handlers = []
         self.info = Info()
         self.last_settings = {}
