@@ -67,7 +67,8 @@ class TeleCommands:
     @password
     def live(self, update: Update, _: CallbackContext):
         secs_for = int(self.tbot.second_item(update, default=5))*60
-        self.tbot.add_handler(LiveStatusHandler(self.tbot, self.tbot.get_chat_id(update), secs_for))
+        self.tbot.add_handler(LiveStatusHandler(self.tbot, self.tbot.get_chat_id(update),
+                                                secs_for))
 
     @password
     def log(self, update: Update, _: CallbackContext):
@@ -76,7 +77,8 @@ class TeleCommands:
             self.datalogger.add_metadata(sp)
             self.tbot.reply_text(update, f'Added \'{sp}\' to the log')
         else:
-            self.tbot.reply_text(update, 'Incorrectly formatted command, please specify something to log')
+            self.tbot.reply_text(update,
+                                 'Incorrectly formatted command, please specify something to log')
 
     @password
     def listfiles(self, update: Update, _: CallbackContext):
@@ -86,7 +88,8 @@ class TeleCommands:
 
     @password
     def file(self, update: Update, _: CallbackContext):
-        file = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a file')
+        file = self.tbot.second_item(update,
+                                     error='Incorrectly formatted command, please specify a file')
         if file != '':
             file = self.datalogger.folder / Path(f'{file}.csv')
             if not file.exists():
@@ -141,7 +144,8 @@ class TeleCommands:
 
     @password
     def test(self, update: Update, _: CallbackContext):
-        self.tbot.reply_text(update, f'RPi thinks {self.quasar._charging}, Quasar thinks {self.quasar.read_register(0x101)}.')
+        self.tbot.reply_text(update, f'RPi thinks {self.quasar._charging}, \
+Quasar thinks {self.quasar.read_register(0x101)}.')
 
     @password
     def off(self, update: Update, _: CallbackContext):
@@ -161,12 +165,14 @@ class TeleCommands:
         modes = [Mode.CHARGE_ONLY, Mode.CHARGE_DISCHARGE, Mode.MAX_CHARGE]
         buttons = []
         for mode in modes:
-            button = InlineKeyboardButton(mode.name, callback_data=f'{chat_id} {mes_id} 2 {mode.value}')
+            button = InlineKeyboardButton(mode.name,
+                                          callback_data=f'{chat_id} {mes_id} 2 {mode.value}')
             if buttons == [] or len(buttons[-1]) != 1:
                 buttons.append([button])
             else:
                 buttons[-1].append(button)
-        self.tbot.edit_message_text(mes, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
+        self.tbot.edit_message_text(mes, chat_id, mes_id,
+                                    reply_markup=InlineKeyboardMarkup(buttons))
 
     @password
     def user_mode(self, update: Update, _: CallbackContext):
@@ -175,12 +181,14 @@ class TeleCommands:
         chat_id = self.tbot.get_chat_id(update)
         buttons = []
         for mode in Mode:
-            button = InlineKeyboardButton(mode.name, callback_data=f'{chat_id} {mes_id} 2 {mode.value}')
+            button = InlineKeyboardButton(mode.name,
+                                          callback_data=f'{chat_id} {mes_id} 2 {mode.value}')
             if buttons == [] or len(buttons[-1]) != 1:
                 buttons.append([button])
             else:
                 buttons[-1].append(button)
-        self.tbot.edit_message_text(mes, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
+        self.tbot.edit_message_text(mes, chat_id, mes_id,
+                                    reply_markup=InlineKeyboardMarkup(buttons))
 
     @password
     def charge_only(self, update: Update, _: CallbackContext):
@@ -199,7 +207,8 @@ class TeleCommands:
 
     @password
     def charge_cost_limit(self, update: Update, _: CallbackContext):
-        mes = f'The charge cost limit is {round(self.tbot.modes.user_settings.charge_cost_limit, 1)}p'
+        mes = f'The charge cost limit is \
+{round(self.tbot.modes.user_settings.charge_cost_limit, 1)}p'
         mes_id = self.tbot.reply_text(update, mes)
         chat_id = self.tbot.get_chat_id(update)
         buttons = []
@@ -209,7 +218,8 @@ class TeleCommands:
                 buttons.append([button])
             else:
                 buttons[-1].append(button)
-        self.tbot.edit_message_text(mes, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
+        self.tbot.edit_message_text(mes, chat_id, mes_id,
+                                    reply_markup=InlineKeyboardMarkup(buttons))
 
     @password
     def discharge_value(self, update: Update, _: CallbackContext):
@@ -229,11 +239,13 @@ class TeleCommands:
                 buttons.append([button])
             else:
                 buttons[-1].append(button)
-        self.tbot.edit_message_text(mes, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
+        self.tbot.edit_message_text(mes, chat_id, mes_id,
+                                    reply_markup=InlineKeyboardMarkup(buttons))
 
     @password
     def min_discharge_rate(self, update: Update, _: CallbackContext):
-        mdr = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a min discharge rate')
+        mdr = self.tbot.second_item(update, error='Incorrectly formatted command, \
+please specify a min discharge rate')
         self.tbot.modes.user_settings.min_discharge_rate = int(mdr)
         self.tbot.reply_text(update, f'Set the min discharge rate to {int(mdr)}A')
 
@@ -245,33 +257,39 @@ class TeleCommands:
 
     @password
     def max_paid_soc(self, update: Update, _: CallbackContext):
-        mes = f'The max paid SoC is {int(self.tbot.modes.user_settings.max_paid_soc)}%, the current SoC is {self.quasar.soc}%'
+        mes = f'The max paid SoC is {int(self.tbot.modes.user_settings.max_paid_soc)}%, \
+the current SoC is {self.quasar.soc}%'
         mes_id = self.tbot.reply_text(update, mes)
         chat_id = self.tbot.get_chat_id(update)
         possibles = [80, 85, 90, 95, -1]
         buttons = []
         for val in possibles:
-            button = InlineKeyboardButton(f'{val}%' if val != -1 else 'Custom', callback_data=f'{chat_id} {mes_id} 3 {val}')
+            button = InlineKeyboardButton(f'{val}%' if val != -1 else 'Custom',
+                                          callback_data=f'{chat_id} {mes_id} 3 {val}')
             if buttons == [] or len(buttons[-1]) != 1:
                 buttons.append([button])
             else:
                 buttons[-1].append(button)
-        self.tbot.edit_message_text(mes, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
+        self.tbot.edit_message_text(mes, chat_id, mes_id,
+                                    reply_markup=InlineKeyboardMarkup(buttons))
 
     @password
     def min_discharge_soc(self, update: Update, _: CallbackContext):
-        mes = f'The min discharge SoC is {int(self.tbot.modes.user_settings.min_discharge_soc)}%, the current SoC is {self.quasar.soc}%'
+        mes = f'The min discharge SoC is {int(self.tbot.modes.user_settings.min_discharge_soc)}%, \
+the current SoC is {self.quasar.soc}%'
         mes_id = self.tbot.reply_text(update, mes)
         chat_id = self.tbot.get_chat_id(update)
         possibles = [30, 40, 50, -1]
         buttons = []
         for val in possibles:
-            button = InlineKeyboardButton(f'{val}%' if val != -1 else 'Custom', callback_data=f'{chat_id} {mes_id} 4 {val}')
+            button = InlineKeyboardButton(f'{val}%' if val != -1 else 'Custom',
+                                          callback_data=f'{chat_id} {mes_id} 4 {val}')
             if buttons == [] or len(buttons[-1]) != 1:
                 buttons.append([button])
             else:
                 buttons[-1].append(button)
-        self.tbot.edit_message_text(mes, chat_id, mes_id, reply_markup=InlineKeyboardMarkup(buttons))
+        self.tbot.edit_message_text(mes, chat_id, mes_id,
+                                    reply_markup=InlineKeyboardMarkup(buttons))
 
     @password
     def settings(self, update: Update, _: CallbackContext):

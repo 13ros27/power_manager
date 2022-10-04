@@ -36,13 +36,15 @@ class LiveStatusHandler(ChangeHandler):
         self.last_stuff = (self.tbot.formatted_current(), self.tbot.modes._mode)
         if timing.second_number() > self.live_until:
             message = self.last_stuff[0]
-            markup = InlineKeyboardMarkup([[InlineKeyboardButton('Continue', callback_data=f'{self.chat_id} {self.mes_id}')]])
+            markup = InlineKeyboardMarkup([[
+                InlineKeyboardButton('Continue', callback_data=f'{self.chat_id} {self.mes_id}')]])
             self.run_out = True
         else:
             mode = mode_shorthand(self.last_stuff[1])
             message = f'<b>LIVE ({mode})</b>\n{self.last_stuff[0]}'
             markup = None
-        self.tbot.edit_message_text(message, self.chat_id, self.mes_id, reply_markup=markup, parse_mode=HTML)
+        self.tbot.edit_message_text(message, self.chat_id, self.mes_id,
+                                    reply_markup=markup, parse_mode=HTML)
         return not self.run_out
 
     def remove(self):

@@ -6,7 +6,8 @@ from pathlib import Path
 from state import Mode, Modes
 from telegram import Update
 from telegram.error import NetworkError
-from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler, Updater, CallbackContext, Filters
+from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler,
+                         Updater, CallbackContext, Filters
 from quasar import Quasar
 
 class Info:
@@ -36,10 +37,16 @@ class TelegramBot:
 
     def __init__(self, config: Config, modes: Modes, quasar: Quasar):
         """Set up the necessary functions and operations."""
-        self.charge_vals = [('Free', 0.0), ('Below Off Peak', config.low_night), ('Above Off Peak', config.high_night),
-                            ('Below Peak', config.low_day), ('Above Peak', config.high_day), ('Custom', -1.0)]
-        self.discharge_vals = [('Free', (0.0, 0.0)), ('Off Peak', (config.discharge_rate, config.discharge_rate)),
-                               ('Low Export', (config.discharge_rate, 20.0)), ('Below Peak', (config.low_day, config.low_day)), ('Custom', (-1.0, -1.0))]
+        self.charge_vals = [
+            ('Free', 0.0), ('Below Off Peak', config.low_night),
+            ('Above Off Peak', config.high_night), ('Below Peak', config.low_day),
+            ('Above Peak', config.high_day), ('Custom', -1.0)
+        ]
+        self.discharge_vals = [
+            ('Free', (0.0, 0.0)), ('Off Peak', (config.discharge_rate, config.discharge_rate)),
+            ('Low Export', (config.discharge_rate, 20.0)),
+            ('Below Peak', (config.low_day, config.low_day)), ('Custom', (-1.0, -1.0))
+        ]
         self.config = config
         self.modes = modes
         self.quasar = quasar
@@ -49,7 +56,8 @@ class TelegramBot:
         self.dispatcher = self.updater.dispatcher
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))
         self.dispatcher.add_error_handler(self.error_handler)
-        self.dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), self.message_handler))
+        self.dispatcher.add_handler(
+            MessageHandler(Filters.text & (~Filters.command), self.message_handler))
         self.change_handlers = []
         self.info = Info()
         self.last_settings = {}
@@ -121,7 +129,8 @@ class TelegramBot:
 
     def send_text(self, text: str, chat_id: int, silent=False, **kwargs):
         """Send a text message to a given chat."""
-        return self._send(self.updater.bot.send_message, chat_id, text, disable_notification=silent, **kwargs)
+        return self._send(self.updater.bot.send_message, chat_id, text,
+                          disable_notification=silent, **kwargs)
 
     def edit_message_text(self, text: str, chat_id: int, mes_id: int, **kwargs):
         """Edit a given message."""
@@ -147,7 +156,8 @@ class TelegramBot:
             if currents is None or estimated is None:
                 raise TypeError('Unreachable')
             for (name, ct, current) in zip(self.config.names, self.config.current_types, currents):
-                message.append(f'{round(current * multiplier, rounding)}{symbol}: {name} ({ct.name})')
+                message.append(f'{round(current * multiplier, rounding)}{symbol}: \
+                                 {name} ({ct.name})')
             if not kw:
                 message.append(f'{round(estimated, rounding)}A: Estimated')
                 message.append(f'{recommended}A: Recommended')
@@ -162,7 +172,8 @@ class TelegramBot:
 
     def update_info(self, currents: list, estimated: float, recommended: int, charge_rate: int):
         """Update what it knows about the state."""
-        self.info.update({'currents': currents, 'estimated': estimated, 'recommended': recommended, 'charge_rate': charge_rate})
+        self.info.update({'currents': currents, 'estimated': estimated,
+                          'recommended': recommended, 'charge_rate': charge_rate})
         for handler in self.change_handlers:
             if handler.should_update():
                 if handler.update() is False:
@@ -221,11 +232,13 @@ class TelegramBot:
                     change = f'{dis_val}'
                 self.modes.user_settings.discharge_value = dis_val
                 self.modes.user_settings.low_discharge_value = ldis_val
-                self.edit_message_text(f'The discharge value has been changed to {change}', chat_id, mes_id)
+                self.edit_message_text(f'The discharge value has been changed to {change}',
+                                       chat_id, mes_id)
         elif menu_type == 2:
             mode_value = int(data[3])
             self.modes.set_mode(Mode(mode_value))
-            self.edit_message_text(f'The user mode has been changed to {Mode(mode_value).name}', chat_id, mes_id)
+            self.edit_message_text(f'The user mode has been changed to {Mode(mode_value).name}',
+                                   chat_id, mes_id)
         elif menu_type == 3:
             if int(data[3]) == -1:
                 updated = False
@@ -272,7 +285,8 @@ class TelegramBot:
         try:
             new_value = int(value)
             self.modes.user_settings.max_paid_soc = new_value
-            return (f'The max paid SoC has been changed to {new_value}%, the current SoC is {self.quasar.soc}%', True)
+            return (f'The max paid SoC has been changed to {new_value}%, \
+                      the current SoC is {self.quasar.soc}%', True)
         except ValueError:
             self.particular_message_handler = self._change_max_paid_soc
             return ('Please enter an integer:', False)
@@ -281,7 +295,8 @@ class TelegramBot:
         try:
             new_value = int(value)
             self.modes.user_settings.min_discharge_soc = new_value
-            return (f'The min discharge SoC has been changed to {new_value}%, the current SoC is {self.quasar.soc}%', True)
+            return (f'The min discharge SoC has been changed to {new_value}%, \
+                      the current SoC is {self.quasar.soc}%', True)
         except ValueError:
             self.particular_message_handler = self._change_min_discharge_soc
             return ('Please enter an integer:', False)
@@ -296,7 +311,8 @@ class TelegramBot:
             text = f'{cost}p'
         for (name, val) in known:
             if val == cost:
-                name_text = ''.join([w[0] for w in name.replace('Below', '<').replace('Above', '>').split(' ')])
+                name_text = ''.join([w[0] for w in
+                                     name.replace('Below', '<').replace('Above', '>').split(' ')])
                 text = f'({name_text}) {text}'
                 break
         return text

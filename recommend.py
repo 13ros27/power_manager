@@ -55,4 +55,5 @@ class Recommend:
             if cur_price < discharge_value:
                 return 0
             else:
-                return self.round_estimation(estimated, min(discharge_value / cur_price, 1), state.min_discharge_rate)
+                return self.round_estimation(estimated, min(discharge_value / cur_price, 1),
+                                             state.min_discharge_rate)
