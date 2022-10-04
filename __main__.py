@@ -2,7 +2,7 @@ from commands import TeleCommands
 from config import Config
 from current import CurrentMonitor, CurrentType, current_combine
 from datalogger import DataLogger
-from hysteresis import OnOff
+from hysteresis import CarConnect, OnOff
 from pathlib import Path
 from quasar import Quasar
 from recommend import Recommend
@@ -29,6 +29,7 @@ if __name__ == '__main__':
         current_monitor = CurrentMonitor(len(NAMES))
         recommend = Recommend(CONFIG)
         on_off_hysteresis = OnOff(4)
+        car_connect_detection = CarConnect(10)
 
         while True:
             currents = current_monitor.read()
@@ -36,6 +37,7 @@ if __name__ == '__main__':
             estimated = current_combine(currents, CURRENT_TYPES)
             recommended = recommend.current(estimated, commands.tbot.modes.state, quasar)
             charge_rate = on_off_hysteresis.balance(recommended)
+            car_connect_detection.check(quasar, charge_rate, currents[2])
             data_logger.tick(currents, recommended, commands.tbot.modes._mode)
             commands.tbot.update_info(currents, estimated, recommended, charge_rate)
             if commands.tbot.modes.state != Mode.OFF:
