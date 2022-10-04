@@ -14,7 +14,8 @@ class CurrentType(Enum):
 class CurrentMonitor:
     """Monitors the current readings from the Lechacal HAT."""
 
-    def __init__(self, num: int, port: str = '/dev/ttyAMA0', baudrate: int = 38400, timeout: int = 10):
+    def __init__(self, num: int, port: str = '/dev/ttyAMA0', baudrate: int = 38400,
+                 timeout: int = 10):
         """Open the serial connection."""
         self.num = num
         self.ser = Serial(port, baudrate, timeout=timeout)
