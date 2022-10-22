@@ -25,8 +25,8 @@ class DataLogger:
         self.last_tick = None
 
     def _new_file(self):
-        header = 'Time,' +
-            ','.join([f'{n}({t.name})' for (n, t) in zip(self.names, self.current_types)]) +
+        header = 'Time,' + \
+            ','.join([f'{n}({t.name})' for (n, t) in zip(self.names, self.current_types)]) + \
             ',Recommended,Mode,Metadata'
         self.day = timing.comparison_day_number()
         root_filename = f'D{timing.day_number()}'
@@ -56,8 +56,8 @@ class DataLogger:
         this_tick = timing.second_number() // self.freq
         if self.last_tick is None or self.last_tick < this_tick:
             self.last_tick = this_tick
-            if timing.comparison_day_number() != self.day and
-                    timing.past_this_time(self.config.night_start):
+            if (timing.comparison_day_number() != self.day
+                    and timing.past_this_time(self.config.night_start)):
                 self._new_file()
             self._log_to_file(currents, recommended, mode)
 

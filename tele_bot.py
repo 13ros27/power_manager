@@ -6,8 +6,8 @@ from pathlib import Path
 from state import Mode, Modes
 from telegram import Update
 from telegram.error import NetworkError
-from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler,
-                         Updater, CallbackContext, Filters
+from telegram.ext import (CallbackQueryHandler, CommandHandler, MessageHandler,
+                          Updater, CallbackContext, Filters)
 from quasar import Quasar
 
 class Info:
