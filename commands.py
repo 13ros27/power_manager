@@ -144,8 +144,7 @@ class TeleCommands:
 
     @password
     def test(self, update: Update, _: CallbackContext):
-        self.tbot.reply_text(update, f'RPi thinks {self.quasar._charging}, \
-Quasar thinks {self.quasar.read_register(0x101)}.')
+        self.tbot.reply_text(update, f'RPi thinks {self.quasar._charging}, Quasar thinks {self.quasar.read_register(0x101)}.')
 
     @password
     def off(self, update: Update, _: CallbackContext):
@@ -244,8 +243,7 @@ Quasar thinks {self.quasar.read_register(0x101)}.')
 
     @password
     def min_discharge_rate(self, update: Update, _: CallbackContext):
-        mdr = self.tbot.second_item(update, error='Incorrectly formatted command, \
-please specify a min discharge rate')
+        mdr = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a min discharge rate')
         self.tbot.modes.user_settings.min_discharge_rate = int(mdr)
         self.tbot.reply_text(update, f'Set the min discharge rate to {int(mdr)}A')
 
@@ -257,8 +255,7 @@ please specify a min discharge rate')
 
     @password
     def max_paid_soc(self, update: Update, _: CallbackContext):
-        mes = f'The max paid SoC is {int(self.tbot.modes.user_settings.max_paid_soc)}%, \
-the current SoC is {self.quasar.soc}%'
+        mes = f'The max paid SoC is {int(self.tbot.modes.user_settings.max_paid_soc)}%, the current SoC is {self.quasar.soc}%'
         mes_id = self.tbot.reply_text(update, mes)
         chat_id = self.tbot.get_chat_id(update)
         possibles = [80, 85, 90, 95, -1]
@@ -275,8 +272,7 @@ the current SoC is {self.quasar.soc}%'
 
     @password
     def min_discharge_soc(self, update: Update, _: CallbackContext):
-        mes = f'The min discharge SoC is {int(self.tbot.modes.user_settings.min_discharge_soc)}%, \
-the current SoC is {self.quasar.soc}%'
+        mes = f'The min discharge SoC is {int(self.tbot.modes.user_settings.min_discharge_soc)}%, the current SoC is {self.quasar.soc}%'
         mes_id = self.tbot.reply_text(update, mes)
         chat_id = self.tbot.get_chat_id(update)
         possibles = [30, 40, 50, -1]
