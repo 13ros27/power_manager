@@ -156,8 +156,7 @@ class TelegramBot:
             if currents is None or estimated is None:
                 raise TypeError('Unreachable')
             for (name, ct, current) in zip(self.config.names, self.config.current_types, currents):
-                message.append(f'{round(current * multiplier, rounding)}{symbol}: \
-                                 {name} ({ct.name})')
+                message.append(f'{round(current * multiplier, rounding)}{symbol}: {name} ({ct.name})')
             if not kw:
                 message.append(f'{round(estimated, rounding)}A: Estimated')
                 message.append(f'{recommended}A: Recommended')
@@ -285,8 +284,7 @@ class TelegramBot:
         try:
             new_value = int(value)
             self.modes.user_settings.max_paid_soc = new_value
-            return (f'The max paid SoC has been changed to {new_value}%, \
-                      the current SoC is {self.quasar.soc}%', True)
+            return (f'The max paid SoC has been changed to {new_value}%, the current SoC is {self.quasar.soc}%', True)
         except ValueError:
             self.particular_message_handler = self._change_max_paid_soc
             return ('Please enter an integer:', False)
@@ -295,8 +293,7 @@ class TelegramBot:
         try:
             new_value = int(value)
             self.modes.user_settings.min_discharge_soc = new_value
-            return (f'The min discharge SoC has been changed to {new_value}%, \
-                      the current SoC is {self.quasar.soc}%', True)
+            return (f'The min discharge SoC has been changed to {new_value}%, the current SoC is {self.quasar.soc}%', True)
         except ValueError:
             self.particular_message_handler = self._change_min_discharge_soc
             return ('Please enter an integer:', False)
