@@ -37,8 +37,8 @@ class OnOff:
                     self.zeros += 1
                 else:
                     self.positive += 1
-            if self.zeros > self.max_count or self.positive > self.max_count or
-                    self.negative > self.max_count:
+            if (self.zeros > self.max_count or self.positive > self.max_count
+                    or self.negative > self.max_count):
                 change = True
             if change:
                 self._reset()
