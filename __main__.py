@@ -30,7 +30,7 @@ if __name__ == '__main__':
         current_monitor = CurrentMonitor(len(NAMES))
         recommend = Recommend(CONFIG)
         on_off_hysteresis = OnOff(4)
-        car_connect_detection = CarConnect()
+        car_connect_detection = CarConnect(10)
 
         while True:
             currents = current_monitor.read()

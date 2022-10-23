@@ -50,6 +50,7 @@ class TeleCommands:
         tbot.add_command('min_discharge_soc', self.min_discharge_soc)
         tbot.add_command('settings', self.settings)
         tbot.add_command('more', self.more)
+        tbot.add_command('kill', self.kill)
 
     def start(self, update: Update, _: CallbackContext):
         if update.message.text == '/start lego':
@@ -304,7 +305,13 @@ class TeleCommands:
 /soc - Get the state of charge of the car
 /test - (temp) Testing the morning behaviour
 /min_discharge_rate - Set the minimum discharge rate
+/kill - Shut down the program
 /more - Self-referential = fun''')
+
+    @password
+    def kill(self, update: Update, _: CallbackContext):
+        self.tbot.reply_text(update, 'Shutting down the program')
+        raise KeyboardInterrupt
 
     def cleanup(self):
         self.tbot.cleanup()
