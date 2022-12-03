@@ -70,15 +70,15 @@ class Misalignment:
       self.since_zero = 0
       self.car_on = False
 
-  def check(self, quasar: Quasar, charge_rate: int, car_reading: float):
-    if charge_rate != 0:
-        self.since_zero += 1
-    else:
-        self.since_zero = 0
-    if self.since_zero >= self.max_count:
-        if car_reading < 0.8:
-            if not self.car_on:
-                quasar.stop_charging(True)
-            self.car_on = True
+    def check(self, quasar: Quasar, charge_rate: int, car_reading: float):
+        if charge_rate != 0:
+            self.since_zero += 1
         else:
-            self.car_on = False
+            self.since_zero = 0
+        if self.since_zero >= self.max_count:
+            if car_reading < 0.8:
+                if not self.car_on:
+                    quasar.stop_charging(True)
+                self.car_on = True
+            else:
+                self.car_on = False
