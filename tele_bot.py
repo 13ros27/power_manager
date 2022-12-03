@@ -1,5 +1,6 @@
 """Contains the class that handles anything to do with the telegram bot."""
 from config import Config
+from datalogger import DataLogger
 from handlers import ChangeHandler, LiveStatusHandler
 from nvi import NonVolatileInformation
 from pathlib import Path
@@ -35,7 +36,7 @@ class Info:
 class TelegramBot:
     """Control all the aspects of the telegram bot side of it."""
 
-    def __init__(self, config: Config, modes: Modes, quasar: Quasar):
+    def __init__(self, config: Config, datalogger: DataLogger, modes: Modes, quasar: Quasar):
         """Set up the necessary functions and operations."""
         self.charge_vals = [
             ('Free', 0.0), ('Below Off Peak', config.low_night),
@@ -48,6 +49,7 @@ class TelegramBot:
             ('Below Peak', (config.low_day, config.low_day)), ('Custom', (-1.0, -1.0))
         ]
         self.config = config
+        self.datalogger = datalogger
         self.modes = modes
         self.quasar = quasar
         self.logger = config.logger
@@ -216,6 +218,7 @@ class TelegramBot:
                 text, success = self._change_charge_cost_limit(mode_value)
                 updated = success
                 self.edit_message_text(text, chat_id, mes_id)
+                self.datalogger.add_metadata(text)
         elif menu_type == 1:
             vals = data[3].split('_')
             dis_val = round(float(vals[0]), 1)
@@ -233,11 +236,13 @@ class TelegramBot:
                 self.modes.user_settings.low_discharge_value = ldis_val
                 self.edit_message_text(f'The discharge value has been changed to {change}',
                                        chat_id, mes_id)
+                self.datalogger.add_metadata(f'The discharge value has been changed to {change}')
         elif menu_type == 2:
             mode_value = int(data[3])
             self.modes.set_mode(Mode(mode_value))
             self.edit_message_text(f'The user mode has been changed to {Mode(mode_value).name}',
                                    chat_id, mes_id)
+            self.datalogger.add_metadata(f'The user mode has been changed to {Mode(mode_value).name}')
         elif menu_type == 3:
             if int(data[3]) == -1:
                 updated = False
@@ -247,6 +252,7 @@ class TelegramBot:
                 text, success = self._change_max_paid_soc(data[3])
                 updated = success
                 self.edit_message_text(text, chat_id, mes_id)
+                self.datalogger.add_metadata(text)
         elif menu_type == 4:
             if int(data[3]) == -1:
                 updated = False
@@ -256,6 +262,7 @@ class TelegramBot:
                 text, success = self._change_min_discharge_soc(data[3])
                 updated = success
                 self.edit_message_text(text, chat_id, mes_id)
+                self.datalogger.add_metadata(text)
         else:
             raise ValueError(f'Did not expect menu_type \'{menu_type}\'')
         if updated:

@@ -57,6 +57,10 @@ class TeleCommands:
             if self.tbot.add_chat(update):
                 self.tbot.reply_text(update, 'Password correct')
 
+    def notify(self, update: Update, text: str):
+        self.tbot.reply_text(update, text)
+        self.datalogger.add_metadata(text)
+
     @password
     def status(self, update: Update, _: CallbackContext):
         self.tbot.reply_text(update, self.tbot.formatted_current())
@@ -150,12 +154,12 @@ class TeleCommands:
     @password
     def off(self, update: Update, _: CallbackContext):
         self.tbot.modes.set_mode(Mode.OFF)
-        self.tbot.reply_text(update, 'Set user mode to OFF')
+        self.notify(update, 'Set user mode to OFF')
 
     @password
     def auto(self, update: Update, _: CallbackContext):
         self.tbot.modes.set_mode(Mode.AUTO)
-        self.tbot.reply_text(update, 'Set user mode to AUTO')
+        self.notify(update, 'Set user mode to AUTO')
 
     @password
     def manual(self, update: Update, _: CallbackContext):
@@ -193,17 +197,17 @@ class TeleCommands:
     @password
     def charge_only(self, update: Update, _: CallbackContext):
         self.tbot.modes.set_mode(Mode.CHARGE_ONLY)
-        self.tbot.reply_text(update, 'Set user mode to CHARGE_ONLY')
+        self.notify(update, 'Set user mode to CHARGE_ONLY')
 
     @password
     def charge_discharge(self, update: Update, _: CallbackContext):
         self.tbot.modes.set_mode(Mode.CHARGE_DISCHARGE)
-        self.tbot.reply_text(update, 'Set user mode to CHARGE_DISCHARGE')
+        self.notify(update, 'Set user mode to CHARGE_DISCHARGE')
 
     @password
     def max_charge(self, update: Update, _: CallbackContext):
         self.tbot.modes.set_mode(Mode.MAX_CHARGE)
-        self.tbot.reply_text(update, 'Set user mode to MAX_CHARGE')
+        self.notify(update, 'Set user mode to MAX_CHARGE')
 
     @password
     def charge_cost_limit(self, update: Update, _: CallbackContext):
@@ -246,13 +250,13 @@ class TeleCommands:
     def min_discharge_rate(self, update: Update, _: CallbackContext):
         mdr = self.tbot.second_item(update, error='Incorrectly formatted command, please specify a min discharge rate')
         self.tbot.modes.user_settings.min_discharge_rate = int(mdr)
-        self.tbot.reply_text(update, f'Set the min discharge rate to {int(mdr)}A')
+        self.notify(update, f'Set the min discharge rate to {int(mdr)}A')
 
     @password
     def disconnect(self, update: Update, _: CallbackContext):
         secs = self.tbot.second_item(update, default=30)
         self.quasar.disconnect(int(secs))
-        self.tbot.reply_text(update, f'Disconnected for {secs} seconds')
+        self.notify(update, f'Disconnected for {secs} seconds')
 
     @password
     def max_paid_soc(self, update: Update, _: CallbackContext):
