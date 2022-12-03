@@ -329,7 +329,7 @@ class TelegramBot:
     def message_handler(self, update: Update, _: CallbackContext):
         if self.particular_message_handler is None:
             return None
-        else if update.effective_chat.id == self.particular_message_handler[1]:
+        elif update.effective_chat.id == self.particular_message_handler[1]:
             m_handler = self.particular_message_handler[0]
             text, success = m_handler(update.message.text)
             self.reply_text(update, text)
