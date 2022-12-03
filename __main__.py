@@ -36,11 +36,10 @@ if __name__ == '__main__':
         while True:
             currents = current_monitor.read()
             print(currents)
+            if currents[3] > commands.pump_threshold:
+                currents[3] -= commands.pump_subtractor
 
             estimated = current_combine(currents, CURRENT_TYPES)
-            if estimated[3] > commands.pump_threshold:
-                estimated[3] -= commands.pump_subtractor
-
             recommended = recommend.current(estimated, commands.tbot.modes.state, quasar)
             charge_rate = on_off_hysteresis.balance(recommended)
 
