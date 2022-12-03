@@ -212,7 +212,7 @@ class TelegramBot:
             mode_value = round(float(data[3]), 1)
             if mode_value == -1.0:
                 updated = False
-                self.particular_message_handler = self._change_charge_cost_limit
+                self.particular_message_handler = (self._change_charge_cost_limit, self.get_chat_id(update))
                 self.edit_message_text('Please enter a charge cost limit:', chat_id, mes_id)
             else:
                 text, success = self._change_charge_cost_limit(mode_value)
@@ -225,7 +225,7 @@ class TelegramBot:
             ldis_val = round(float(vals[1]), 1)
             if dis_val == -1.0:
                 updated = False
-                self.particular_message_handler = self._change_discharge_value
+                self.particular_message_handler = (self._change_discharge_value, self.get_chat_id(update))
                 self.edit_message_text('Please enter a discharge value:', chat_id, mes_id)
             else:
                 if dis_val != ldis_val:
@@ -246,7 +246,7 @@ class TelegramBot:
         elif menu_type == 3:
             if int(data[3]) == -1:
                 updated = False
-                self.particular_message_handler = self._change_max_paid_soc
+                self.particular_message_handler = (self._change_max_paid_soc, self.get_chat_id(update))
                 self.edit_message_text('Please enter a max paid SoC:', chat_id, mes_id)
             else:
                 text, success = self._change_max_paid_soc(data[3])
@@ -256,7 +256,7 @@ class TelegramBot:
         elif menu_type == 4:
             if int(data[3]) == -1:
                 updated = False
-                self.particular_message_handler = self._change_min_discharge_soc
+                self.particular_message_handler = (self._change_min_discharge_soc, self.get_chat_id(update))
                 self.edit_message_text('Please enter a min discharge SoC:', chat_id, mes_id)
             else:
                 text, success = self._change_min_discharge_soc(data[3])
@@ -274,7 +274,6 @@ class TelegramBot:
             self.modes.user_settings.charge_cost_limit = new_value
             return (f'The charge cost limit has been changed to {new_value}p', True)
         except ValueError:
-            self.particular_message_handler = self._change_charge_cost_limit
             return ('Please enter a float:', False)
 
     def _change_discharge_value(self, value) -> tuple:
@@ -284,7 +283,6 @@ class TelegramBot:
             self.modes.user_settings.low_discharge_value = new_value
             return (f'The discharge value has been changed to {new_value}p', True)
         except ValueError:
-            self.particular_message_handler = self._change_discharge_value
             return ('Please enter a float:', False)
 
     def _change_max_paid_soc(self, value) -> tuple:
@@ -293,7 +291,6 @@ class TelegramBot:
             self.modes.user_settings.max_paid_soc = new_value
             return (f'The max paid SoC has been changed to {new_value}%, the current SoC is {self.quasar.soc}%', True)
         except ValueError:
-            self.particular_message_handler = self._change_max_paid_soc
             return ('Please enter an integer:', False)
 
     def _change_min_discharge_soc(self, value) -> tuple:
@@ -302,7 +299,6 @@ class TelegramBot:
             self.modes.user_settings.min_discharge_soc = new_value
             return (f'The min discharge SoC has been changed to {new_value}%, the current SoC is {self.quasar.soc}%', True)
         except ValueError:
-            self.particular_message_handler = self._change_min_discharge_soc
             return ('Please enter an integer:', False)
 
     def cost_text(self, cost, known: list):
@@ -333,12 +329,12 @@ class TelegramBot:
     def message_handler(self, update: Update, _: CallbackContext):
         if self.particular_message_handler is None:
             return
-        else:
-            m_handler = self.particular_message_handler
-            self.particular_message_handler = None
+        else if update.effective_chat.id == self.particular_message_handler[1]:
+            m_handler = self.particular_message_handler[0]
             text, success = m_handler(update.message.text)
             self.reply_text(update, text)
             if success:
+                self.particular_message_handler = None
                 self.update_settings(update)
 
     def cleanup(self):

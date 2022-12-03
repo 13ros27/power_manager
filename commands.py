@@ -22,6 +22,8 @@ class TeleCommands:
         self.quasar = quasar
         tbot = TelegramBot(config, Modes(config, Mode.OFF, quasar), quasar)
         self.tbot = tbot
+        self.pump_threshold = 99.0
+        self.pump_subtractor = 0.0
         self.recommending = {}
         tbot.add_command('start', self.start)
         tbot.add_command('status', self.status)
@@ -49,6 +51,8 @@ class TeleCommands:
         tbot.add_command('max_paid_soc', self.max_paid_soc)
         tbot.add_command('min_discharge_soc', self.min_discharge_soc)
         tbot.add_command('settings', self.settings)
+        tbot.add_command('pump_threshold', self.change_pump_threshold)
+        tbot.add_command('pump_subtractor', self.change_pump_subtractor)
         tbot.add_command('more', self.more)
         tbot.add_command('kill', self.kill)
 
@@ -82,8 +86,13 @@ class TeleCommands:
             self.datalogger.add_metadata(sp)
             self.tbot.reply_text(update, f'Added \'{sp}\' to the log')
         else:
-            self.tbot.reply_text(update,
-                                 'Incorrectly formatted command, please specify something to log')
+            self.tbot.reply_text(update, 'Please enter something to log:')
+            self.tbot.particular_message_handler = (self._log, update.effective_chat.id)
+
+    def _log(self, message) -> tuple:
+        self.datalogger.add_metadata(message)
+        self.tbot.particular_message_handler = None
+        return (f'Added \'{message}\' to the log', False)
 
     @password
     def listfiles(self, update: Update, _: CallbackContext):
@@ -298,9 +307,35 @@ class TeleCommands:
         self.tbot.last_settings[self.tbot.get_chat_id(update)] = mes_id
 
     @password
+    def change_pump_threshold(self, update: Update, _: CallbackContext):
+        self.tbot.reply_text(update, f'The pump threshold is currently {self.pump_threshold}, please enter a new value:')
+        self.tbot.particular_message_handler = (self._change_pump_threshold, update.effective_chat.id)
+
+    def _change_pump_threshold(self, message) -> tuple:
+        self.tbot.particular_message_handler = None
+        try:
+            self.pump_threshold = float(message)
+            return (f'Changed the pump threshold to \'{message}\'', False)
+        except ValueError:
+            return ('Failed to change pump threshold', False)
+
+    @password
+    def change_pump_subtractor(self, update: Update, _: CallbackContext):
+        self.tbot.reply_text(update, f'The pump subtractor is currently {self.pump_subtractor}, please enter a new value:')
+        self.tbot.particular_message_handler = (self._change_pump_subtractor, update.effective_chat.id)
+
+    def _change_pump_subtractor(self, message) -> tuple:
+        self.tbot.particular_message_handler = None
+        try:
+            self.pump_subtractor = float(message)
+            return (f'Changed the pump subtractor to \'{message}\'', False)
+        except ValueError:
+            return ('Failed to change pump subtractor', False)
+
+    @password
     def more(self, update: Update, _: CallbackContext):
-        self.tbot.reply_text(update, '''/statuskw - Status in kW
-/log - Add something to the datalog
+        self.tbot.reply_text(update, '''/log - Add something to the datalog
+/statuskw - Status in kW
 /latestfile - Download latest datalog file
 /listfiles - List all datalog files
 /file <filename> - Download a given datalog file
@@ -309,6 +344,8 @@ class TeleCommands:
 /soc - Get the state of charge of the car
 /test - (temp) Testing the morning behaviour
 /min_discharge_rate - Set the minimum discharge rate
+/pump_threshold - Change the heat pump subtraction threshold
+/pump_subtractor - Change how much the heat pump subtracts when above its threshold
 /kill - Shut down the program
 /more - Self-referential = fun''')
 
