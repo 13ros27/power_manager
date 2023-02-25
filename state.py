@@ -6,12 +6,52 @@ import timing
 class UserSettings:
     def __init__(self, config: Config):
         self.config = config
-        self.charge_cost_limit = 0.0
-        self.discharge_value = config.low_day
-        self.min_discharge_rate = 3
-        self.max_paid_soc = config.summer_max_charge
-        self.min_discharge_soc = config.min_charge
+        self._charge_cost_limit = 0.0
+        self._discharge_value = config.low_day
+        self._min_discharge_rate = 3
+        self._max_paid_soc = config.summer_max_charge
+        self._min_discharge_soc = config.min_charge
         self.low_discharge_value = config.low_day
+
+    @property
+    def charge_cost_limit(self) -> float:
+        return self._charge_cost_limit
+
+    @charge_cost_limit.setter
+    def charge_cost_limit(self, value: float):
+        self._charge_cost_limit = value
+
+    @property
+    def discharge_value(self) -> float:
+        return self._discharge_value
+
+    @discharge_value.setter
+    def discharge_value(self, value: float):
+        self._discharge_value = value
+
+    @property
+    def min_discharge_rate(self) -> float:
+        return self._min_discharge_rate
+
+    @min_discharge_rate.setter
+    def min_discharge_rate(self, value: float):
+        self._min_discharge_rate = value
+
+    @property
+    def max_paid_soc(self) -> float:
+        return self._max_paid_soc
+
+    @max_paid_soc.setter
+    def max_paid_soc(self, value: float):
+        self._max_paid_soc = value
+
+    @property
+    def min_discharge_soc(self) -> float:
+        return self._min_discharge_soc
+
+    @min_discharge_soc.setter
+    def min_discharge_soc(self, value: float):
+        self._min_discharge_soc = value
 
     def ccl(self):
         return self.charge_cost_limit
