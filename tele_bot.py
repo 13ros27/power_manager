@@ -45,7 +45,7 @@ class TelegramBot:
         ]
         self.discharge_vals = [
             ('Free', (0.0, 0.0)), ('Off Peak', (config.discharge_rate, config.discharge_rate)),
-            ('Low Export', (config.discharge_rate, 20.0)),
+            ('Low Export', (config.discharge_rate, (config.discharge_rate + config.low_day) / 2)),
             ('Below Peak', (config.low_day, config.low_day)), ('Custom', (-1.0, -1.0))
         ]
         self.config = config
