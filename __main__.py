@@ -36,8 +36,8 @@ if __name__ == '__main__':
         while True:
             currents = current_monitor.read()
             print(currents)
-            if currents[3] > commands.pump_threshold:
-                currents[3] -= commands.pump_subtractor
+            if currents[3] > commands.tbot.nvinfo.get_general('pump_threshold'):
+                currents[3] -= commands.tbot.nvinfo.get_general('pump_subtractor')
 
             estimated = current_combine(currents, CURRENT_TYPES)
             recommended = recommend.current(estimated, commands.tbot.modes.state, quasar)

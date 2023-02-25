@@ -22,8 +22,6 @@ class TeleCommands:
         self.quasar = quasar
         tbot = TelegramBot(config, datalogger, Mode.OFF, quasar)
         self.tbot = tbot
-        self.pump_threshold = 99.0
-        self.pump_subtractor = 0.0
         self.recommending = {}
         tbot.add_command('start', self.start)
         tbot.add_command('status', self.status)
