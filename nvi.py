@@ -27,6 +27,18 @@ class NonVolatileInformation:
         self._info['chats'][str(chat_id)][setting] = new_val
         self._update()
 
+    def get_general(self, name: str):
+        if self._info.get('general') is None:
+            self._info['general'] = {}
+            self._update()
+        return self._info['general'].get(name)
+
+    def set_general(self, name: str, value):
+        if self._info.get('general') is None:
+            self._info['general'] = {}
+        self._info['general'][name] = value
+        self._update()
+
     def _update(self):
         with open(self.file, 'w') as fp:
             json.dump(self._info, fp)

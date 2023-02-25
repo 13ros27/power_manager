@@ -4,7 +4,7 @@ from datalogger import DataLogger
 from handlers import ChangeHandler, LiveStatusHandler
 from nvi import NonVolatileInformation
 from pathlib import Path
-from state import Mode, Modes
+from state import Mode
 from telegram import Update
 from telegram.error import NetworkError
 from telegram.ext import (CallbackQueryHandler, CommandHandler, MessageHandler,
@@ -36,7 +36,7 @@ class Info:
 class TelegramBot:
     """Control all the aspects of the telegram bot side of it."""
 
-    def __init__(self, config: Config, datalogger: DataLogger, modes: Modes, quasar: Quasar):
+    def __init__(self, config: Config, datalogger: DataLogger, start_mode: Mode, quasar: Quasar):
         """Set up the necessary functions and operations."""
         self.charge_vals = [
             ('Free', 0.0), ('Below Off Peak', config.low_night),
@@ -50,10 +50,10 @@ class TelegramBot:
         ]
         self.config = config
         self.datalogger = datalogger
-        self.modes = modes
         self.quasar = quasar
         self.logger = config.logger
         self.nvinfo = NonVolatileInformation(config.path / Path('telegram_info.json'))
+        self.modes = Mode(config, start_mode, self.nvinfo, quasar)
         self.updater = Updater(self.nvinfo.token)
         self.dispatcher = self.updater.dispatcher
         self.dispatcher.add_handler(CallbackQueryHandler(self.button))

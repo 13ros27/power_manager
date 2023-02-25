@@ -1,57 +1,54 @@
 from enum import Enum
 from config import Config
+from nvi import NonVolatileInformation
 from quasar import Quasar
 import timing
 
 class UserSettings:
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, nvi: NonVolatileInformation):
         self.config = config
-        self._charge_cost_limit = 0.0
-        self._discharge_value = config.low_day
-        self._min_discharge_rate = 3
-        self._max_paid_soc = config.summer_max_charge
-        self._min_discharge_soc = config.min_charge
+        self.nvi = nvi
         self.low_discharge_value = config.low_day
 
     @property
     def charge_cost_limit(self) -> float:
-        return self._charge_cost_limit
+        return 0.0 if self.nvi.get_general('charge_cost_limit') is None else self.nvi.get_general('charge_cost_limit')
 
     @charge_cost_limit.setter
     def charge_cost_limit(self, value: float):
-        self._charge_cost_limit = value
+        self.nvi.set_general('charge_cost_limit', value)
 
     @property
     def discharge_value(self) -> float:
-        return self._discharge_value
+        return self.config.low_day if self.nvi.get_general('discharge_value') is None else self.nvi.get_general('discharge_value')
 
     @discharge_value.setter
     def discharge_value(self, value: float):
-        self._discharge_value = value
+        self.nvi.set_general('discharge_value', value)
 
     @property
-    def min_discharge_rate(self) -> float:
-        return self._min_discharge_rate
+    def min_discharge_rate(self) -> int:
+        return 3 if self.nvi.get_general('min_discharge_rate') is None else self.nvi.get_general('min_discharge_rate')
 
     @min_discharge_rate.setter
-    def min_discharge_rate(self, value: float):
-        self._min_discharge_rate = value
+    def min_discharge_rate(self, value: int):
+        self.nvi.set_general('min_discharge_rate', value)
 
     @property
     def max_paid_soc(self) -> float:
-        return self._max_paid_soc
+        return self.config.summer_max_charge if self.nvi.get_general('max_paid_soc') is None else self.nvi.get_general('max_paid_soc')
 
     @max_paid_soc.setter
     def max_paid_soc(self, value: float):
-        self._max_paid_soc = value
+        self.nvi.set_general('max_paid_soc', value)
 
     @property
     def min_discharge_soc(self) -> float:
-        return self._min_discharge_soc
+        return self.config.low_day if self.nvi.get_general('min_discharge_soc') is None else self.nvi.get_general('min_discharge_soc')
 
     @min_discharge_soc.setter
     def min_discharge_soc(self, value: float):
-        self._min_discharge_soc = value
+        self.nvi.set_general('min_discharge_soc', value)
 
     def ccl(self):
         return self.charge_cost_limit
@@ -168,8 +165,8 @@ def mode_shorthand(mode: Mode) -> str:
     return ''.join([w[0] for w in mode.name.split('_')])
 
 class Modes:
-    def __init__(self, config: Config, mode: Mode, quasar: Quasar):
-        user_settings = UserSettings(config)
+    def __init__(self, config: Config, mode: Mode, nvi: NonVolatileInformation, quasar: Quasar):
+        user_settings = UserSettings(config, nvi)
         self.user_settings = user_settings
         self.quasar = quasar
         auto = Auto(config, quasar)

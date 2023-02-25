@@ -20,7 +20,7 @@ class TeleCommands:
         self.config = config
         self.datalogger = datalogger
         self.quasar = quasar
-        tbot = TelegramBot(config, datalogger, Modes(config, Mode.OFF, quasar), quasar)
+        tbot = TelegramBot(config, datalogger, Mode.OFF, quasar)
         self.tbot = tbot
         self.pump_threshold = 99.0
         self.pump_subtractor = 0.0
