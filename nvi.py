@@ -27,7 +27,7 @@ class NonVolatileInformation:
         self._info['chats'][str(chat_id)][setting] = new_val
         self._update()
 
-    def get_general(self, name: str, default: int):
+    def get_general(self, name: str, default: int = None):
         if self._info.get('general') is None:
             self._info['general'] = {}
             self._update()
