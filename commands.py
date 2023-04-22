@@ -325,7 +325,7 @@ class TeleCommands:
     def _change_pump_subtractor(self, message) -> tuple:
         self.tbot.particular_message_handler = None
         try:
-            self.tbot.nvinfo.set_general(float(message))
+            self.tbot.nvinfo.set_general('pump_subtractor', float(message))
             return (f'Changed the pump subtractor to \'{message}\'', False)
         except ValueError:
             return ('Failed to change pump subtractor', False)
