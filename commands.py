@@ -306,7 +306,7 @@ class TeleCommands:
 
     @password
     def change_pump_threshold(self, update: Update, _: CallbackContext):
-        self.tbot.reply_text(update, f'The pump threshold is currently {self.tbot.nvinfo.get_general('pump_threshold')}, please enter a new value:')
+        self.tbot.reply_text(update, f'The pump threshold is currently {self.tbot.nvinfo.get_general("pump_threshold")}, please enter a new value:')
         self.tbot.particular_message_handler = (self._change_pump_threshold, update.effective_chat.id)
 
     def _change_pump_threshold(self, message) -> tuple:
@@ -319,7 +319,7 @@ class TeleCommands:
 
     @password
     def change_pump_subtractor(self, update: Update, _: CallbackContext):
-        self.tbot.reply_text(update, f'The pump subtractor is currently {self.tbot.nvinfo.get_general('pump_subtractor')}, please enter a new value:')
+        self.tbot.reply_text(update, f'The pump subtractor is currently {self.tbot.nvinfo.get_general("pump_subtractor")}, please enter a new value:')
         self.tbot.particular_message_handler = (self._change_pump_subtractor, update.effective_chat.id)
 
     def _change_pump_subtractor(self, message) -> tuple:
