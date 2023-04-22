@@ -46,7 +46,7 @@ if __name__ == '__main__':
             car_connect_detection.check(quasar, charge_rate, currents[2])
             misalignment_detection.check(quasar, charge_rate, currents[2])
 
-            data_logger.tick(currents, recommended, commands.tbot.modes._mode)
+            data_logger.tick(currents, recommended, commands.tbot.modes._mode, quasar.soc)
             commands.tbot.update_info(currents, estimated, recommended, charge_rate)
 
             if commands.tbot.modes.state != Mode.OFF:

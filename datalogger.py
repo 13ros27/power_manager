@@ -27,7 +27,7 @@ class DataLogger:
     def _new_file(self):
         header = 'Time,' + \
             ','.join([f'{n}({t.name})' for (n, t) in zip(self.names, self.current_types)]) + \
-            ',Recommended,Mode,Metadata'
+            ',Recommended,Mode,SoC,Metadata'
         self.day = timing.comparison_day_number()
         root_filename = f'D{timing.day_number()}'
         i = 1
@@ -51,7 +51,7 @@ class DataLogger:
                 break
             i += 1
 
-    def tick(self, currents: list, recommended: int, mode: Mode):
+    def tick(self, currents: list, recommended: int, mode: Mode, soc: int):
         """Log the data if enough time has passed."""
         this_tick = timing.second_number() // self.freq
         if self.last_tick is None or self.last_tick < this_tick:
@@ -59,13 +59,13 @@ class DataLogger:
             if (timing.comparison_day_number() != self.day
                     and timing.past_this_time(self.config.night_start)):
                 self._new_file()
-            self._log_to_file(currents, recommended, mode)
+            self._log_to_file(currents, recommended, mode, soc)
 
-    def _log_to_file(self, currents: list, recommended: int, mode: Mode):
+    def _log_to_file(self, currents: list, recommended: int, mode: Mode, soc: int):
         with open(self.fp, 'a') as fp:
             mes = str(datetime.now().replace(microsecond=0).isoformat())
             mes += ''.join([f',{c}' for c in currents])
-            mes += f',{recommended},{mode_shorthand(mode)}'
+            mes += f',{recommended},{mode_shorthand(mode)},{soc}'
             fp.write(f'\n{mes}')
 
     def add_metadata(self, metadata: str):
