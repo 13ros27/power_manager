@@ -20,7 +20,7 @@ QUASAR_ADDR = '192.168.1.74'
 
 if __name__ == '__main__':
     CONFIG = Config(Path("/home/pi/power_manager"), NAMES, CURRENT_TYPES,
-                    46.91, 16.05, 0.8, (0, 30), (7, 30), 40, 80, 90)
+                    30.6, 7.5, 0.8, (0, 0), (5, 30), 40, 80, 90, (23, 30))
     commands = None
     quasar = None
     try:
