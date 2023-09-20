@@ -6,7 +6,7 @@ import timing
 
 def energy_price(config: Config):
     if ((timing.past_this_time(config.night_start) and not timing.past_this_time(config.night_end))
-            or (secondary_night_start is not None and timing.past_this_time(config.secondary_night_start))):
+            or (config.secondary_night_start is not None and timing.past_this_time(config.secondary_night_start))):
         return config.night_rate
     else:
         return config.day_rate
